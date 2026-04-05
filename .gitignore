@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Cypress artifacts (generated on each run)
+cypress/videos/
+cypress/screenshots/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors (optional — remove lines if you want to share IDE config)
+.idea/
+*.swp
+*.swo
+
+# Cursor (local workspace state)
+.cursor/

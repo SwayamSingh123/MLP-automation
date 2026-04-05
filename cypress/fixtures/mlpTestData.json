@@ -1,0 +1,32 @@
+{
+  "name": "Tester Swayam",
+  "existingEmail": "swayamsingh34@gmail.com",
+  "existingPhone": "9569750120",
+  "newEmail": "swayamsingh34@gmail.com",
+  "newPhone": "9569750120",
+  "sameEmailDifferentPhone": {
+    "email": "swayamsingh34@gmail.com",
+    "phone": "3000224001"
+  },
+  "samePhoneDifferentEmail": {
+    "email": "sachinkumar430@gmail.com",
+    "phone": "9569750120"
+  },
+  "extraValidEmails": [],
+  "extraValidPhones": [],
+  "invalidEmails": [
+    "plainaddress",
+    "missingatsign.com",
+    "missing-domain@",
+    "user@domain",
+    "user@.com"
+  ],
+  "invalidPhones": [
+    "",
+    "12345",
+    "abcdefghij",
+    "9999999999999",
+    "123-456-7890"
+  ],
+  "otp": "159753"
+}

@@ -1,0 +1,30 @@
+# Run: docker compose up --build
+# Open: http://localhost:4000 — fill leads, Run tests (deletes once, then Cypress).
+# Logs: docker compose logs -f mlp-automation
+
+services:
+  mlp-automation:
+    build: .
+    container_name: mlp-automation
+    # Override cypress/included default entrypoint (which auto-runs tests)
+    # so this service runs your form server.
+    entrypoint: ["npm", "run", "mlp:form"]
+    ports:
+      - "4000:4000"
+    # Reduces Chromium OOM / crashes during cypress run in Linux containers.
+    shm_size: "2gb"
+    environment:
+      MLP_FORM_PORT: 4000
+      MLP_PLATFORM: test
+      # Global `cypress` binary from cypress/included image (see Dockerfile).
+      MLP_CYPRESS_CMD: cypress
+      # Optional overrides:
+      # MLP_EMAIL_DELETE_BASE_TEST: https://testservice.kraftshala.com/lead/remove-lead/mlp/
+      # MLP_PHONE_DELETE_BASE_TEST: https://testservice.kraftshala.com/otp-validation/removeNumber/
+      # MLP_EMAIL_DELETE_BASE_MAIN: https://service.kraftshala.com/lead/remove-lead/mlp/
+      # MLP_PHONE_DELETE_BASE_MAIN: https://service.kraftshala.com/otp-validation/removeNumber/
+      # If Cypress is not on PATH, set: MLP_CYPRESS_CMD: npx
+    volumes:
+      - ./cypress/fixtures:/app/cypress/fixtures
+      - ./cypress/videos:/app/cypress/videos
+      - ./cypress/screenshots:/app/cypress/screenshots

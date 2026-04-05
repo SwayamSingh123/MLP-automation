@@ -1,0 +1,25 @@
+{
+  "name": "mlp-page-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "cy:open": "cypress open --e2e",
+    "cy:run": "cypress run --e2e",
+    "mlp:form": "node form-server.js",
+    "docker:up": "docker compose up --build",
+    "docker:build": "docker compose build",
+    "docker:logs": "docker compose logs -f mlp-automation"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "cypress": "^15.12.0"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "node-fetch": "^2.7.0"
+  }
+}

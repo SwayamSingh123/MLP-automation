@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>MLP Lead Test Runner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg-main: #fffdf7;
+        --bg-soft: #fff7e3;
+        --card-bg: #ffffff;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+        --yellow-main: #f5b700;
+        --yellow-dark: #d89a00;
+        --line: #f3e1b0;
+        --pass: #15803d;
+        --fail: #dc2626;
+      }
+
+      body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 15% 0%, #fff7d9 0%, #fffdf7 38%, #fffdf7 100%);
+      }
+
+      header {
+        text-align: center;
+        padding: 32px 16px 14px;
+      }
+      header h1 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #111827;
+      }
+      header p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-top: 6px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 390px 1fr;
+        gap: 24px;
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 20px 34px;
+        align-items: start;
+      }
+      @media (max-width: 930px) {
+        .layout { grid-template-columns: 1fr; }
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        box-shadow: 0 8px 28px rgba(17, 24, 39, 0.08);
+      }
+      .card h2 {
+        font-size: 1.08rem;
+        margin-bottom: 16px;
+        color: #111827;
+      }
+
+      .field { margin-bottom: 14px; }
+      .field label {
+        display: block;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .field input {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #111827;
+        font-size: 0.92rem;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .field input::placeholder {
+        color: #9ca3af;
+      }
+      .field input:focus {
+        outline: none;
+        border-color: var(--yellow-main);
+        box-shadow: 0 0 0 4px rgba(245, 183, 0, 0.2);
+      }
+      .field small {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+      }
+      .platform-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .platform-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .platform-option .platform-card {
+        display: block;
+        padding: 12px 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #374151;
+        background: #ffffff;
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+      }
+      .platform-option input:checked + .platform-card {
+        border-color: var(--yellow-main);
+        box-shadow: 0 0 0 4px rgba(245, 183, 0, 0.2);
+        background: #fffaf0;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border-radius: 999px;
+        border: none;
+        font-weight: 800;
+        font-size: 0.96rem;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: filter 0.15s, transform 0.1s;
+        background: linear-gradient(180deg, #ffc92e 0%, var(--yellow-main) 100%);
+        color: #1f2937;
+        box-shadow: 0 8px 18px rgba(245, 183, 0, 0.35);
+      }
+      .btn:hover {
+        filter: brightness(0.98);
+        transform: translateY(-1px);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: default;
+        transform: none;
+      }
+
+      .form-status {
+        margin-top: 12px;
+        font-size: 0.86rem;
+        min-height: 1.4em;
+        text-align: center;
+      }
+      .form-status.error { color: var(--fail); }
+      .form-status.success { color: var(--pass); }
+      .form-status.running { color: #b45309; }
+
+      .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .results-header h2 { margin-bottom: 0; }
+
+      .overall-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .overall-badge.passed {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .overall-badge.failed {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .overall-badge.idle {
+        background: var(--bg-soft);
+        color: #92400e;
+      }
+
+      .stats-bar {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .stat {
+        flex: 1;
+        text-align: center;
+        padding: 13px 8px;
+        border-radius: 12px;
+        background: #fffaf0;
+        border: 1px solid var(--line);
+      }
+      .stat .num {
+        font-size: 1.65rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .stat .lbl {
+        font-size: 0.72rem;
+        color: #6b7280;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .stat.total .num { color: #111827; }
+      .stat.pass .num { color: var(--pass); }
+      .stat.fail .num { color: var(--fail); }
+
+      .test-list { list-style: none; }
+      .test-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        margin-bottom: 9px;
+        background: #fffef9;
+        border: 1px solid var(--line);
+      }
+      .test-item.passed {
+        border-left: 4px solid var(--pass);
+      }
+      .test-item.failed {
+        border-left: 4px solid var(--fail);
+      }
+
+      .test-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 800;
+        margin-top: 1px;
+      }
+      .test-icon.passed {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .test-icon.failed {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .test-info { flex: 1; }
+      .test-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.3;
+      }
+      .test-label {
+        font-size: 0.73rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-top: 3px;
+      }
+      .test-label.passed { color: #166534; }
+      .test-label.failed { color: #b91c1c; }
+      .test-label.unknown { color: #92400e; }
+
+      .empty-state {
+        text-align: center;
+        padding: 46px 20px;
+        color: var(--text-muted);
+        background: #fffaf0;
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+      }
+      .empty-state .icon {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+      }
+      .empty-state p {
+        font-size: 0.92rem;
+      }
+    </style>
+  </head>
+  <body>
+
+    <header>
+      <h1>Kraftshala MLP Test Runner</h1>
+      <p>Fill lead details, clean old data, and run all edge-case tests in one click.</p>
+    </header>
+
+    <div class="layout">
+
+      <!-- LEFT: Form -->
+      <div class="card">
+        <h2>Lead details</h2>
+        <form id="leadForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="platform" value="test" checked />
+                <span class="platform-card">Testing on Test Platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="platform" value="main" />
+                <span class="platform-card">Testing on Main Platform</span>
+              </label>
+            </div>
+            <small>Select which platform flow to run.</small>
+          </div>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" required placeholder="Full name" />
+            <small>Shown on the lead form for every scenario.</small>
+          </div>
+          <div class="field">
+            <label for="baseEmail">Base email</label>
+            <input id="baseEmail" name="baseEmail" type="email" required placeholder="user@example.com" />
+            <small>Used for the existing-lead test and as the fixed email in same-email / different-phone.</small>
+          </div>
+          <div class="field">
+            <label for="basePhone">Base phone</label>
+            <input id="basePhone" name="basePhone" type="tel" required placeholder="9xxxxxxxxx" />
+            <small>Used for the existing-lead test and as the fixed phone in same-phone / different-email.</small>
+          </div>
+          <div class="field">
+            <label for="differentEmail">Different email</label>
+            <input id="differentEmail" name="differentEmail" type="email" required placeholder="other@example.com" />
+            <small>Required. Used for the new-lead test (with different phone) and in the cross scenarios. Must differ from base email.</small>
+          </div>
+          <div class="field">
+            <label for="differentPhone">Different phone</label>
+            <input id="differentPhone" name="differentPhone" type="tel" required placeholder="9yyyyyyyyy" />
+            <small>Required. Used for the new-lead test (with different email) and in the cross scenarios. Must differ from base phone.</small>
+          </div>
+          <button class="btn" type="submit">Run tests</button>
+          <div id="status" class="form-status"></div>
+        </form>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div class="card" id="resultsCard">
+        <div class="results-header">
+          <h2>Test results</h2>
+          <span id="overallBadge" class="overall-badge idle">Waiting</span>
+        </div>
+
+        <div id="statsBar" class="stats-bar" style="display:none;">
+          <div class="stat total"><div class="num" id="statTotal">0</div><div class="lbl">Total tests</div></div>
+          <div class="stat pass"><div class="num" id="statLeadOutcomes">0/0</div><div class="lbl">Lead outcomes (register / block / validate)</div></div>
+          <div class="stat fail"><div class="num" id="statAuto">0 / 0</div><div class="lbl">Automation (Cypress)</div></div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="icon">&#128203;</div>
+          <p>No test results yet.<br/>Fill the form and click <strong>Run tests</strong> to start.</p>
+        </div>
+
+        <ul id="testList" class="test-list" style="display:none;"></ul>
+      </div>
+
+    </div>
+
+    <script>
+      const form = document.getElementById('leadForm');
+      const statusEl = document.getElementById('status');
+      const btn = form.querySelector('button[type="submit"]');
+
+      const overallBadge = document.getElementById('overallBadge');
+      const statsBar = document.getElementById('statsBar');
+      const statTotal = document.getElementById('statTotal');
+      const statLeadOutcomes = document.getElementById('statLeadOutcomes');
+      const statAuto = document.getElementById('statAuto');
+      const emptyState = document.getElementById('emptyState');
+      const testList = document.getElementById('testList');
+
+      function setStatus(msg, type) {
+        statusEl.textContent = msg || '';
+        statusEl.className = 'form-status ' + (type || '');
+      }
+
+      function renderResults(data) {
+        const tests = data.tests || [];
+        const totals = data.totals || {
+          total: 0,
+          automationPassed: 0,
+          automationFailed: 0,
+          registrationUrlSuccess: 0,
+          registrationUrlAttempts: 0,
+          allRegistrationUrlsOk: false,
+          userRegistrationSuccess: 0,
+          userRegistrationAttempts: 0,
+          allUserRegistrationOk: false,
+        };
+
+        const autoPass = totals.automationPassed ?? 0;
+        const autoFail = totals.automationFailed ?? 0;
+        const userRegOk = totals.userRegistrationSuccess ?? 0;
+        const userRegAtt = totals.userRegistrationAttempts ?? 0;
+        const allUserOk = totals.allUserRegistrationOk === true;
+
+        // Primary badge: every scenario met its intended outcome (real registration, block after OTP, or validation).
+        if (userRegAtt === 0) {
+          overallBadge.textContent = 'No test results';
+          overallBadge.className = 'overall-badge idle';
+        } else if (allUserOk && autoFail === 0) {
+          overallBadge.textContent = 'All lead outcomes OK';
+          overallBadge.className = 'overall-badge passed';
+        } else if (!allUserOk) {
+          overallBadge.textContent = 'Some lead outcomes failed';
+          overallBadge.className = 'overall-badge failed';
+        } else {
+          overallBadge.textContent = 'Lead outcomes OK · Cypress issue';
+          overallBadge.className = 'overall-badge failed';
+        }
+
+        statTotal.textContent = totals.total;
+        statLeadOutcomes.textContent = userRegOk + '/' + userRegAtt;
+        statAuto.textContent = autoPass + ' pass / ' + autoFail + ' fail';
+        statsBar.style.display = 'flex';
+
+        // Test list
+        emptyState.style.display = 'none';
+        testList.innerHTML = '';
+        testList.style.display = 'block';
+
+        if (tests.length === 0) {
+          emptyState.querySelector('p').innerHTML = 'Could not parse individual test results.<br/>Check the server terminal for details.';
+          emptyState.style.display = 'block';
+          testList.style.display = 'none';
+          return;
+        }
+
+        for (const t of tests) {
+          const li = document.createElement('li');
+          const autoOk = t.status === 'passed';
+          const isRegUrlCase = t.isRegistrationUrlCase === true;
+          const urlOk = t.leadRegisteredWithUrl === true;
+          const expectation = t.registrationExpectation || '';
+          const userPass =
+            typeof t.userRegistrationPass === 'boolean'
+              ? t.userRegistrationPass
+              : isRegUrlCase
+                ? urlOk
+                : autoOk;
+          const outcome = userPass ? 'passed' : 'failed';
+          li.className = 'test-item ' + outcome;
+
+          const icon = outcome === 'passed' ? '&#10003;' : '&#10007;';
+          const leadEmail = t.lead && t.lead.email ? escapeHtml(t.lead.email) : '-';
+          const leadPhone = t.lead && t.lead.phone ? escapeHtml(t.lead.phone) : '-';
+
+          let primaryLine;
+          let primaryClass = outcome;
+
+          if (expectation === 'screening_url' || (isRegUrlCase && !expectation)) {
+            primaryLine = userPass
+              ? 'Lead registration: PASS (registered — screening URL + OTP succeeded)'
+              : 'Lead registration: FAIL (not registered — no screening URL)';
+          } else if (expectation === 'blocked_after_otp') {
+            primaryLine = userPass
+              ? 'Edge case: PASS — blocked after OTP (.alreadyExists); no new registration (expected)'
+              : 'Edge case: FAIL — expected block after OTP (.alreadyExists) did not occur';
+          } else if (expectation === 'validation_only') {
+            primaryLine = userPass
+              ? 'Validation: PASS (invalid/empty form handled; no registration)'
+              : 'Validation: FAIL';
+          } else {
+            primaryLine = userPass
+              ? 'Expected behavior: PASS'
+              : 'Expected behavior: FAIL';
+          }
+
+          const automationLabel = autoOk ? 'PASS' : 'FAIL';
+          const automationNote = t.error
+            ? '<div class="test-label failed">Error: ' + escapeHtml(String(t.error)) + '</div>'
+            : '';
+
+          li.innerHTML =
+            '<div class="test-icon ' + outcome + '">' + icon + '</div>' +
+            '<div class="test-info">' +
+              '<div class="test-name">' + escapeHtml(t.name) + '</div>' +
+              '<div class="test-label">Lead: ' + leadEmail + ' | ' + leadPhone + '</div>' +
+              '<div class="test-label ' + primaryClass + '">' + primaryLine + '</div>' +
+              '<div class="test-label unknown">Automation (Cypress): ' + automationLabel + '</div>' +
+              automationNote +
+            '</div>';
+
+          testList.appendChild(li);
+        }
+      }
+
+      function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setStatus('', '');
+
+        const nameVal = form.name.value.trim();
+        const baseEmail = form.baseEmail.value.trim();
+        const basePhone = form.basePhone.value.trim();
+        const diffEmail = form.differentEmail.value.trim();
+        const diffPhone = form.differentPhone.value.trim();
+
+        if (!nameVal || !baseEmail || !basePhone || !diffEmail || !diffPhone) {
+          setStatus(
+            'Name, base email, base phone, different email, and different phone are all required.',
+            'error'
+          );
+          return;
+        }
+
+        if (baseEmail.toLowerCase() === diffEmail.toLowerCase() || basePhone === diffPhone) {
+          setStatus(
+            'Different email must differ from base email, and different phone must differ from base phone.',
+            'error'
+          );
+          return;
+        }
+
+        btn.disabled = true;
+
+        // Reset results to running state
+        overallBadge.textContent = 'Running...';
+        overallBadge.className = 'overall-badge idle';
+        statsBar.style.display = 'none';
+        testList.style.display = 'none';
+        emptyState.style.display = 'block';
+        emptyState.querySelector('p').innerHTML = 'Tests are running. This may take a few minutes...';
+
+        setStatus('Cleaning leads and running tests...', 'running');
+
+        try {
+          const selectedPlatform =
+            form.querySelector('input[name="platform"]:checked')?.value || 'test';
+          const payload = {
+            platform: selectedPlatform,
+            name: nameVal,
+            baseEmail,
+            basePhone,
+            differentEmail: diffEmail,
+            differentPhone: diffPhone,
+          };
+
+          const resp = await fetch('/prepare-tests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await resp.json().catch(() => ({}));
+
+          if (!resp.ok) {
+            setStatus(data.message || 'Run failed to execute.', 'error');
+          } else if (data.ok === false) {
+            setStatus(data.message || 'Cypress run failed.', 'error');
+          } else {
+            setStatus(data.message || 'Cypress run completed successfully.', 'success');
+          }
+
+          renderResults(data);
+        } catch (err) {
+          console.error(err);
+          setStatus('Server error. Is form-server.js running?', 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
