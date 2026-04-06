@@ -15,6 +15,19 @@ module.exports = defineConfig({
     specPattern: 'cypress/e2e/**/*.cy.js',
     viewportWidth: 1366,
     viewportHeight: 768,
+    setupNodeEvents(on, config) {
+      on('before:browser:launch', (browser = {}, launchOptions) => {
+        if (browser.family === 'chromium') {
+          // Required on constrained Linux hosts (e.g. Render) so browser boots reliably.
+          launchOptions.args.push('--no-sandbox');
+          launchOptions.args.push('--disable-dev-shm-usage');
+          launchOptions.args.push('--disable-gpu');
+          launchOptions.args.push('--disable-software-rasterizer');
+        }
+        return launchOptions;
+      });
+      return config;
+    },
   },
 });
 
