@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const { spawn } = require('child_process');
 
 const app = express();
-const PORT = process.env.MLP_FORM_PORT || 4000;
+const PORT = process.env.PORT || process.env.MLP_FORM_PORT || 4000;
 const MAIN_PLATFORM_BASE_URL = 'https://program.kraftshala.com/';
 const TEST_PLATFORM_BASE_URL = 'https://testprogram.kraftshala.com/';
 
