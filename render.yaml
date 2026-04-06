@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: mlp-automation
+    runtime: docker
+    plan: starter
+    autoDeploy: true
+
+    # Render will build using your Dockerfile at repo root
+    dockerfilePath: ./Dockerfile
+
+    # Your app serves the form UI on this port
+    envVars:
+      - key: MLP_FORM_PORT
+        value: "4000"
+      - key: MLP_CYPRESS_CMD
+        value: "cypress"
+      - key: CI
+        value: "true"
+
+      # Optional: override delete APIs if needed
+      # - key: MLP_EMAIL_DELETE_BASE_TEST
+      #   value: "https://testservice.kraftshala.com/lead/remove-lead/mlp/"
+      # - key: MLP_PHONE_DELETE_BASE_TEST
+      #   value: "https://testservice.kraftshala.com/otp-validation/removeNumber/"
+      # - key: MLP_EMAIL_DELETE_BASE_MAIN
+      #   value: "https://service.kraftshala.com/lead/remove-lead/mlp/"
+      # - key: MLP_PHONE_DELETE_BASE_MAIN
+      #   value: "https://service.kraftshala.com/otp-validation/removeNumber/"

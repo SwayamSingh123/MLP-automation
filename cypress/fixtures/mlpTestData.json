@@ -1,16 +1,16 @@
 {
-  "name": "Tester Swayam",
-  "existingEmail": "swayamsingh34@gmail.com",
-  "existingPhone": "9569750120",
-  "newEmail": "swayamsingh34@gmail.com",
-  "newPhone": "9569750120",
+  "name": "test lead",
+  "existingEmail": "swayamsingh340@gmail.com",
+  "existingPhone": "9569750199",
+  "newEmail": "swayamsingh340@gmail.com",
+  "newPhone": "9569750199",
   "sameEmailDifferentPhone": {
-    "email": "swayamsingh34@gmail.com",
-    "phone": "3000224001"
+    "email": "swayamsingh340@gmail.com",
+    "phone": "3000224090"
   },
   "samePhoneDifferentEmail": {
-    "email": "sachinkumar430@gmail.com",
-    "phone": "9569750120"
+    "email": "sachinkumar790@gmail.com",
+    "phone": "9569750199"
   },
   "extraValidEmails": [],
   "extraValidPhones": [],
