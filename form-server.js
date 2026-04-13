@@ -214,8 +214,6 @@ app.post('/prepare-tests', async (req, res) => {
   const cypressArgs = [
     '--spec',
     'cypress/e2e/mlpLeadForm.cy.js',
-    '--browser',
-    'chrome',
     '--config',
     `baseUrl=${selectedBaseUrl}`,
     '--env',
