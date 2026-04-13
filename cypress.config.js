@@ -17,7 +17,7 @@ module.exports = defineConfig({
     viewportHeight: 768,
     setupNodeEvents(on, config) {
       on('before:browser:launch', (browser = {}, launchOptions) => {
-        if (browser.family === 'chromium') {
+        if (browser.family === 'chromium' && browser.name !== 'electron') {
           // Required on constrained Linux hosts (e.g. Render) so browser boots reliably.
           launchOptions.args.push('--no-sandbox');
           launchOptions.args.push('--disable-dev-shm-usage');
