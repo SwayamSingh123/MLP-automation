@@ -516,6 +516,20 @@
         return d.innerHTML;
       }
 
+      function renderGitHubQueued(data) {
+        overallBadge.textContent = 'Queued on GitHub Actions';
+        overallBadge.className = 'overall-badge idle';
+        statsBar.style.display = 'none';
+        testList.style.display = 'none';
+        emptyState.style.display = 'block';
+        const workflowUrl = data && data.workflowRunsUrl ? String(data.workflowRunsUrl) : '';
+        emptyState.querySelector('p').innerHTML = workflowUrl
+          ? 'Run has been queued on GitHub Actions.<br/><a href="' +
+              escapeHtml(workflowUrl) +
+              '" target="_blank" rel="noopener noreferrer">Open workflow runs</a> to monitor progress.'
+          : 'Run has been queued on GitHub Actions. Open your repository Actions tab to monitor progress.';
+      }
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         setStatus('', '');
@@ -578,11 +592,13 @@
             setStatus(data.message || 'Run failed to execute.', 'error');
           } else if (data.ok === false) {
             setStatus(data.message || 'Cypress run failed.', 'error');
+          } else if (data.mode === 'github_actions') {
+            setStatus(data.message || 'Automation queued on GitHub Actions.', 'success');
+            renderGitHubQueued(data);
           } else {
             setStatus(data.message || 'Cypress run completed successfully.', 'success');
+            renderResults(data);
           }
-
-          renderResults(data);
         } catch (err) {
           console.error(err);
           setStatus('Server error. Is form-server.js running?', 'error');

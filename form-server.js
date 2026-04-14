@@ -30,6 +30,11 @@ const FIXTURE_PATH = path.join(
   'fixtures',
   'mlpTestData.json'
 );
+const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || '';
+const GITHUB_WORKFLOW_FILE = process.env.GITHUB_WORKFLOW_FILE || 'mlp-run.yml';
+const GITHUB_REF = process.env.GITHUB_REF || 'main';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 
 app.use(express.json());
 
@@ -121,6 +126,43 @@ function buildFixtureFromForm(body) {
   return fixture;
 }
 
+function shouldUseGitHubActionsRunner() {
+  return Boolean(GITHUB_OWNER && GITHUB_REPO && GITHUB_TOKEN);
+}
+
+async function dispatchGitHubWorkflow({ platform, name, baseEmail, basePhone, differentEmail, differentPhone }) {
+  const dispatchUrl = `https://api.github.com/repos/${encodeURIComponent(
+    GITHUB_OWNER
+  )}/${encodeURIComponent(GITHUB_REPO)}/actions/workflows/${encodeURIComponent(
+    GITHUB_WORKFLOW_FILE
+  )}/dispatches`;
+  const resp = await fetch(dispatchUrl, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+      'User-Agent': 'mlp-form-server',
+    },
+    body: JSON.stringify({
+      ref: GITHUB_REF,
+      inputs: {
+        platform,
+        name,
+        baseEmail,
+        basePhone,
+        differentEmail,
+        differentPhone,
+      },
+    }),
+  });
+  if (!resp.ok) {
+    const bodyText = await resp.text().catch(() => '');
+    throw new Error(`GitHub workflow dispatch failed (${resp.status}): ${bodyText || 'no response body'}`);
+  }
+}
+
 app.post('/prepare-tests', async (req, res) => {
   const { name, baseEmail, basePhone, differentEmail, differentPhone, platform } =
     req.body || {};
@@ -208,6 +250,46 @@ app.post('/prepare-tests', async (req, res) => {
       ok: false,
       message: 'Failed to write fixture file',
     });
+  }
+
+  if (shouldUseGitHubActionsRunner()) {
+    try {
+      await dispatchGitHubWorkflow({
+        platform: selectedPlatform,
+        name: trimmedName,
+        baseEmail: trimmedBaseEmail,
+        basePhone: trimmedBasePhone,
+        differentEmail: trimmedDifferentEmail,
+        differentPhone: trimmedDifferentPhone,
+      });
+      const workflowRunsUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW_FILE}`;
+      console.log('[RUN] Workflow dispatched to GitHub Actions');
+      return res.json({
+        ok: true,
+        mode: 'github_actions',
+        tests: [],
+        totals: {
+          total: 0,
+          automationPassed: 0,
+          automationFailed: 0,
+          registrationUrlSuccess: 0,
+          registrationUrlAttempts: 0,
+          allRegistrationUrlsOk: false,
+          userRegistrationSuccess: 0,
+          userRegistrationAttempts: 0,
+          allUserRegistrationOk: false,
+        },
+        message:
+          'Automation has been queued on GitHub Actions. Open workflow runs to see live progress and final result.',
+        workflowRunsUrl,
+      });
+    } catch (err) {
+      console.error('[RUN] Failed to dispatch GitHub workflow:', err.message);
+      return res.status(500).json({
+        ok: false,
+        message: `Failed to trigger GitHub Actions: ${err.message}`,
+      });
+    }
   }
 
   const cypressCmd = process.env.MLP_CYPRESS_CMD || 'npx';
