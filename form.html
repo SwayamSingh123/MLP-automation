@@ -299,6 +299,19 @@
       .empty-state p {
         font-size: 0.92rem;
       }
+
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--line);
+        border-top-color: var(--yellow-main);
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+        margin: 0 auto 14px;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
     </style>
   </head>
   <body>
@@ -372,8 +385,9 @@
         </div>
 
         <div id="emptyState" class="empty-state">
-          <div class="icon">&#128203;</div>
-          <p>No test results yet.<br/>Fill the form and click <strong>Run tests</strong> to start.</p>
+          <div id="emptyIcon" class="icon">&#128203;</div>
+          <div id="emptySpinner" class="spinner" style="display:none;"></div>
+          <p id="emptyMsg">No test results yet.<br/>Fill the form and click <strong>Run tests</strong> to start.</p>
         </div>
 
         <ul id="testList" class="test-list" style="display:none;"></ul>
@@ -392,6 +406,9 @@
       const statLeadOutcomes = document.getElementById('statLeadOutcomes');
       const statAuto = document.getElementById('statAuto');
       const emptyState = document.getElementById('emptyState');
+      const emptyIcon = document.getElementById('emptyIcon');
+      const emptySpinner = document.getElementById('emptySpinner');
+      const emptyMsg = document.getElementById('emptyMsg');
       const testList = document.getElementById('testList');
 
       function setStatus(msg, type) {
@@ -452,61 +469,7 @@
         }
 
         for (const t of tests) {
-          const li = document.createElement('li');
-          const autoOk = t.status === 'passed';
-          const isRegUrlCase = t.isRegistrationUrlCase === true;
-          const urlOk = t.leadRegisteredWithUrl === true;
-          const expectation = t.registrationExpectation || '';
-          const userPass =
-            typeof t.userRegistrationPass === 'boolean'
-              ? t.userRegistrationPass
-              : isRegUrlCase
-                ? urlOk
-                : autoOk;
-          const outcome = userPass ? 'passed' : 'failed';
-          li.className = 'test-item ' + outcome;
-
-          const icon = outcome === 'passed' ? '&#10003;' : '&#10007;';
-          const leadEmail = t.lead && t.lead.email ? escapeHtml(t.lead.email) : '-';
-          const leadPhone = t.lead && t.lead.phone ? escapeHtml(t.lead.phone) : '-';
-
-          let primaryLine;
-          let primaryClass = outcome;
-
-          if (expectation === 'screening_url' || (isRegUrlCase && !expectation)) {
-            primaryLine = userPass
-              ? 'Lead registration: PASS (registered — screening URL + OTP succeeded)'
-              : 'Lead registration: FAIL (not registered — no screening URL)';
-          } else if (expectation === 'blocked_after_otp') {
-            primaryLine = userPass
-              ? 'Edge case: PASS — blocked after OTP (.alreadyExists); no new registration (expected)'
-              : 'Edge case: FAIL — expected block after OTP (.alreadyExists) did not occur';
-          } else if (expectation === 'validation_only') {
-            primaryLine = userPass
-              ? 'Validation: PASS (invalid/empty form handled; no registration)'
-              : 'Validation: FAIL';
-          } else {
-            primaryLine = userPass
-              ? 'Expected behavior: PASS'
-              : 'Expected behavior: FAIL';
-          }
-
-          const automationLabel = autoOk ? 'PASS' : 'FAIL';
-          const automationNote = t.error
-            ? '<div class="test-label failed">Error: ' + escapeHtml(String(t.error)) + '</div>'
-            : '';
-
-          li.innerHTML =
-            '<div class="test-icon ' + outcome + '">' + icon + '</div>' +
-            '<div class="test-info">' +
-              '<div class="test-name">' + escapeHtml(t.name) + '</div>' +
-              '<div class="test-label">Lead: ' + leadEmail + ' | ' + leadPhone + '</div>' +
-              '<div class="test-label ' + primaryClass + '">' + primaryLine + '</div>' +
-              '<div class="test-label unknown">Automation (Cypress): ' + automationLabel + '</div>' +
-              automationNote +
-            '</div>';
-
-          testList.appendChild(li);
+          testList.appendChild(buildTestListItem(t));
         }
       }
 
@@ -516,52 +479,221 @@
         return d.innerHTML;
       }
 
-      function renderGitHubQueued(data) {
-        overallBadge.textContent = 'Queued on GitHub Actions';
+      // ── Shared card builder (used by renderResults & streaming) ──────────────
+
+      function buildTestListItem(t) {
+        const li = document.createElement('li');
+        const autoOk = t.status === 'passed';
+        const isRegUrlCase = t.isRegistrationUrlCase === true;
+        const urlOk = t.leadRegisteredWithUrl === true;
+        const expectation = t.registrationExpectation || '';
+        const userPass =
+          typeof t.userRegistrationPass === 'boolean'
+            ? t.userRegistrationPass
+            : isRegUrlCase ? urlOk : autoOk;
+        const outcome = userPass ? 'passed' : 'failed';
+        li.className = 'test-item ' + outcome;
+
+        const icon = outcome === 'passed' ? '&#10003;' : '&#10007;';
+        const leadEmail = t.lead && t.lead.email ? escapeHtml(t.lead.email) : '-';
+        const leadPhone = t.lead && t.lead.phone ? escapeHtml(t.lead.phone) : '-';
+
+        let primaryLine, primaryClass = outcome;
+        if (expectation === 'screening_url' || (isRegUrlCase && !expectation)) {
+          primaryLine = userPass
+            ? 'Lead registration: PASS (registered — screening URL + OTP succeeded)'
+            : 'Lead registration: FAIL (not registered — no screening URL)';
+        } else if (expectation === 'blocked_after_otp') {
+          primaryLine = userPass
+            ? 'Edge case: PASS — blocked after OTP (.alreadyExists); no new registration (expected)'
+            : 'Edge case: FAIL — expected block after OTP (.alreadyExists) did not occur';
+        } else if (expectation === 'validation_only') {
+          primaryLine = userPass
+            ? 'Validation: PASS (invalid/empty form handled; no registration)'
+            : 'Validation: FAIL';
+        } else {
+          primaryLine = userPass ? 'Expected behavior: PASS' : 'Expected behavior: FAIL';
+        }
+
+        li.innerHTML =
+          '<div class="test-icon ' + outcome + '">' + icon + '</div>' +
+          '<div class="test-info">' +
+            '<div class="test-name">' + escapeHtml(t.name) + '</div>' +
+            '<div class="test-label">Lead: ' + leadEmail + ' | ' + leadPhone + '</div>' +
+            '<div class="test-label ' + primaryClass + '">' + primaryLine + '</div>' +
+            '<div class="test-label unknown">Automation (Cypress): ' + (autoOk ? 'PASS' : 'FAIL') + '</div>' +
+          '</div>';
+        return li;
+      }
+
+      // ── Real-time streaming for local Cypress runs ────────────────────────────
+
+      let _activeSource = null;
+      let _streamedTests = [];
+
+      function addStreamedTestCard(t) {
+        _streamedTests.push(t);
+
+        emptyState.style.display = 'none';
+        testList.style.display = 'block';
+
+        const li = buildTestListItem(t);
+        li.style.opacity = '0';
+        li.style.transform = 'translateY(8px)';
+        testList.appendChild(li);
+        requestAnimationFrame(() => {
+          li.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          li.style.opacity = '1';
+          li.style.transform = 'translateY(0)';
+        });
+
+        // Live stats
+        const passed = _streamedTests.filter((x) => x.status === 'passed').length;
+        const failed = _streamedTests.filter((x) => x.status === 'failed').length;
+        const total = _streamedTests.length;
+        const userOk = _streamedTests.filter((x) => x.userRegistrationPass).length;
+        statTotal.textContent = total + ' / 7';
+        statLeadOutcomes.textContent = userOk + '/' + total;
+        statAuto.textContent = passed + ' pass / ' + failed + ' fail';
+        statsBar.style.display = 'flex';
+
+        // Live badge
+        if (total < 7) {
+          overallBadge.textContent = 'Running... (' + total + '/7)';
+          overallBadge.className = 'overall-badge idle';
+        } else if (failed === 0) {
+          overallBadge.textContent = 'All lead outcomes OK';
+          overallBadge.className = 'overall-badge passed';
+        } else {
+          overallBadge.textContent = 'Some lead outcomes failed';
+          overallBadge.className = 'overall-badge failed';
+        }
+      }
+
+      function handleLocalStream(streamUrl, onDone) {
+        _streamedTests = [];
+        testList.innerHTML = '';
+
+        if (_activeSource) { _activeSource.close(); _activeSource = null; }
+        const source = new EventSource(streamUrl);
+        _activeSource = source;
+
+        source.addEventListener('test_result', (e) => {
+          try { addStreamedTestCard(JSON.parse(e.data)); } catch (_) {}
+        });
+
+        source.addEventListener('complete', (e) => {
+          source.close(); _activeSource = null;
+          try {
+            const data = JSON.parse(e.data);
+            renderResults(data); // authoritative final render
+            const total = (data.totals && data.totals.total) || 0;
+            const passed = (data.totals && data.totals.automationPassed) || 0;
+            const failed = (data.totals && data.totals.automationFailed) || 0;
+            setStatus(
+              total > 0
+                ? passed + ' of ' + total + ' tests passed' + (failed > 0 ? ', ' + failed + ' failed.' : '.')
+                : (data.ok ? 'Tests completed.' : 'Tests completed with failures.'),
+              data.ok ? 'success' : 'error'
+            );
+          } catch (_) { setStatus('Tests completed.', 'success'); }
+          onDone();
+        });
+
+        source.addEventListener('error', () => {
+          source.close(); _activeSource = null;
+          setStatus('Connection to test runner lost. Results may be incomplete.', 'error');
+          emptyIcon.style.display = 'block';
+          emptySpinner.style.display = 'none';
+          onDone();
+        });
+      }
+
+      // ── Step list renderer for GitHub Actions progress ────────────────────────
+
+      function renderStepProgress(steps) {
+        if (!steps || steps.length === 0) return;
+        const icons = { completed_success: '✓', completed_failure: '✗', in_progress: '⟳', queued: '·' };
+        const lines = steps.map((s) => {
+          const key = s.status === 'completed' ? 'completed_' + s.conclusion : s.status;
+          return (icons[key] || '·') + ' ' + escapeHtml(s.name);
+        }).join('<br/>');
+        emptyMsg.innerHTML = 'Tests are running on the automation server:<br/><br/>' +
+          '<span style="font-family:monospace;font-size:0.8rem;line-height:1.8;">' + lines + '</span>';
+      }
+
+      function renderGitHubQueued() {
+        overallBadge.textContent = 'Starting...';
         overallBadge.className = 'overall-badge idle';
         statsBar.style.display = 'none';
         testList.style.display = 'none';
         emptyState.style.display = 'block';
-        const workflowUrl = data && data.workflowRunsUrl ? String(data.workflowRunsUrl) : '';
-        emptyState.querySelector('p').innerHTML = workflowUrl
-          ? 'Run has been queued on GitHub Actions.<br/><a href="' +
-              escapeHtml(workflowUrl) +
-              '" target="_blank" rel="noopener noreferrer">Open workflow runs</a> to monitor progress.'
-          : 'Run has been queued on GitHub Actions. Open your repository Actions tab to monitor progress.';
+        emptyIcon.style.display = 'none';
+        emptySpinner.style.display = 'block';
+        emptyMsg.innerHTML = 'Tests have been triggered and will start in a moment.<br/>This usually takes <strong>5–10 minutes</strong>. Results will appear here automatically.';
       }
 
       async function pollGitHubRunCompletion(initialData) {
         const requestId = initialData && initialData.requestId ? String(initialData.requestId) : '';
         if (!requestId) {
-          setStatus('Workflow queued, but request id is missing for status tracking.', 'error');
+          emptyIcon.style.display = 'block';
+          emptySpinner.style.display = 'none';
+          emptyMsg.innerHTML = 'Something went wrong. Please try running the tests again.';
+          setStatus('Unable to track test status. Please try again.', 'error');
           return;
         }
+        const startTime = Date.now();
         const maxAttempts = 90; // ~9 minutes at 6s interval
         for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
           await new Promise((resolve) => setTimeout(resolve, 6000));
-          const resp = await fetch('/github-actions-status/' + encodeURIComponent(requestId));
-          const data = await resp.json().catch(() => ({}));
+          let resp, data = {};
+          try {
+            resp = await fetch('/github-actions-status/' + encodeURIComponent(requestId));
+            data = await resp.json();
+          } catch (e) {
+            setStatus('Checking test status...', 'running');
+            continue;
+          }
           if (!resp.ok) {
-            setStatus(data.message || 'Failed to fetch GitHub Actions run status.', 'error');
-            return;
+            setStatus('Checking test status...', 'running');
+            continue;
           }
           if (data.state === 'completed') {
-            setStatus(data.message || 'Automation completed from GitHub Actions.', data.ok ? 'success' : 'error');
+            emptyIcon.style.display = 'block';
+            emptySpinner.style.display = 'none';
+            const total = data.totals && data.totals.total ? data.totals.total : 0;
+            const passed = data.totals && data.totals.automationPassed ? data.totals.automationPassed : 0;
+            const failed = data.totals && data.totals.automationFailed ? data.totals.automationFailed : 0;
+            setStatus(
+              total > 0
+                ? passed + ' of ' + total + ' tests passed' + (failed > 0 ? ', ' + failed + ' failed.' : '.')
+                : (data.ok ? 'Tests completed.' : 'Tests completed with failures.'),
+              data.ok ? 'success' : 'error'
+            );
             renderResults(data);
             return;
           }
-          const runUrl = data.workflowRunUrl || data.workflowRunsUrl || initialData.workflowRunsUrl || '';
-          const msgPrefix = data.state === 'queued'
-            ? 'Queued on GitHub Actions'
-            : 'Running on GitHub Actions';
-          setStatus(msgPrefix + '... (attempt ' + attempt + ')', 'running');
-          if (runUrl) {
-            emptyState.querySelector('p').innerHTML =
-              msgPrefix +
-              '.<br/><a href="' + escapeHtml(runUrl) + '" target="_blank" rel="noopener noreferrer">Open workflow run</a> for live logs.';
+          const elapsed = Math.floor((Date.now() - startTime) / 1000);
+          const mins = Math.floor(elapsed / 60);
+          const secs = elapsed % 60;
+          const elapsedStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
+          const isQueued = data.state === 'queued';
+          setStatus(
+            (isQueued ? 'Tests are queued...' : 'Tests are running...') + ' (' + elapsedStr + ' elapsed)',
+            'running'
+          );
+          if (isQueued || !data.steps || data.steps.length === 0) {
+            emptyMsg.innerHTML = isQueued
+              ? 'Tests are queued and will start shortly. Results will appear here automatically — no need to refresh.'
+              : 'Tests are actively running. Results will appear here automatically once complete. (<strong>' + elapsedStr + '</strong> elapsed)';
+          } else {
+            renderStepProgress(data.steps);
           }
         }
-        setStatus('Run is taking longer than expected. Please check GitHub Actions logs.', 'error');
+        emptyIcon.style.display = 'block';
+        emptySpinner.style.display = 'none';
+        emptyMsg.innerHTML = 'Tests are taking longer than expected. Please try running the tests again.';
+        setStatus('Tests are taking longer than expected. Please try again.', 'error');
       }
 
       form.addEventListener('submit', async (e) => {
@@ -598,9 +730,10 @@
         statsBar.style.display = 'none';
         testList.style.display = 'none';
         emptyState.style.display = 'block';
-        emptyState.querySelector('p').innerHTML = 'Tests are running. This may take a few minutes...';
-
-        setStatus('Cleaning leads and running tests...', 'running');
+        emptyIcon.style.display = 'none';
+        emptySpinner.style.display = 'block';
+        emptyMsg.innerHTML = 'Preparing test data and cleaning old leads...';
+        setStatus('Starting tests...', 'running');
 
         try {
           const selectedPlatform =
@@ -623,21 +756,49 @@
           const data = await resp.json().catch(() => ({}));
 
           if (!resp.ok) {
+            // HTTP error — server failed before tests could run
+            emptyIcon.style.display = 'block';
+            emptySpinner.style.display = 'none';
+            emptyMsg.innerHTML = 'Could not start the test run. See the error message above.';
             setStatus(data.message || 'Run failed to execute.', 'error');
-          } else if (data.ok === false) {
-            setStatus(data.message || 'Cypress run failed.', 'error');
+            btn.disabled = false;
+          } else if (data.mode === 'local' && data.streamUrl) {
+            // Local Cypress run — real-time SSE streaming
+            setStatus('Tests are running...', 'running');
+            overallBadge.textContent = 'Running... (0/7)';
+            overallBadge.className = 'overall-badge idle';
+            emptyMsg.innerHTML = 'Tests are starting up...';
+            handleLocalStream(data.streamUrl, () => { btn.disabled = false; });
           } else if (data.mode === 'github_actions') {
-            setStatus(data.message || 'Automation queued on GitHub Actions.', 'success');
-            renderGitHubQueued(data);
+            setStatus('Tests queued. Waiting for results...', 'running');
+            renderGitHubQueued();
             await pollGitHubRunCompletion(data);
+            btn.disabled = false;
           } else {
-            setStatus(data.message || 'Cypress run completed successfully.', 'success');
-            renderResults(data);
+            // Fallback: direct result (no streaming)
+            emptyIcon.style.display = 'block';
+            emptySpinner.style.display = 'none';
+            if (data.tests && data.tests.length > 0) {
+              const total = (data.totals && data.totals.total) || 0;
+              const passed = (data.totals && data.totals.automationPassed) || 0;
+              const failed = (data.totals && data.totals.automationFailed) || 0;
+              setStatus(
+                passed + ' of ' + total + ' tests passed' + (failed > 0 ? ', ' + failed + ' failed.' : '.'),
+                data.ok ? 'success' : 'error'
+              );
+              renderResults(data);
+            } else {
+              emptyMsg.innerHTML = 'Could not start the test run. See the error message above.';
+              setStatus(data.message || 'Tests could not complete.', 'error');
+            }
+            btn.disabled = false;
           }
         } catch (err) {
           console.error(err);
-          setStatus('Server error. Is form-server.js running?', 'error');
-        } finally {
+          emptyIcon.style.display = 'block';
+          emptySpinner.style.display = 'none';
+          emptyMsg.innerHTML = 'Connection error. Please check your network and try again.';
+          setStatus('Connection error. Please try again.', 'error');
           btn.disabled = false;
         }
       });
