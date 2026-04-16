@@ -1,4 +1,5 @@
 name: MLP Automation Run
+run-name: "MLP Run ${{ inputs.requestId }}"
 
 on:
   workflow_dispatch:
@@ -27,6 +28,10 @@ on:
         type: string
       differentPhone:
         description: "Different phone"
+        required: true
+        type: string
+      requestId:
+        description: "Request correlation id from UI"
         required: true
         type: string
 

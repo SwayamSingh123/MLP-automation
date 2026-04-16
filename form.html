@@ -530,6 +530,40 @@
           : 'Run has been queued on GitHub Actions. Open your repository Actions tab to monitor progress.';
       }
 
+      async function pollGitHubRunCompletion(initialData) {
+        const requestId = initialData && initialData.requestId ? String(initialData.requestId) : '';
+        if (!requestId) {
+          setStatus('Workflow queued, but request id is missing for status tracking.', 'error');
+          return;
+        }
+        const maxAttempts = 90; // ~9 minutes at 6s interval
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          await new Promise((resolve) => setTimeout(resolve, 6000));
+          const resp = await fetch('/github-actions-status/' + encodeURIComponent(requestId));
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            setStatus(data.message || 'Failed to fetch GitHub Actions run status.', 'error');
+            return;
+          }
+          if (data.state === 'completed') {
+            setStatus(data.message || 'Automation completed from GitHub Actions.', data.ok ? 'success' : 'error');
+            renderResults(data);
+            return;
+          }
+          const runUrl = data.workflowRunUrl || data.workflowRunsUrl || initialData.workflowRunsUrl || '';
+          const msgPrefix = data.state === 'queued'
+            ? 'Queued on GitHub Actions'
+            : 'Running on GitHub Actions';
+          setStatus(msgPrefix + '... (attempt ' + attempt + ')', 'running');
+          if (runUrl) {
+            emptyState.querySelector('p').innerHTML =
+              msgPrefix +
+              '.<br/><a href="' + escapeHtml(runUrl) + '" target="_blank" rel="noopener noreferrer">Open workflow run</a> for live logs.';
+          }
+        }
+        setStatus('Run is taking longer than expected. Please check GitHub Actions logs.', 'error');
+      }
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         setStatus('', '');
@@ -595,6 +629,7 @@
           } else if (data.mode === 'github_actions') {
             setStatus(data.message || 'Automation queued on GitHub Actions.', 'success');
             renderGitHubQueued(data);
+            await pollGitHubRunCompletion(data);
           } else {
             setStatus(data.message || 'Cypress run completed successfully.', 'success');
             renderResults(data);

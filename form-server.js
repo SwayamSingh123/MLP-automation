@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const fetch = require('node-fetch');
 const { spawn } = require('child_process');
+const AdmZip = require('adm-zip');
 
 const app = express();
 const PORT = process.env.PORT || process.env.MLP_FORM_PORT || 4000;
@@ -35,6 +36,8 @@ const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_WORKFLOW_FILE = process.env.GITHUB_WORKFLOW_FILE || 'mlp-run.yml';
 const GITHUB_REF = process.env.GITHUB_REF || 'main';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const workflowRunsUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW_FILE}`;
+const githubRunJobs = new Map();
 
 app.use(express.json());
 
@@ -130,7 +133,19 @@ function shouldUseGitHubActionsRunner() {
   return Boolean(GITHUB_OWNER && GITHUB_REPO && GITHUB_TOKEN);
 }
 
-async function dispatchGitHubWorkflow({ platform, name, baseEmail, basePhone, differentEmail, differentPhone }) {
+function createRequestId() {
+  return `mlp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+async function dispatchGitHubWorkflow({
+  platform,
+  name,
+  baseEmail,
+  basePhone,
+  differentEmail,
+  differentPhone,
+  requestId,
+}) {
   const dispatchUrl = `https://api.github.com/repos/${encodeURIComponent(
     GITHUB_OWNER
   )}/${encodeURIComponent(GITHUB_REPO)}/actions/workflows/${encodeURIComponent(
@@ -154,6 +169,7 @@ async function dispatchGitHubWorkflow({ platform, name, baseEmail, basePhone, di
         basePhone,
         differentEmail,
         differentPhone,
+        requestId,
       },
     }),
   });
@@ -161,6 +177,144 @@ async function dispatchGitHubWorkflow({ platform, name, baseEmail, basePhone, di
     const bodyText = await resp.text().catch(() => '');
     throw new Error(`GitHub workflow dispatch failed (${resp.status}): ${bodyText || 'no response body'}`);
   }
+}
+
+function parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl }) {
+  const stripAnsi = (value) => String(value || '').replace(/\u001b\[[0-9;]*m/g, '');
+  const cleanedOutput = stripAnsi(output);
+  const lines = cleanedOutput.split(/\r?\n/).filter(Boolean);
+  const signalLines = lines.filter((line) => !/WARN|WARNING|DEPRECATION/i.test(line));
+  const tests = [];
+  for (const line of signalLines) {
+    if (/^\s*\d+\s+passing/i.test(line)) break;
+    const passMatch = line.match(/^\s*[✓✔√]\s+(.*?)(\s+\(|$)/);
+    if (passMatch) {
+      tests.push({ name: passMatch[1].trim(), status: 'passed' });
+      continue;
+    }
+    const failMatch = line.match(/^\s*\d+\)\s+(.*)$/);
+    if (failMatch) tests.push({ name: failMatch[1].trim(), status: 'failed' });
+  }
+
+  const leadDetailsFromName = (name) => {
+    const n = String(name || '').toLowerCase();
+    if (n.includes('new registration')) return { email: fixtureData.newEmail, phone: fixtureData.newPhone };
+    if (n.includes('existing registration')) return { email: fixtureData.existingEmail, phone: fixtureData.existingPhone };
+    if (n.includes('base email with different phone number')) return { email: fixtureData.sameEmailDifferentPhone.email, phone: fixtureData.sameEmailDifferentPhone.phone };
+    if (n.includes('base phone number with different email')) return { email: fixtureData.samePhoneDifferentEmail.email, phone: fixtureData.samePhoneDifferentEmail.phone };
+    if (n.includes('invalid email')) return { email: fixtureData.invalidEmails[0], phone: fixtureData.existingPhone };
+    if (n.includes('invalid phone')) return { email: fixtureData.existingEmail, phone: fixtureData.invalidPhones[1] };
+    if (n.includes('submitting empty form')) return { email: '', phone: '' };
+    return { email: '', phone: '' };
+  };
+  const isUrlSuccessCase = (name) => {
+    const n = String(name || '').toLowerCase();
+    return n.includes('new registration') || n.includes('existing registration') || n.includes('base phone number with different email');
+  };
+  const registrationExpectationFromName = (name) => {
+    const n = String(name || '').toLowerCase();
+    if (n.includes('base email with different phone')) return 'blocked_after_otp';
+    if (n.includes('invalid email') || n.includes('invalid phone') || n.includes('submitting empty form')) return 'validation_only';
+    if (isUrlSuccessCase(name)) return 'screening_url';
+    return 'other';
+  };
+
+  const testsWithContext = tests.map((t) => {
+    const registrationStatus = isUrlSuccessCase(t.name) && t.status === 'passed' ? 'registered' : 'not_registered';
+    const registrationExpectation = registrationExpectationFromName(t.name);
+    const userRegistrationPass =
+      registrationExpectation === 'screening_url' ? registrationStatus === 'registered' : t.status === 'passed';
+    return {
+      ...t,
+      isRegistrationUrlCase: isUrlSuccessCase(t.name),
+      registrationExpectation,
+      userRegistrationPass,
+      registrationStatus,
+      lead: leadDetailsFromName(t.name),
+      leadRegisteredWithUrl: registrationStatus === 'registered',
+    };
+  });
+
+  const parsedPassed = testsWithContext.filter((t) => t.status === 'passed').length;
+  const parsedFailed = testsWithContext.filter((t) => t.status === 'failed').length;
+  const summaryPassed = Number((cleanedOutput.match(/(\d+)\s+passing/i) || [])[1] || 0);
+  const summaryFailed = Number((cleanedOutput.match(/(\d+)\s+failing/i) || [])[1] || 0);
+  const automationPassed = parsedPassed || summaryPassed;
+  const automationFailed = parsedFailed || summaryFailed || (code === 0 ? 0 : 1);
+  const total = testsWithContext.length || summaryPassed + summaryFailed || automationPassed + automationFailed;
+  const urlIntentTests = testsWithContext.filter((t) => t.isRegistrationUrlCase);
+  const registrationUrlAttempts = urlIntentTests.length;
+  const registrationUrlSuccess = urlIntentTests.filter((t) => t.registrationStatus === 'registered').length;
+  const userRegistrationSuccess = testsWithContext.filter((t) => t.userRegistrationPass).length;
+  const userRegistrationAttempts = testsWithContext.length;
+  const allUserRegistrationOk = userRegistrationAttempts > 0 && userRegistrationSuccess === userRegistrationAttempts;
+
+  return {
+    ok: code === 0,
+    message:
+      code === 0
+        ? `Lead outcomes (expected registration / block / validation): ${userRegistrationSuccess}/${userRegistrationAttempts}. Screening URL (3 registration flows): ${registrationUrlSuccess}/${registrationUrlAttempts}. Cypress: ${automationPassed}/${total}.`
+        : `Cypress run failed (exit code ${code}).`,
+    exitCode: code,
+    platform: selectedPlatform,
+    baseUrl: selectedBaseUrl,
+    tests: testsWithContext,
+    totals: {
+      total,
+      automationPassed,
+      automationFailed,
+      registrationUrlSuccess,
+      registrationUrlAttempts,
+      allRegistrationUrlsOk: registrationUrlAttempts > 0 && registrationUrlSuccess === registrationUrlAttempts,
+      userRegistrationSuccess,
+      userRegistrationAttempts,
+      allUserRegistrationOk,
+    },
+  };
+}
+
+async function findWorkflowRunByRequestId(requestId) {
+  const listUrl = `https://api.github.com/repos/${encodeURIComponent(
+    GITHUB_OWNER
+  )}/${encodeURIComponent(
+    GITHUB_REPO
+  )}/actions/workflows/${encodeURIComponent(
+    GITHUB_WORKFLOW_FILE
+  )}/runs?event=workflow_dispatch&branch=${encodeURIComponent(GITHUB_REF)}&per_page=30`;
+  const resp = await fetch(listUrl, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'mlp-form-server',
+    },
+  });
+  if (!resp.ok) throw new Error(`Failed to list workflow runs (${resp.status})`);
+  const body = await resp.json();
+  const runs = Array.isArray(body?.workflow_runs) ? body.workflow_runs : [];
+  return runs.find((r) => String(r.name || '').includes(requestId));
+}
+
+async function fetchWorkflowRunLogs(runId) {
+  const logsUrl = `https://api.github.com/repos/${encodeURIComponent(
+    GITHUB_OWNER
+  )}/${encodeURIComponent(GITHUB_REPO)}/actions/runs/${runId}/logs`;
+  const resp = await fetch(logsUrl, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'mlp-form-server',
+    },
+    redirect: 'follow',
+  });
+  if (!resp.ok) throw new Error(`Failed to download run logs (${resp.status})`);
+  const zipBuffer = await resp.buffer();
+  const zip = new AdmZip(zipBuffer);
+  const entries = zip.getEntries();
+  const runCypressEntry = entries.find((e) => /Run Cypress/i.test(e.entryName));
+  if (!runCypressEntry) throw new Error('Run Cypress log entry not found in workflow logs');
+  return runCypressEntry.getData().toString('utf8');
 }
 
 app.post('/prepare-tests', async (req, res) => {
@@ -254,6 +408,7 @@ app.post('/prepare-tests', async (req, res) => {
 
   if (shouldUseGitHubActionsRunner()) {
     try {
+      const requestId = createRequestId();
       await dispatchGitHubWorkflow({
         platform: selectedPlatform,
         name: trimmedName,
@@ -261,12 +416,23 @@ app.post('/prepare-tests', async (req, res) => {
         basePhone: trimmedBasePhone,
         differentEmail: trimmedDifferentEmail,
         differentPhone: trimmedDifferentPhone,
+        requestId,
       });
-      const workflowRunsUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW_FILE}`;
+      githubRunJobs.set(requestId, {
+        requestId,
+        fixtureData,
+        selectedPlatform,
+        selectedBaseUrl,
+        status: 'queued',
+        result: null,
+        runId: null,
+      });
       console.log('[RUN] Workflow dispatched to GitHub Actions');
       return res.json({
         ok: true,
         mode: 'github_actions',
+        requestId,
+        statusPollUrl: `/github-actions-status/${encodeURIComponent(requestId)}`,
         tests: [],
         totals: {
           total: 0,
@@ -280,7 +446,7 @@ app.post('/prepare-tests', async (req, res) => {
           allUserRegistrationOk: false,
         },
         message:
-          'Automation has been queued on GitHub Actions. Open workflow runs to see live progress and final result.',
+          'Automation has been queued on GitHub Actions. We will fetch and show final results here shortly.',
         workflowRunsUrl,
       });
     } catch (err) {
@@ -364,217 +530,88 @@ app.post('/prepare-tests', async (req, res) => {
     responseSent = true;
     console.log(`Cypress run finished with code ${code}`);
 
-    const stripAnsi = (value) =>
-      String(value || '').replace(/\u001b\[[0-9;]*m/g, '');
-    const cleanedOutput = stripAnsi(output);
-    const lines = cleanedOutput.split(/\r?\n/).filter(Boolean);
-    // Drop noisy warning / deprecation lines so UI shows mostly test results
-    const signalLines = lines.filter(
-      (line) => !/WARN|WARNING|DEPRECATION/i.test(line)
-    );
-    // Only parse lines from the test-list section (before "N passing" summary).
-    // After that line Cypress prints error details which would cause duplicates.
-    const tests = [];
-    for (const line of signalLines) {
-      if (/^\s*\d+\s+passing/i.test(line)) {
-        break;
-      }
-
-      const passMatch = line.match(/^\s*[✓✔√]\s+(.*?)(\s+\(|$)/);
-      if (passMatch) {
-        tests.push({ name: passMatch[1].trim(), status: 'passed' });
-        continue;
-      }
-
-      const failMatch = line.match(/^\s*\d+\)\s+(.*)$/);
-      if (failMatch) {
-        tests.push({ name: failMatch[1].trim(), status: 'failed' });
-        continue;
-      }
-    }
-
-    const leadDetailsFromName = (name) => {
-      const n = String(name || '').toLowerCase();
-      if (n.includes('new registration')) {
-        return { email: fixtureData.newEmail, phone: fixtureData.newPhone };
-      }
-      if (n.includes('existing registration')) {
-        return { email: fixtureData.existingEmail, phone: fixtureData.existingPhone };
-      }
-      if (n.includes('base email with different phone number')) {
-        return {
-          email: fixtureData.sameEmailDifferentPhone.email,
-          phone: fixtureData.sameEmailDifferentPhone.phone,
-        };
-      }
-      if (n.includes('base phone number with different email')) {
-        return {
-          email: fixtureData.samePhoneDifferentEmail.email,
-          phone: fixtureData.samePhoneDifferentEmail.phone,
-        };
-      }
-      if (n.includes('invalid email')) {
-        return {
-          email: fixtureData.invalidEmails[0],
-          phone: fixtureData.existingPhone,
-        };
-      }
-      if (n.includes('invalid phone')) {
-        return {
-          email: fixtureData.existingEmail,
-          phone: fixtureData.invalidPhones[1],
-        };
-      }
-      if (n.includes('submitting empty form')) {
-        return { email: '', phone: '' };
-      }
-      return { email: '', phone: '' };
-    };
-
-    const expectsScreeningUrl = (name) => {
-      const n = String(name || '').toLowerCase();
-      if (n.includes('base email with different phone')) {
-        return false;
-      }
-      if (n.includes('invalid email') || n.includes('invalid phone')) {
-        return false;
-      }
-      if (n.includes('submitting empty form')) {
-        return false;
-      }
-      return true;
-    };
-
-    const isUrlSuccessCase = (name) => {
-      const n = String(name || '').toLowerCase();
-      return (
-        n.includes('new registration') ||
-        n.includes('existing registration') ||
-        n.includes('base phone number with different email')
-      );
-    };
-
-    /** What “PASS” means for end users: real registration vs blocked vs validation only. */
-    const registrationExpectationFromName = (name) => {
-      const n = String(name || '').toLowerCase();
-      if (n.includes('base email with different phone')) {
-        return 'blocked_after_otp';
-      }
-      if (
-        n.includes('invalid email') ||
-        n.includes('invalid phone') ||
-        n.includes('submitting empty form')
-      ) {
-        return 'validation_only';
-      }
-      if (
-        n.includes('new registration') ||
-        n.includes('existing registration') ||
-        n.includes('base phone number with different email')
-      ) {
-        return 'screening_url';
-      }
-      return 'other';
-    };
-
-    const userRegistrationPassFrom = (t, registrationStatus, expectation) => {
-      if (expectation === 'screening_url') {
-        return registrationStatus === 'registered';
-      }
-      return t.status === 'passed';
-    };
-
-    const testsWithContext = tests.map((t) => {
-      const urlSuccessCase = isUrlSuccessCase(t.name);
-      const expectUrl = expectsScreeningUrl(t.name);
-      const registrationStatus =
-        urlSuccessCase && t.status === 'passed' ? 'registered' : 'not_registered';
-      const registrationExpectation = registrationExpectationFromName(t.name);
-      const userRegistrationPass = userRegistrationPassFrom(
-        t,
-        registrationStatus,
-        registrationExpectation
-      );
-      return {
-        ...t,
-        caseType: expectUrl ? 'registration' : 'validation',
-        expectsScreeningUrl: expectUrl,
-        isRegistrationUrlCase: urlSuccessCase,
-        registrationExpectation,
-        userRegistrationPass,
-        urlCheck: registrationStatus === 'registered' ? 'url_found' : 'url_not_found',
-        registrationStatus,
-        lead: leadDetailsFromName(t.name),
-      };
+    const parsed = parseCypressOutputToDashboardData({
+      output,
+      code,
+      fixtureData,
+      selectedPlatform,
+      selectedBaseUrl,
     });
-
-    const parsedTotal = testsWithContext.length;
-    const parsedPassed = testsWithContext.filter((t) => t.status === 'passed').length;
-    const parsedFailed = testsWithContext.filter((t) => t.status === 'failed').length;
-
-    const summaryPassingMatch = cleanedOutput.match(/(\d+)\s+passing/i);
-    const summaryFailingMatch = cleanedOutput.match(/(\d+)\s+failing/i);
-    const summaryPassed = summaryPassingMatch ? Number(summaryPassingMatch[1]) : null;
-    const summaryFailed = summaryFailingMatch ? Number(summaryFailingMatch[1]) : null;
-
-    const automationPassed = parsedPassed || (summaryPassed ?? 0);
-    const automationFailed = parsedFailed || (summaryFailed ?? (code === 0 ? 0 : 1));
-    const total = parsedTotal || (summaryPassed !== null || summaryFailed !== null
-      ? (summaryPassed || 0) + (summaryFailed || 0)
-      : automationPassed + automationFailed);
-    const urlIntentTests = testsWithContext.filter((t) => isUrlSuccessCase(t.name));
-    const registrationUrlAttempts = urlIntentTests.length;
-    const registrationUrlSuccess = urlIntentTests.filter(
-      (t) => t.registrationStatus === 'registered'
-    ).length;
-
-    const userRegistrationSuccess = testsWithContext.filter(
-      (t) => t.userRegistrationPass
-    ).length;
-    const userRegistrationAttempts = testsWithContext.length;
-    const allUserRegistrationOk =
-      userRegistrationAttempts > 0 &&
-      userRegistrationSuccess === userRegistrationAttempts;
-
     console.log('Lead URL-verification summary:');
-    for (const t of testsWithContext) {
+    for (const t of parsed.tests || []) {
       const email = t.lead?.email || '-';
       const phone = t.lead?.phone || '-';
       const reg = t.registrationStatus === 'registered' ? 'URL_FOUND' : 'URL_NOT_FOUND';
       const auto = t.status === 'passed' ? 'AUTO_PASS' : 'AUTO_FAIL';
       console.log(`- ${t.name} | ${email} | ${phone} | ${reg} | ${auto}`);
     }
-
-    res.json({
-      ok: code === 0,
-      message:
-        code === 0
-          ? `Lead outcomes (expected registration / block / validation): ${userRegistrationSuccess}/${userRegistrationAttempts}. Screening URL (3 registration flows): ${registrationUrlSuccess}/${registrationUrlAttempts}. Cypress: ${automationPassed}/${total}.`
-          : `Cypress run failed (exit code ${code}).`,
-      exitCode: code,
-      platform: selectedPlatform,
-      baseUrl: selectedBaseUrl,
-      tests: testsWithContext.map((t) => ({
-        ...t,
-        leadRegisteredWithUrl: t.registrationStatus === 'registered',
-      })),
-      totals: {
-        total,
-        automationPassed,
-        automationFailed,
-        registrationUrlSuccess,
-        registrationUrlAttempts,
-        /** true when every registration-URL test reached the screening URL */
-        allRegistrationUrlsOk:
-          registrationUrlAttempts > 0 &&
-          registrationUrlSuccess === registrationUrlAttempts,
-        userRegistrationSuccess,
-        userRegistrationAttempts,
-        /** true when every test met its intended outcome (register, block, or validate) */
-        allUserRegistrationOk,
-      },
-    });
+    res.json(parsed);
   });
+});
+
+app.get('/github-actions-status/:requestId', async (req, res) => {
+  const requestId = String(req.params.requestId || '').trim();
+  if (!requestId) {
+    return res.status(400).json({ ok: false, message: 'requestId is required' });
+  }
+  if (!shouldUseGitHubActionsRunner()) {
+    return res.status(400).json({ ok: false, message: 'GitHub Actions mode is not configured' });
+  }
+  const job = githubRunJobs.get(requestId);
+  if (!job) {
+    return res.status(404).json({ ok: false, message: 'Unknown request id' });
+  }
+  try {
+    const run = await findWorkflowRunByRequestId(requestId);
+    if (!run) {
+      return res.json({
+        ok: true,
+        mode: 'github_actions',
+        state: 'queued',
+        message: 'Workflow is still being queued on GitHub Actions...',
+        workflowRunsUrl,
+      });
+    }
+    job.runId = run.id;
+    job.status = run.status;
+    const workflowRunUrl = run.html_url || workflowRunsUrl;
+    if (run.status !== 'completed') {
+      return res.json({
+        ok: true,
+        mode: 'github_actions',
+        state: 'running',
+        message: 'Workflow is running on GitHub Actions...',
+        workflowRunUrl,
+      });
+    }
+    if (job.result) {
+      return res.json({ ...job.result, mode: 'github_actions', state: 'completed', workflowRunUrl });
+    }
+    const logText = await fetchWorkflowRunLogs(run.id);
+    const exitCode = run.conclusion === 'success' ? 0 : 1;
+    const parsed = parseCypressOutputToDashboardData({
+      output: logText,
+      code: exitCode,
+      fixtureData: job.fixtureData,
+      selectedPlatform: job.selectedPlatform,
+      selectedBaseUrl: job.selectedBaseUrl,
+    });
+    job.result = parsed;
+    return res.json({
+      ...parsed,
+      mode: 'github_actions',
+      state: 'completed',
+      workflowRunUrl,
+    });
+  } catch (err) {
+    console.error('[RUN] Failed reading GitHub workflow status:', err.message);
+    return res.status(500).json({
+      ok: false,
+      mode: 'github_actions',
+      message: `Failed to read workflow status: ${err.message}`,
+      workflowRunsUrl,
+    });
+  }
 });
 
 app.listen(PORT, () => {
