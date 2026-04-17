@@ -54,11 +54,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Cache node_modules
+      - name: Cache node_modules and Cypress binary
         id: cache-modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: |
+            node_modules
+            ~/.cache/Cypress
           key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-modules-
