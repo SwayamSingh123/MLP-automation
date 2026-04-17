@@ -2,6 +2,11 @@ name: MLP Automation Run
 run-name: "MLP Run ${{ inputs.requestId }}"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
   workflow_dispatch:
     inputs:
       platform:
@@ -48,12 +53,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+
+      - name: Cache node_modules
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
 
       - name: Install deps
+        if: steps.cache-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Build fixture from inputs
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           cat > cypress/fixtures/mlpTestData.json <<'EOF'
@@ -80,6 +95,7 @@ jobs:
           EOF
 
       - name: Select base URL
+        if: github.event_name == 'workflow_dispatch'
         id: platform
         shell: bash
         run: |
@@ -90,4 +106,5 @@ jobs:
           fi
 
       - name: Run Cypress
+        if: github.event_name == 'workflow_dispatch'
         run: npx cypress run --spec cypress/e2e/mlpLeadForm.cy.js --config baseUrl=${{ steps.platform.outputs.baseUrl }}
