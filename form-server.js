@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const fetch = require('node-fetch');
 const { spawn } = require('child_process');
+const { EventEmitter } = require('events');
 const AdmZip = require('adm-zip');
 
 const app = express();
@@ -38,10 +39,12 @@ const GITHUB_REF = process.env.GITHUB_REF || 'main';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const workflowRunsUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW_FILE}`;
 const githubRunJobs = new Map();
+const localRuns = new Map();
 
 app.use(express.json());
 
 app.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(__dirname, 'form.html'));
 });
 
@@ -179,97 +182,120 @@ async function dispatchGitHubWorkflow({
   }
 }
 
-function parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl }) {
-  const stripAnsi = (value) => String(value || '').replace(/\u001b\[[0-9;]*m/g, '');
-  const cleanedOutput = stripAnsi(output);
-  const lines = cleanedOutput.split(/\r?\n/).filter(Boolean);
-  const signalLines = lines.filter((line) => !/WARN|WARNING|DEPRECATION/i.test(line));
-  const tests = [];
-  for (const line of signalLines) {
-    if (/^\s*\d+\s+passing/i.test(line)) break;
-    const passMatch = line.match(/^\s*[✓✔√]\s+(.*?)(\s+\(|$)/);
-    if (passMatch) {
-      tests.push({ name: passMatch[1].trim(), status: 'passed' });
-      continue;
-    }
-    const failMatch = line.match(/^\s*\d+\)\s+(.*)$/);
-    if (failMatch) tests.push({ name: failMatch[1].trim(), status: 'failed' });
-  }
+// ── Shared helpers (used by both batch parser and real-time streaming) ────────
 
-  const leadDetailsFromName = (name) => {
-    const n = String(name || '').toLowerCase();
-    if (n.includes('new registration')) return { email: fixtureData.newEmail, phone: fixtureData.newPhone };
-    if (n.includes('existing registration')) return { email: fixtureData.existingEmail, phone: fixtureData.existingPhone };
-    if (n.includes('base email with different phone number')) return { email: fixtureData.sameEmailDifferentPhone.email, phone: fixtureData.sameEmailDifferentPhone.phone };
-    if (n.includes('base phone number with different email')) return { email: fixtureData.samePhoneDifferentEmail.email, phone: fixtureData.samePhoneDifferentEmail.phone };
-    if (n.includes('invalid email')) return { email: fixtureData.invalidEmails[0], phone: fixtureData.existingPhone };
-    if (n.includes('invalid phone')) return { email: fixtureData.existingEmail, phone: fixtureData.invalidPhones[1] };
-    if (n.includes('submitting empty form')) return { email: '', phone: '' };
-    return { email: '', phone: '' };
-  };
-  const isUrlSuccessCase = (name) => {
-    const n = String(name || '').toLowerCase();
-    return n.includes('new registration') || n.includes('existing registration') || n.includes('base phone number with different email');
-  };
-  const registrationExpectationFromName = (name) => {
-    const n = String(name || '').toLowerCase();
-    if (n.includes('base email with different phone')) return 'blocked_after_otp';
-    if (n.includes('invalid email') || n.includes('invalid phone') || n.includes('submitting empty form')) return 'validation_only';
-    if (isUrlSuccessCase(name)) return 'screening_url';
-    return 'other';
-  };
+const stripAnsi = (s) => String(s || '').replace(/\u001b\[[0-9;]*m/g, '');
+const stripTimestamp = (line) => line.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s*/, '');
 
-  const testsWithContext = tests.map((t) => {
-    const registrationStatus = isUrlSuccessCase(t.name) && t.status === 'passed' ? 'registered' : 'not_registered';
-    const registrationExpectation = registrationExpectationFromName(t.name);
-    const userRegistrationPass =
-      registrationExpectation === 'screening_url' ? registrationStatus === 'registered' : t.status === 'passed';
-    return {
-      ...t,
-      isRegistrationUrlCase: isUrlSuccessCase(t.name),
-      registrationExpectation,
-      userRegistrationPass,
-      registrationStatus,
-      lead: leadDetailsFromName(t.name),
-      leadRegisteredWithUrl: registrationStatus === 'registered',
-    };
-  });
+function isUrlSuccessCase(name) {
+  const n = String(name || '').toLowerCase();
+  return (
+    n.includes('new registration') ||
+    n.includes('existing registration') ||
+    n.includes('base phone number with different email')
+  );
+}
 
-  const parsedPassed = testsWithContext.filter((t) => t.status === 'passed').length;
-  const parsedFailed = testsWithContext.filter((t) => t.status === 'failed').length;
-  const summaryPassed = Number((cleanedOutput.match(/(\d+)\s+passing/i) || [])[1] || 0);
-  const summaryFailed = Number((cleanedOutput.match(/(\d+)\s+failing/i) || [])[1] || 0);
-  const automationPassed = parsedPassed || summaryPassed;
-  const automationFailed = parsedFailed || summaryFailed || (code === 0 ? 0 : 1);
-  const total = testsWithContext.length || summaryPassed + summaryFailed || automationPassed + automationFailed;
+function registrationExpectationFromName(name) {
+  const n = String(name || '').toLowerCase();
+  if (n.includes('base email with different phone')) return 'blocked_after_otp';
+  if (n.includes('invalid email') || n.includes('invalid phone') || n.includes('submitting empty form'))
+    return 'validation_only';
+  if (isUrlSuccessCase(name)) return 'screening_url';
+  return 'other';
+}
+
+function leadDetailsFromName(name, fixtureData) {
+  const n = String(name || '').toLowerCase();
+  if (n.includes('new registration')) return { email: fixtureData.newEmail, phone: fixtureData.newPhone };
+  if (n.includes('existing registration')) return { email: fixtureData.existingEmail, phone: fixtureData.existingPhone };
+  if (n.includes('base email with different phone number'))
+    return { email: fixtureData.sameEmailDifferentPhone.email, phone: fixtureData.sameEmailDifferentPhone.phone };
+  if (n.includes('base phone number with different email'))
+    return { email: fixtureData.samePhoneDifferentEmail.email, phone: fixtureData.samePhoneDifferentEmail.phone };
+  if (n.includes('invalid email')) return { email: fixtureData.invalidEmails[0], phone: fixtureData.existingPhone };
+  if (n.includes('invalid phone')) return { email: fixtureData.existingEmail, phone: fixtureData.invalidPhones[1] };
+  if (n.includes('submitting empty form')) return { email: '', phone: '' };
+  return { email: '', phone: '' };
+}
+
+function buildTestContext(name, status, fixtureData) {
+  const registrationExpectation = registrationExpectationFromName(name);
+  const isRegistrationUrlCase = isUrlSuccessCase(name);
+  const registrationStatus = isRegistrationUrlCase && status === 'passed' ? 'registered' : 'not_registered';
+  const userRegistrationPass =
+    registrationExpectation === 'screening_url' ? registrationStatus === 'registered' : status === 'passed';
+  return {
+    name,
+    status,
+    isRegistrationUrlCase,
+    registrationExpectation,
+    userRegistrationPass,
+    registrationStatus,
+    lead: leadDetailsFromName(name, fixtureData),
+    leadRegisteredWithUrl: registrationStatus === 'registered',
+  };
+}
+
+function buildTotals(testsWithContext, exitCode) {
+  const automationPassed = testsWithContext.filter((t) => t.status === 'passed').length;
+  const automationFailed = testsWithContext.filter((t) => t.status === 'failed').length;
+  const total = testsWithContext.length;
   const urlIntentTests = testsWithContext.filter((t) => t.isRegistrationUrlCase);
   const registrationUrlAttempts = urlIntentTests.length;
   const registrationUrlSuccess = urlIntentTests.filter((t) => t.registrationStatus === 'registered').length;
   const userRegistrationSuccess = testsWithContext.filter((t) => t.userRegistrationPass).length;
-  const userRegistrationAttempts = testsWithContext.length;
+  const userRegistrationAttempts = total;
   const allUserRegistrationOk = userRegistrationAttempts > 0 && userRegistrationSuccess === userRegistrationAttempts;
+  return {
+    total,
+    automationPassed,
+    automationFailed: automationFailed || (exitCode !== 0 && total === 0 ? 1 : 0),
+    registrationUrlSuccess,
+    registrationUrlAttempts,
+    allRegistrationUrlsOk: registrationUrlAttempts > 0 && registrationUrlSuccess === registrationUrlAttempts,
+    userRegistrationSuccess,
+    userRegistrationAttempts,
+    allUserRegistrationOk,
+  };
+}
+
+// ── Batch parser (used for GitHub Actions log download) ───────────────────────
+
+function parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl }) {
+  const cleanedOutput = stripAnsi(output);
+  const lines = cleanedOutput.split(/\r?\n/).map(stripTimestamp).filter(Boolean);
+  const signalLines = lines.filter((line) => !/WARN|WARNING|DEPRECATION/i.test(line));
+
+  const rawTests = [];
+  for (const line of signalLines) {
+    if (/^\s*\d+\s+passing/i.test(line)) break;
+    const passMatch = line.match(/^\s*[✓✔√]\s+(.*?)(\s+\(|$)/);
+    if (passMatch) { rawTests.push({ name: passMatch[1].trim(), status: 'passed' }); continue; }
+    const failMatch = line.match(/^\s*\d+\)\s+(.*)$/);
+    if (failMatch) rawTests.push({ name: failMatch[1].trim(), status: 'failed' });
+  }
+
+  const testsWithContext = rawTests.map((t) => buildTestContext(t.name, t.status, fixtureData));
+  const totals = buildTotals(testsWithContext, code);
+
+  // Fall back to summary counts when individual lines weren't parseable
+  if (totals.total === 0) {
+    const summaryPassed = Number((cleanedOutput.match(/(\d+)\s+passing/i) || [])[1] || 0);
+    const summaryFailed = Number((cleanedOutput.match(/(\d+)\s+failing/i) || [])[1] || 0);
+    totals.automationPassed = summaryPassed;
+    totals.automationFailed = summaryFailed || (code === 0 ? 0 : 1);
+    totals.total = summaryPassed + summaryFailed;
+  }
 
   return {
     ok: code === 0,
-    message:
-      code === 0
-        ? `Lead outcomes (expected registration / block / validation): ${userRegistrationSuccess}/${userRegistrationAttempts}. Screening URL (3 registration flows): ${registrationUrlSuccess}/${registrationUrlAttempts}. Cypress: ${automationPassed}/${total}.`
-        : `Cypress run failed (exit code ${code}).`,
+    message: code === 0 ? `Tests complete: ${totals.userRegistrationSuccess}/${totals.userRegistrationAttempts} lead outcomes OK.` : `Cypress run failed (exit code ${code}).`,
     exitCode: code,
     platform: selectedPlatform,
     baseUrl: selectedBaseUrl,
     tests: testsWithContext,
-    totals: {
-      total,
-      automationPassed,
-      automationFailed,
-      registrationUrlSuccess,
-      registrationUrlAttempts,
-      allRegistrationUrlsOk: registrationUrlAttempts > 0 && registrationUrlSuccess === registrationUrlAttempts,
-      userRegistrationSuccess,
-      userRegistrationAttempts,
-      allUserRegistrationOk,
-    },
+    totals,
   };
 }
 
@@ -458,63 +484,76 @@ app.post('/prepare-tests', async (req, res) => {
     }
   }
 
+  // ── Local Cypress run with real-time SSE streaming ──────────────────────────
+  const requestId = createRequestId();
+  const run = { emitter: new EventEmitter(), buffered: [], done: false, result: null };
+  localRuns.set(requestId, run);
+
+  const emitSSE = (event, data) => {
+    const payload = { event, data };
+    run.buffered.push(payload);
+    run.emitter.emit('sse', payload);
+  };
+
+  // Respond immediately so the browser can open the SSE stream
+  res.json({
+    ok: true,
+    mode: 'local',
+    requestId,
+    streamUrl: `/run-stream/${encodeURIComponent(requestId)}`,
+    tests: [],
+    totals: { total: 0, automationPassed: 0, automationFailed: 0, registrationUrlSuccess: 0, registrationUrlAttempts: 0, allRegistrationUrlsOk: false, userRegistrationSuccess: 0, userRegistrationAttempts: 0, allUserRegistrationOk: false },
+    message: 'Cypress is starting...',
+  });
+
   const cypressCmd = process.env.MLP_CYPRESS_CMD || 'npx';
   const cypressArgs = [
-    '--spec',
-    'cypress/e2e/mlpLeadForm.cy.js',
-    '--config',
-    `baseUrl=${selectedBaseUrl}`,
-    '--env',
-    `platform=${selectedPlatform}`,
+    '--spec', 'cypress/e2e/mlpLeadForm.cy.js',
+    '--config', `baseUrl=${selectedBaseUrl}`,
+    '--env', `platform=${selectedPlatform}`,
   ];
-  const finalCypressArgs =
-    cypressCmd === 'npx'
-      ? ['cypress', 'run', ...cypressArgs]
-      : ['run', ...cypressArgs];
+  const finalCypressArgs = cypressCmd === 'npx' ? ['cypress', 'run', ...cypressArgs] : ['run', ...cypressArgs];
 
   const child = spawn(cypressCmd, finalCypressArgs, {
     cwd: __dirname,
     shell: process.platform === 'win32',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  console.log(
-    `[RUN] Starting Cypress: ${cypressCmd} ${finalCypressArgs.join(' ')}`
-  );
+  console.log(`[RUN] Starting Cypress (streaming): ${cypressCmd} ${finalCypressArgs.join(' ')}`);
 
   let output = '';
-  let responseSent = false;
+  let summaryReached = false;
+  const seenTestNames = new Set();
 
-  child.on('error', (err) => {
-    console.error('[RUN] Cypress spawn failed:', err);
-    if (responseSent) {
+  const processLine = (raw) => {
+    const line = stripTimestamp(stripAnsi(raw));
+    if (/^\s*\d+\s+passing/i.test(line) || /^\s*\d+\s+failing/i.test(line)) summaryReached = true;
+    if (summaryReached) return;
+
+    const passMatch = line.match(/^\s*[✓✔√]\s+(.*?)(\s+\(|$)/);
+    if (passMatch) {
+      const name = passMatch[1].trim();
+      if (name && !seenTestNames.has(name)) {
+        seenTestNames.add(name);
+        emitSSE('test_result', buildTestContext(name, 'passed', fixtureData));
+      }
       return;
     }
-    responseSent = true;
-    return res.status(500).json({
-      ok: false,
-      message: `Failed to start Cypress: ${err.message}`,
-      exitCode: null,
-      platform: selectedPlatform,
-      baseUrl: selectedBaseUrl,
-      tests: [],
-      totals: {
-        total: 0,
-        automationPassed: 0,
-        automationFailed: 0,
-        registrationUrlSuccess: 0,
-        registrationUrlAttempts: 0,
-        allRegistrationUrlsOk: false,
-        userRegistrationSuccess: 0,
-        userRegistrationAttempts: 0,
-        allUserRegistrationOk: false,
-      },
-    });
-  });
+    const failMatch = line.match(/^\s*\d+\)\s+(.+)$/);
+    if (failMatch) {
+      const name = failMatch[1].trim();
+      if (name && !seenTestNames.has(name)) {
+        seenTestNames.add(name);
+        emitSSE('test_result', buildTestContext(name, 'failed', fixtureData));
+      }
+    }
+  };
 
   child.stdout.on('data', (chunk) => {
     const text = chunk.toString();
     output += text;
     process.stdout.write(text);
+    text.split(/\r?\n/).forEach(processLine);
   });
 
   child.stderr.on('data', (chunk) => {
@@ -523,29 +562,31 @@ app.post('/prepare-tests', async (req, res) => {
     process.stderr.write(text);
   });
 
-  child.on('exit', (code) => {
-    if (responseSent) {
-      return;
-    }
-    responseSent = true;
-    console.log(`Cypress run finished with code ${code}`);
+  child.on('error', (err) => {
+    console.error('[RUN] Cypress spawn failed:', err);
+    const errResult = {
+      ok: false, message: `Failed to start Cypress: ${err.message}`, exitCode: null,
+      platform: selectedPlatform, baseUrl: selectedBaseUrl, tests: [],
+      totals: { total: 0, automationPassed: 0, automationFailed: 0, registrationUrlSuccess: 0, registrationUrlAttempts: 0, allRegistrationUrlsOk: false, userRegistrationSuccess: 0, userRegistrationAttempts: 0, allUserRegistrationOk: false },
+    };
+    run.done = true; run.result = errResult;
+    emitSSE('complete', errResult);
+    run.emitter.emit('done');
+    setTimeout(() => localRuns.delete(requestId), 600_000);
+  });
 
-    const parsed = parseCypressOutputToDashboardData({
-      output,
-      code,
-      fixtureData,
-      selectedPlatform,
-      selectedBaseUrl,
-    });
+  child.on('exit', (code) => {
+    console.log(`Cypress run finished with code ${code}`);
+    const parsed = parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl });
     console.log('Lead URL-verification summary:');
     for (const t of parsed.tests || []) {
-      const email = t.lead?.email || '-';
-      const phone = t.lead?.phone || '-';
       const reg = t.registrationStatus === 'registered' ? 'URL_FOUND' : 'URL_NOT_FOUND';
-      const auto = t.status === 'passed' ? 'AUTO_PASS' : 'AUTO_FAIL';
-      console.log(`- ${t.name} | ${email} | ${phone} | ${reg} | ${auto}`);
+      console.log(`- ${t.name} | ${t.lead?.email || '-'} | ${t.lead?.phone || '-'} | ${reg} | ${t.status === 'passed' ? 'AUTO_PASS' : 'AUTO_FAIL'}`);
     }
-    res.json(parsed);
+    run.done = true; run.result = parsed;
+    emitSSE('complete', parsed);
+    run.emitter.emit('done');
+    setTimeout(() => localRuns.delete(requestId), 600_000);
   });
 });
 
@@ -576,12 +617,14 @@ app.get('/github-actions-status/:requestId', async (req, res) => {
     job.status = run.status;
     const workflowRunUrl = run.html_url || workflowRunsUrl;
     if (run.status !== 'completed') {
+      const steps = await fetchWorkflowJobSteps(run.id).catch(() => []);
       return res.json({
         ok: true,
         mode: 'github_actions',
         state: 'running',
         message: 'Workflow is running on GitHub Actions...',
         workflowRunUrl,
+        steps,
       });
     }
     if (job.result) {
@@ -613,6 +656,59 @@ app.get('/github-actions-status/:requestId', async (req, res) => {
     });
   }
 });
+
+// ── SSE stream for local Cypress runs ────────────────────────────────────────
+
+app.get('/run-stream/:requestId', (req, res) => {
+  const requestId = String(req.params.requestId || '').trim();
+  const run = localRuns.get(requestId);
+  if (!run) {
+    res.status(404).json({ ok: false, message: 'Run not found or has expired' });
+    return;
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // disable nginx/render proxy buffering
+  res.flushHeaders();
+
+  const send = ({ event, data }) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
+  // Replay buffered events for late-connecting clients
+  for (const payload of run.buffered) send(payload);
+
+  if (run.done) { res.end(); return; }
+
+  run.emitter.on('sse', send);
+  run.emitter.once('done', () => { run.emitter.off('sse', send); res.end(); });
+  req.on('close', () => run.emitter.off('sse', send));
+});
+
+// ── GitHub Jobs step fetcher (production progress tracking) ───────────────────
+
+async function fetchWorkflowJobSteps(runId) {
+  const url = `https://api.github.com/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/actions/runs/${runId}/jobs`;
+  const resp = await fetch(url, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'mlp-form-server',
+    },
+  });
+  if (!resp.ok) return [];
+  const body = await resp.json();
+  const job = Array.isArray(body?.jobs) ? body.jobs[0] : null;
+  if (!job) return [];
+  return (job.steps || []).map((s) => ({
+    name: s.name,
+    status: s.status,       // queued | in_progress | completed
+    conclusion: s.conclusion, // success | failure | null
+  }));
+}
 
 app.listen(PORT, () => {
   console.log(`MLP form server running at http://localhost:${PORT}`);
