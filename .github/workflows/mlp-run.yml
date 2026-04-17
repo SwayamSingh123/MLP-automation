@@ -62,6 +62,7 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-modules-
+          save-always: true
 
       - name: Install deps
         if: steps.cache-modules.outputs.cache-hit != 'true'
