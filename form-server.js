@@ -869,12 +869,49 @@ app.post('/prepare-tests', async (req, res) => {
   if (shouldUseGitHubActionsRunner()) {
     try {
       const requestId = createRequestId();
+
+      // Callback mode has no input fields on the dashboard — the local spec
+      // reads name/email/phone straight from the MLP fixture. For the
+      // GitHub Actions dispatch we need real values to send as inputs
+      // (the workflow declares them as required), so we read the MLP
+      // fixture file here and forward those values to the workflow.
+      let dispatchName = trimmedName;
+      let dispatchBaseEmail = trimmedBaseEmail;
+      let dispatchBasePhone = trimmedBasePhone;
+      if (isCallbackMode) {
+        if (!fs.existsSync(FIXTURE_PATH_MLP)) {
+          return res.status(400).json({
+            ok: false,
+            message:
+              'Callback (GitHub Actions): cypress/fixtures/mlp/mlpTestData.json is missing. Fill the MLP form fields and run MLP at least once so the fixture has real values, then re-run Callback.',
+          });
+        }
+        try {
+          const mlpFixture = JSON.parse(fs.readFileSync(FIXTURE_PATH_MLP, 'utf8'));
+          dispatchName = mlpFixture.name || dispatchName;
+          dispatchBaseEmail = mlpFixture.existingEmail || dispatchBaseEmail;
+          dispatchBasePhone = mlpFixture.existingPhone || dispatchBasePhone;
+        } catch (err) {
+          return res.status(500).json({
+            ok: false,
+            message: `Callback: could not read MLP fixture: ${err.message}`,
+          });
+        }
+        if (!dispatchName || !dispatchBaseEmail || !dispatchBasePhone) {
+          return res.status(400).json({
+            ok: false,
+            message:
+              'Callback (GitHub Actions): MLP fixture is missing name / existingEmail / existingPhone. Fill the MLP form and run MLP first.',
+          });
+        }
+      }
+
       const dispatchResult = await dispatchGitHubWorkflow({
         mode: selectedMode,
         platform: selectedPlatform,
-        name: trimmedName,
-        baseEmail: trimmedBaseEmail,
-        basePhone: trimmedBasePhone,
+        name: dispatchName,
+        baseEmail: dispatchBaseEmail,
+        basePhone: dispatchBasePhone,
         differentEmail: trimmedDifferentEmail,
         differentPhone: trimmedDifferentPhone,
         requestId,
