@@ -617,6 +617,110 @@ async function fetchWorkflowRunLogs(runId) {
   return runCypressEntry.getData().toString('utf8');
 }
 
+// Downloads the first artifact attached to a workflow run and returns it as
+// an unzipped AdmZip. Workflows upload exactly one artifact containing
+// `cypress/reports/*` (api-monitor-data.json, pixel-monitor-data.json,
+// seo-results.json) plus screenshots/videos. Returns null if no artifacts
+// were uploaded (e.g. run failed before the upload step).
+async function fetchWorkflowArtifacts(runId) {
+  const listUrl = `https://api.github.com/repos/${encodeURIComponent(
+    GITHUB_OWNER
+  )}/${encodeURIComponent(GITHUB_REPO)}/actions/runs/${runId}/artifacts`;
+  const listResp = await fetch(listUrl, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'mlp-form-server',
+    },
+  });
+  if (!listResp.ok) throw new Error(`Failed to list run artifacts (${listResp.status})`);
+  const listBody = await listResp.json();
+  const artifacts = Array.isArray(listBody && listBody.artifacts) ? listBody.artifacts : [];
+  if (artifacts.length === 0) return null;
+
+  // First artifact only — our workflows upload exactly one `<mode>-artifacts-<requestId>`.
+  const artifact = artifacts[0];
+  const downloadResp = await fetch(artifact.archive_download_url, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'mlp-form-server',
+    },
+    redirect: 'follow',
+  });
+  if (!downloadResp.ok) throw new Error(`Failed to download artifact ${artifact.id} (${downloadResp.status})`);
+  const zipBuffer = await downloadResp.buffer();
+  return new AdmZip(zipBuffer);
+}
+
+// Reads a JSON file from inside an artifact zip by suffix-matching the entry
+// path. actions/upload-artifact strips the common root, so the entry path
+// inside the zip is typically `reports/<name>.json` (without `cypress/`).
+function readJsonFromZip(zip, suffix) {
+  if (!zip) return null;
+  const entry = zip
+    .getEntries()
+    .find((e) => e.entryName.replace(/\\/g, '/').endsWith(suffix));
+  if (!entry) return null;
+  try {
+    return JSON.parse(entry.getData().toString('utf8'));
+  } catch (_err) {
+    return null;
+  }
+}
+
+// Mirror of the local-run attachMonitoringData + attachSeoResults — but reads
+// the JSON from a downloaded artifact zip instead of the form-server's local
+// disk. Result: GitHub Actions runs surface the same per-test API chips,
+// pixel summary, and SEO checklist diff that local runs do.
+function attachRemoteMonitoringData(parsed, zip) {
+  if (!zip) return parsed;
+
+  // Per-test API calls — keyed by test title.
+  const apiData = readJsonFromZip(zip, 'reports/api-monitor-data.json');
+  if (Array.isArray(apiData)) {
+    const apiByTest = new Map();
+    for (const entry of apiData) {
+      if (entry && entry.testTitle) apiByTest.set(entry.testTitle, entry.apiCalls || []);
+    }
+    for (const t of parsed.tests || []) {
+      t.apiCalls = apiByTest.get(t.name) || [];
+    }
+  }
+
+  // Aggregated Meta Pixel events — same shape as the local aggregator.
+  const pixelData = readJsonFromZip(zip, 'reports/pixel-monitor-data.json');
+  if (Array.isArray(pixelData)) {
+    const byKey = new Map();
+    for (const entry of pixelData) {
+      for (const call of (entry && entry.pixelCalls) || []) {
+        const pixelId = call.pixelId || '';
+        const eventName = call.eventName || '';
+        if (!pixelId && !eventName) continue;
+        const key = pixelId + '|' + eventName;
+        if (!byKey.has(key)) byKey.set(key, { pixelId, eventName, count: 0, sourceUrls: [] });
+        const item = byKey.get(key);
+        item.count += 1;
+        if (call.sourceUrl && !item.sourceUrls.includes(call.sourceUrl)) {
+          item.sourceUrls.push(call.sourceUrl);
+        }
+      }
+    }
+    parsed.pixelEvents = Array.from(byKey.values()).sort((a, b) => {
+      if (a.pixelId !== b.pixelId) return a.pixelId.localeCompare(b.pixelId);
+      return a.eventName.localeCompare(b.eventName);
+    });
+  }
+
+  // SEO checklist — only present for the SEO mode artifact.
+  const seoData = readJsonFromZip(zip, 'reports/seo-results.json');
+  if (Array.isArray(seoData)) parsed.seoResults = seoData;
+
+  return parsed;
+}
+
 app.post('/prepare-tests', async (req, res) => {
   const { name, baseEmail, basePhone, differentEmail, differentPhone, platform, mode } =
     req.body || {};
@@ -998,7 +1102,15 @@ app.get('/github-actions-status/:requestId', async (req, res) => {
     if (job.result) {
       return res.json({ ...job.result, mode: 'github_actions', state: 'completed', workflowRunUrl });
     }
-    const logText = await fetchWorkflowRunLogs(run.id);
+    // Fetch logs + artifacts in parallel — artifacts contain the JSON files
+    // (api-monitor / pixel-monitor / seo-results) that drive the rich UI.
+    const [logText, artifactZip] = await Promise.all([
+      fetchWorkflowRunLogs(run.id),
+      fetchWorkflowArtifacts(run.id).catch((err) => {
+        console.error('[RUN] Could not fetch artifacts for run', run.id, '—', err.message);
+        return null;
+      }),
+    ]);
     const exitCode = run.conclusion === 'success' ? 0 : 1;
     const parsed = parseCypressOutputToDashboardData({
       output: logText,
@@ -1007,6 +1119,19 @@ app.get('/github-actions-status/:requestId', async (req, res) => {
       selectedPlatform: job.selectedPlatform,
       selectedBaseUrl: job.selectedBaseUrl,
     });
+    // Enrich with the same data the local-run flow attaches — per-test
+    // apiCalls, aggregated pixelEvents, seoResults.
+    attachRemoteMonitoringData(parsed, artifactZip);
+    // Attach mode metadata so form.html's renderers route to the right view
+    // (SEO panel vs. test list, runLabel pill, expectedTestCount, etc.).
+    const jobMode = job.runMode;
+    const jobModeConfig = jobMode && MODES[jobMode];
+    if (jobModeConfig) {
+      parsed.runMode = jobMode;
+      parsed.runLabel = jobModeConfig.label;
+      parsed.expectedTestCount = jobModeConfig.expectedTestCount;
+      parsed.pixelEnabled = jobModeConfig.pixelEnabled;
+    }
     job.result = parsed;
     return res.json({
       ...parsed,
