@@ -1,0 +1,86 @@
+name: SEO Checklist Run
+run-name: "SEO Run ${{ inputs.requestId }}"
+
+# Aligns with form-server.js MODES.seo:
+#   - No fixture build — fixtures (seo-page-data.json + seo-jsonld/*) are
+#     committed to the repo and read by the spec directly.
+#   - Specs run:     seoChecklist (1 spec, 7 page tests, 17 checks each)
+#   - Pixel:         disabled
+#   - Platform:      'test' or 'production' (production = www.kraftshala.com)
+#   - Inputs:        only platform + requestId (no lead fields)
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "test or production"
+        required: true
+        default: "test"
+        type: choice
+        options: [test, production]
+      requestId:
+        description: "Request correlation id from UI"
+        required: true
+        type: string
+
+jobs:
+  run-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache node_modules and Cypress binary
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
+          save-always: true
+
+      - name: Install deps
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Select base URL
+        id: platform
+        shell: bash
+        # SEO supports two platforms: test (default) and production (live).
+        # Canonical URLs inside the spec always check against www.kraftshala.com
+        # regardless — handled in the spec.
+        run: |
+          if [ "${{ github.event.inputs.platform }}" = "production" ]; then
+            echo "baseUrl=https://www.kraftshala.com/" >> $GITHUB_OUTPUT
+          else
+            echo "baseUrl=https://testprogram.kraftshala.com/" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Cypress (SEO checklist — 17 checks × 7 pages)
+        run: |
+          npx cypress run \
+            --spec "cypress/e2e/seo/seoChecklist.cy.js" \
+            --config baseUrl=${{ steps.platform.outputs.baseUrl }} \
+            --env platform=${{ github.event.inputs.platform }},disablePixel=true
+
+      - name: Upload Cypress artifacts (screenshots, videos, reports, seo-results)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-artifacts-${{ github.event.inputs.requestId }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/reports
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,0 +1,143 @@
+name: KS Live Automation Run
+run-name: "KS Live Run ${{ inputs.requestId }}"
+
+# Aligns with form-server.js MODES.kslive:
+#   - Fixture path:  cypress/fixtures/kslive/ksLiveTestData.json
+#                    (FLAT shape — distinct from MLP/ALM/SMBL nested shape)
+#   - Specs run:     ksLiveRegistration (1 spec, 4 tests across two event cards)
+#   - Pixel:         disabled
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "test or main"
+        required: true
+        default: "test"
+        type: choice
+        options: [test, main]
+      name:
+        description: "Lead name"
+        required: true
+        type: string
+      baseEmail:
+        description: "Base email"
+        required: true
+        type: string
+      basePhone:
+        description: "Base phone"
+        required: true
+        type: string
+      differentEmail:
+        description: "Different email"
+        required: true
+        type: string
+      differentPhone:
+        description: "Different phone"
+        required: true
+        type: string
+      requestId:
+        description: "Request correlation id from UI"
+        required: true
+        type: string
+
+jobs:
+  run-kslive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache node_modules and Cypress binary
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
+          save-always: true
+
+      - name: Install deps
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Build KS Live fixture from inputs (flat shape)
+        shell: bash
+        run: |
+          mkdir -p cypress/fixtures/kslive
+          cat > cypress/fixtures/kslive/ksLiveTestData.json <<'EOF'
+          {
+            "name": "${{ github.event.inputs.name }}",
+            "baseEmail": "${{ github.event.inputs.baseEmail }}",
+            "basePhone": "${{ github.event.inputs.basePhone }}",
+            "differentEmail": "${{ github.event.inputs.differentEmail }}",
+            "differentPhone": "${{ github.event.inputs.differentPhone }}",
+            "otp": "159753"
+          }
+          EOF
+
+      - name: Build MLP fixture too (KS Live scenario 4 reads from it)
+        shell: bash
+        run: |
+          mkdir -p cypress/fixtures/mlp
+          cat > cypress/fixtures/mlp/mlpTestData.json <<'EOF'
+          {
+            "name": "${{ github.event.inputs.name }}",
+            "existingEmail": "${{ github.event.inputs.baseEmail }}",
+            "existingPhone": "${{ github.event.inputs.basePhone }}",
+            "newEmail": "${{ github.event.inputs.baseEmail }}",
+            "newPhone": "${{ github.event.inputs.basePhone }}",
+            "sameEmailDifferentPhone": {
+              "email": "${{ github.event.inputs.baseEmail }}",
+              "phone": "${{ github.event.inputs.differentPhone }}"
+            },
+            "samePhoneDifferentEmail": {
+              "email": "${{ github.event.inputs.differentEmail }}",
+              "phone": "${{ github.event.inputs.basePhone }}"
+            },
+            "extraValidEmails": [],
+            "extraValidPhones": [],
+            "invalidEmails": ["plainaddress", "missingatsign.com", "missing-domain@", "user@domain", "user@.com"],
+            "invalidPhones": ["", "12345", "abcdefghij", "9999999999999", "123-456-7890"],
+            "otp": "159753"
+          }
+          EOF
+
+      - name: Select base URL
+        id: platform
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.platform }}" = "main" ]; then
+            echo "baseUrl=https://program.kraftshala.com/" >> $GITHUB_OUTPUT
+          else
+            echo "baseUrl=https://testprogram.kraftshala.com/" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Cypress (KS Live — registration on 1st and 2nd cards)
+        run: |
+          npx cypress run \
+            --spec "cypress/e2e/kslive/ksLiveRegistration.cy.js" \
+            --config baseUrl=${{ steps.platform.outputs.baseUrl }} \
+            --env platform=${{ github.event.inputs.platform }},disablePixel=true
+
+      - name: Upload Cypress artifacts (screenshots, videos, reports)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kslive-artifacts-${{ github.event.inputs.requestId }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/reports
+          if-no-files-found: ignore
+          retention-days: 7

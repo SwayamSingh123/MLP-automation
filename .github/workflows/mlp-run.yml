@@ -1,6 +1,12 @@
 name: MLP Automation Run
 run-name: "MLP Run ${{ inputs.requestId }}"
 
+# Aligns with form-server.js MODES.mlp:
+#   - Fixture path:  cypress/fixtures/mlp/mlpTestData.json
+#   - Specs run:     mlpLeadForm + downloadBrochure + downloadSyllabus (3 specs)
+#   - Test count:    9 (7 lead-form edge cases + 1 brochure + 1 syllabus)
+#   - Pixel:         enabled (MLP is the only mode that captures pixels)
+
 on:
   push:
     branches: [main]
@@ -70,11 +76,14 @@ jobs:
         if: steps.cache-modules.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Build fixture from inputs
+      - name: Build MLP fixture from inputs
         if: github.event_name == 'workflow_dispatch'
         shell: bash
+        # Project moved MLP fixtures into a per-page subdirectory. mkdir -p
+        # guards against the directory not existing on a fresh checkout.
         run: |
-          cat > cypress/fixtures/mlpTestData.json <<'EOF'
+          mkdir -p cypress/fixtures/mlp
+          cat > cypress/fixtures/mlp/mlpTestData.json <<'EOF'
           {
             "name": "${{ github.event.inputs.name }}",
             "existingEmail": "${{ github.event.inputs.baseEmail }}",
@@ -108,6 +117,25 @@ jobs:
             echo "baseUrl=https://testprogram.kraftshala.com/" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run Cypress
+      - name: Run Cypress (MLP — lead form + brochure + syllabus)
         if: github.event_name == 'workflow_dispatch'
-        run: npx cypress run --spec cypress/e2e/mlpLeadForm.cy.js --config baseUrl=${{ steps.platform.outputs.baseUrl }}
+        # Runs all 3 MLP specs in sequence — same bundle form-server.js dispatches
+        # locally for the "Run MLP tests" button. Comma-separated --spec arg is
+        # the Cypress idiom for multi-spec runs.
+        run: |
+          npx cypress run \
+            --spec "cypress/e2e/mlp/mlpLeadForm.cy.js,cypress/e2e/mlp/downloadBrochure.cy.js,cypress/e2e/mlp/downloadSyllabus.cy.js" \
+            --config baseUrl=${{ steps.platform.outputs.baseUrl }} \
+            --env platform=${{ github.event.inputs.platform }}
+
+      - name: Upload Cypress artifacts (screenshots, videos, reports)
+        if: always() && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts-${{ github.event.inputs.requestId }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/reports
+          if-no-files-found: ignore
+          retention-days: 7
