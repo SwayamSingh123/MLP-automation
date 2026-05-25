@@ -64,7 +64,7 @@ beforeEach(() => {
     return;
   }
 
-  // Only the first test of the entire Cypress run claims the slot.
+
   cy.task('pixelClaimFirstSlot', null, { log: false }).then((claimed) => {
     if (!claimed) return;
     Cypress.env('__pixelCaptureActive', true);
