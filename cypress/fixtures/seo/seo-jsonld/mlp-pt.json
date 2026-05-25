@@ -1,0 +1,99 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Marketing Launchpad Part-time Digital Marketing Course",
+    "description": "The Part-time Marketing Launchpad by Kraftshala is India's best part-time online digital marketing course with placements up to 9.5 LPA in top companies. It's an 11-month course with an 8-week paid internship and full-time jobs.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Kraftshala",
+      "url": "https://www.kraftshala.com/"
+    },
+    "url": "https://www.kraftshala.com/marketing-launchpad/part-time-digital-marketing-course/",
+    "image": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/Group-11686.png",
+    "category": "Digital Marketing",
+    "offers": {
+      "@type": "Offer",
+      "price": "140000",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://www.kraftshala.com/marketing-launchpad/part-time-digital-marketing-course/",
+      "category": "Digital Marketing"
+    },
+    "hasCourseInstance": [
+      {
+        "@type": "CourseInstance",
+        "courseMode": "Online",
+        "duration": "P11M",
+        "courseSchedule": {
+          "@type": "Schedule",
+          "repeatCount": 1,
+          "repeatFrequency": "Monthly",
+          "description": "Part-time, with live online classes"
+        }
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What will my typical week look like?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You'll attend classes on Sundays (10AM–7PM) and have 2-hour sessions on Tuesday and Thursday evenings for projects or live classes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will I get any live campaign experience?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, you'll run live campaigns on Meta and Google Ads as part of your group project during the program."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the course curriculum different for Part-Time batch Vs Full-Time Batch?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The Part-Time course excludes SEO but includes more revision sessions. SEO materials may be shared for self-study."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the eligibility criteria for Kraftshala's online digital marketing course with placement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You must be 12th pass, have a laptop, internet access, English skills, and be ready to take up a full-time job post course."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the Marketing Launchpad a job guarantee digital marketing course?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It's not a job guarantee program, but if not placed at ₹4.5L+ in 15 months, 60% of the fee is refunded (T&Cs apply)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the terms and conditions for a refund?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If you're not placed at ₹4.5L+ within 15 months of course completion, 60% of your fee is refunded as per T&Cs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I directly get a job of 4.5L+ or do I get to do an internship first?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Half get direct jobs; others start with internships that often convert to full-time roles of ₹4.5L+."
+        }
+      }
+    ]
+  }
+]

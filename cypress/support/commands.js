@@ -1,7 +1,15 @@
-// Custom commands for Kraftshala MLP lead form
+// Custom commands for Kraftshala MLP lead form (and reused by the ALM spec).
 
 Cypress.Commands.add('visitMlpPage', () => {
   cy.visit('/marketing-launchpad/digital-marketing-course/');
+  cy.selectPlatformIfPresent();
+});
+
+// ALM (AI-Led Marketing) — reuses the same form-fill / OTP / blocked-flow
+// commands. Only the page URL and the success-URL pattern differ.
+// (Product URL is /pgp-in-marketing/ — kept as-is — but internal name is ALM.)
+Cypress.Commands.add('visitAlmPage', () => {
+  cy.visit('/pgp-in-marketing/');
   cy.selectPlatformIfPresent();
 });
 
@@ -33,6 +41,15 @@ Cypress.Commands.add('selectPlatformIfPresent', () => {
 // Clicks the lead form submit CTA with resilient selector fallback.
 Cypress.Commands.add('submitLeadForm', () => {
   cy.get('body').then(($body) => {
+    // Class-based priority — `.submit-btn` is the lead-form CTA. Far more
+    // reliable than text matching when multiple "Start your marketing journey"
+    // CTAs exist on the page.
+    const $ctaByClass = $body.find('.submit-btn').filter(':visible');
+    if ($ctaByClass.length) {
+      cy.wrap($ctaByClass.last()).scrollIntoView().click({ force: true });
+      return;
+    }
+
     // Prefer the button inside the visible lead form section.
     const leadInput = $body
       .find('input[type="email"], input[name*="email"], input[type="tel"], input[name*="phone"]')
@@ -130,27 +147,39 @@ Cypress.Commands.add('fillLeadForm', (data) => {
     cy.contains(/^no$/i).click({ force: true });
   }
 
-  // Submit from the nearest visible form/container to avoid header CTA clicks.
-  cy.get('input[type="email"], input[name*="email"], input[type="tel"], input[name*="phone"]')
-    .filter(':visible')
-    .last()
-    .then(($anchor) => {
-      const container = Cypress.$($anchor).closest('form, section, .card, .wpcf7, .wpcf7-form');
-      const scopedButtons = container
-        .find('button, [role="button"], a, input[type="submit"]')
-        .filter((_, el) => {
-          const text = ((el.innerText || el.value || '') + '').trim();
-          return /start your marketing journey|apply now|apply|submit|continue/i.test(text);
-        });
+  // Highest-priority submit: class-based selector for the lead-form CTA.
+  // Class matching is more deterministic than text matching, which could miss
+  // when the page has multiple "Start your marketing journey" CTAs (header /
+  // hero / sticky) or when scope detection picks the wrong wrapper.
+  cy.get('body', { timeout: 15000 }).then(($body) => {
+    const $cta = $body.find('.submit-btn').filter(':visible');
+    if ($cta.length) {
+      cy.wrap($cta.last()).scrollIntoView().click({ force: true });
+      return;
+    }
 
-      if (scopedButtons.length) {
-        cy.wrap(scopedButtons[scopedButtons.length - 1]).scrollIntoView().click({
-          force: true,
-        });
-      } else {
-        cy.submitLeadForm();
-      }
-    });
+    // Fallback: closest visible-input → form/section/card → text-match button.
+    cy.get('input[type="email"], input[name*="email"], input[type="tel"], input[name*="phone"]')
+      .filter(':visible')
+      .last()
+      .then(($anchor) => {
+        const container = Cypress.$($anchor).closest('form, section, .card, .wpcf7, .wpcf7-form');
+        const scopedButtons = container
+          .find('button, [role="button"], a, input[type="submit"]')
+          .filter((_, el) => {
+            const text = ((el.innerText || el.value || '') + '').trim();
+            return /start your marketing journey|apply now|apply|submit|continue/i.test(text);
+          });
+
+        if (scopedButtons.length) {
+          cy.wrap(scopedButtons[scopedButtons.length - 1]).scrollIntoView().click({
+            force: true,
+          });
+        } else {
+          cy.submitLeadForm();
+        }
+      });
+  });
 });
 
 function findVisibleOtpInputs($scope) {
@@ -204,38 +233,73 @@ function findOtpSubmitButtons($scope) {
 // Same email + different phone: wait for OTP (UI can appear late), submit OTP, validate request completes,
 // then require `.alreadyExists` (product marks duplicate / block) — never screening-test URL.
 // Call after cy.intercept on POST otp-validation validate/verify (see mlpLeadForm.cy.js) and cy.fillLeadForm(...).
-Cypress.Commands.add('assertSameEmailDifferentPhoneBlockedFlow', (otp) => {
-  cy.get('body', { timeout: 45000 }).should(($body) => {
-    const hasOtp = findVisibleOtpInputs($body).length > 0;
-    const hasAlreadyExists = $body.find('.alreadyExists').filter(':visible').length > 0;
-    const hasBlockCopy = isRegistrationBlockedText($body.text());
-    expect(
-      hasOtp || hasAlreadyExists || hasBlockCopy,
-      'OTP inputs should appear after submit, or .alreadyExists / block copy should be visible'
-    ).to.equal(true);
-  });
+//
+// Opt-in `options` (used by ALM; MLP doesn't pass any so default behavior is unchanged):
+//   options.denyUrlPattern        — RegExp the post-submit URL must NOT match
+//   options.includeUrl            — string the final URL must still contain
+//   options.requireOtp            — when true, always wait for OTP inputs (no dual-path heuristic)
+//   options.blockedMessagePattern — text RegExp accepted as a "blocked" signal in lieu of `.alreadyExists`
+Cypress.Commands.add('assertSameEmailDifferentPhoneBlockedFlow', (otp, options = {}) => {
+  const denyPattern =
+    options.denyUrlPattern ||
+    /\/marketing-launchpad\/digital-marketing-course\/screening-test\//;
+  const includeUrl = options.includeUrl || '/marketing-launchpad/';
+  const requireOtp = options.requireOtp === true;
 
-  cy.get('body').then(($body) => {
-    if (findVisibleOtpInputs($body).length > 0) {
-      cy.enterOtpAndSubmit(otp);
-      cy.wait('@otpValidateBlocked', { timeout: 90000 });
-      cy.assertRegistrationBlockedBySystem();
-    } else {
-      cy.assertRegistrationBlockedBySystem();
-    }
-  });
+  if (requireOtp) {
+    // ALM: always renders OTP step before blocking. Skip the dual-path heuristic
+    // because baseline page copy can falsely trigger `isRegistrationBlockedText`.
+    cy.get('body', { timeout: 60000 }).should(($body) => {
+      expect(
+        findVisibleOtpInputs($body).length,
+        'OTP inputs should appear after lead submit'
+      ).to.be.greaterThan(0);
+    });
+    cy.enterOtpAndSubmit(otp);
+    cy.wait('@otpValidateBlocked', { timeout: 90000 });
+    cy.assertRegistrationBlockedBySystem(options);
+  } else {
+    cy.get('body', { timeout: 45000 }).should(($body) => {
+      const hasOtp = findVisibleOtpInputs($body).length > 0;
+      const hasAlreadyExists = $body.find('.alreadyExists').filter(':visible').length > 0;
+      const hasBlockCopy = isRegistrationBlockedText($body.text());
+      expect(
+        hasOtp || hasAlreadyExists || hasBlockCopy,
+        'OTP inputs should appear after submit, or .alreadyExists / block copy should be visible'
+      ).to.equal(true);
+    });
+
+    cy.get('body').then(($body) => {
+      if (findVisibleOtpInputs($body).length > 0) {
+        cy.enterOtpAndSubmit(otp);
+        cy.wait('@otpValidateBlocked', { timeout: 90000 });
+        cy.assertRegistrationBlockedBySystem(options);
+      } else {
+        cy.assertRegistrationBlockedBySystem(options);
+      }
+    });
+  }
 
   cy.location('pathname', { timeout: 90000 }).should((pathname) => {
     const path = String(pathname || '');
-    expect(path).to.not.match(
-      /\/marketing-launchpad\/digital-marketing-course\/screening-test\//
-    );
+    expect(path).to.not.match(denyPattern);
   });
-  cy.url().should('include', '/marketing-launchpad/');
+  cy.url().should('include', includeUrl);
 });
 
-/** After OTP submit for blocked flows: product shows `.alreadyExists` when registration is blocked. */
-Cypress.Commands.add('assertRegistrationBlockedBySystem', () => {
+/** After OTP submit for blocked flows: product shows `.alreadyExists` (MLP) or
+ *  a text message like "The phone number associated with <email> is xxxxxx4699.
+ *  Try using this phone number" (ALM). When `options.blockedMessagePattern` is
+ *  supplied, match that text instead of the selector. */
+Cypress.Commands.add('assertRegistrationBlockedBySystem', (options = {}) => {
+  if (options.blockedMessagePattern) {
+    const pattern =
+      options.blockedMessagePattern instanceof RegExp
+        ? options.blockedMessagePattern
+        : new RegExp(escapeRegex(options.blockedMessagePattern), 'i');
+    cy.contains(pattern, { timeout: 25000 }).should('be.visible');
+    return;
+  }
   cy.get('.alreadyExists', { timeout: 25000 }).should('be.visible');
 });
 
@@ -357,9 +421,16 @@ Cypress.Commands.add('cleanupLeadsForScenario', ({ emails = [], phones = [] } = 
   });
 });
 
-Cypress.Commands.add('assertLeadRegistrationSuccess', (_leadName) => {
+// Opt-in `options` (used by ALM; MLP passes none and gets default behavior):
+//   options.successUrlPattern    — RegExp the post-submit URL must match
+//                                  (default: MLP screening-test path)
+//   options.requireOnDemandHeader — boolean; when false, skip the on-demand
+//                                  header check (ALM may not have it)
+Cypress.Commands.add('assertLeadRegistrationSuccess', (_leadName, options = {}) => {
   const pathPattern =
+    options.successUrlPattern ||
     /\/marketing-launchpad\/digital-marketing-course\/screening-test\/[^/]+\/[^/]+\/?$/;
+  const requireOnDemandHeader = options.requireOnDemandHeader !== false;
 
   cy.location('pathname', { timeout: 90000 }).should((pathname) => {
     const path = String(pathname || '');
@@ -369,9 +440,11 @@ Cypress.Commands.add('assertLeadRegistrationSuccess', (_leadName) => {
     ).to.equal(true);
   });
 
-  // On successful registration, lead summary and on-demand header must be visible.
+  // On successful registration, lead summary must be visible.
   cy.get('.lead-name', { timeout: 90000 }).should('be.visible');
-  cy.get('.on-demand-header-main > :nth-child(2)', { timeout: 90000 }).should(
-    'be.visible'
-  );
+  if (requireOnDemandHeader) {
+    cy.get('.on-demand-header-main > :nth-child(2)', { timeout: 90000 }).should(
+      'be.visible'
+    );
+  }
 });

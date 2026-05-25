@@ -1,0 +1,8 @@
+{
+  "name": "test lead",
+  "baseEmail": "kslive-base@example.com",
+  "basePhone": "9000000001",
+  "differentEmail": "kslive-other@example.com",
+  "differentPhone": "9000000002",
+  "otp": "159753"
+}

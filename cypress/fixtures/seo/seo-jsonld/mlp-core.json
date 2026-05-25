@@ -1,0 +1,107 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Marketing Launchpad Digital Marketing Course",
+    "description": "Kraftshala's Marketing Launchpad is a 22-week AI-Integrated online digital marketing course covering SEO, Performance Marketing, Programmatic Advertising, Ecommerce Marketing, Content Creation, Social Media Marketing and interview skills with live projects with real budgets. The students are placed in high-paying job roles of 4.5LPA to 10.05LPA at top brands and agencies in India.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Kraftshala",
+      "url": "https://www.kraftshala.com/"
+    },
+    "url": "https://www.kraftshala.com/marketing-launchpad/digital-marketing-course/",
+    "image": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/Group-11686.png",
+    "inLanguage": "en",
+    "educationalLevel": "Beginner to Advanced",
+    "teaches": [
+      "SEO",
+      "Performance Marketing",
+      "Google Ads",
+      "Social Media Marketing",
+      "Marketing Analytics",
+      "Programmatic Advertising",
+      "Content Creation",
+      "Ecommerce Marketing"
+    ],
+    "audience": {
+      "@type": "Audience",
+      "educationalRole": "student",
+      "audienceType": "Graduates, early professionals, career switchers"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "153000",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://www.kraftshala.com/marketing-launchpad/digital-marketing-course/",
+      "priceValidUntil": "2026-12-31"
+    },
+    "hasCourseInstance": {
+      "@type": "CourseInstance",
+      "courseMode": "Online",
+      "duration": "P22W"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the eligibility criteria for Kraftshala's online digital marketing course with placement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You need a laptop, internet, English skills, and 12th pass. No experience required. Must be job-ready post-course."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the Marketing Launchpad a job guarantee digital marketing course?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No job guarantee, but if you're not placed at ₹4.5L+ in 15 months, 60% fee is refunded (T&Cs apply)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the terms and conditions for a refund?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You're eligible if not placed at ₹4.5L+ within 15 months. 60% fee is refunded as per T&Cs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to get placed?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "60% are placed by Week 6, 80% by Week 8, and the rest in the next 4–6 weeks."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I directly get a job of 4.5L+ or do I get to do an internship first?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the company. Around 50% get direct jobs; others start with internships that often convert to jobs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I get any discount on the program fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, the Changemakers Scholarship offers a ₹30,000 fee waiver to the top 5% performers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "After completing the online digital marketing course, what kind of job roles can I expect to find?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Roles include Digital Marketing Analyst, SEO Manager, Client Manager, and other strategy + execution roles."
+        }
+      }
+    ]
+  }
+]

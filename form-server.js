@@ -26,12 +26,244 @@ const MAIN_PHONE_DELETE_BASE =
   process.env.MLP_PHONE_DELETE_BASE_MAIN ||
   'https://service.kraftshala.com/otp-validation/removeNumber/';
 
-const FIXTURE_PATH = path.join(
+const FIXTURE_PATH_MLP = path.join(
   __dirname,
   'cypress',
   'fixtures',
+  'mlp',
   'mlpTestData.json'
 );
+const FIXTURE_PATH_ALM = path.join(
+  __dirname,
+  'cypress',
+  'fixtures',
+  'alm',
+  'almTestData.json'
+);
+const FIXTURE_PATH_CALLBACK = path.join(
+  __dirname,
+  'cypress',
+  'fixtures',
+  'callback',
+  'callbackTestData.json'
+);
+const FIXTURE_PATH_KSLIVE = path.join(
+  __dirname,
+  'cypress',
+  'fixtures',
+  'kslive',
+  'ksLiveTestData.json'
+);
+const FIXTURE_PATH_SMBL = path.join(
+  __dirname,
+  'cypress',
+  'fixtures',
+  'smbl',
+  'smblTestData.json'
+);
+
+// SMBL-specific lead-delete endpoints. Shares phone delete with MLP (otp-validation
+// is page-agnostic). Email delete path uses `/pgp/` (same as ALM — both live on
+// the PGP service). Update if SMBL has a distinct lead-delete URL.
+const SMBL_TEST_EMAIL_DELETE_BASE =
+  process.env.SMBL_EMAIL_DELETE_BASE_TEST ||
+  'https://testservice.kraftshala.com/lead/remove-lead/pgp/';
+const SMBL_MAIN_EMAIL_DELETE_BASE =
+  process.env.SMBL_EMAIL_DELETE_BASE_MAIN ||
+  'https://service.kraftshala.com/lead/remove-lead/pgp/';
+// Backwards-compat alias for any code path still referencing the old name.
+const FIXTURE_PATH = FIXTURE_PATH_MLP;
+
+// ALM-specific lead-delete endpoints. Phone delete is shared with MLP (the
+// otp-validation service is page-agnostic); email delete swaps `/mlp/` → `/pgp/`
+// (the URL slug `pgp` is the actual product API path — page is internally ALM).
+const ALM_TEST_EMAIL_DELETE_BASE =
+  process.env.ALM_EMAIL_DELETE_BASE_TEST ||
+  'https://testservice.kraftshala.com/lead/remove-lead/pgp/';
+const ALM_MAIN_EMAIL_DELETE_BASE =
+  process.env.ALM_EMAIL_DELETE_BASE_MAIN ||
+  'https://service.kraftshala.com/lead/remove-lead/pgp/';
+
+// Each "Run tests" click is one of two modes — picked from req.body.mode.
+// MLP (default) runs the lead-form + brochure + syllabus bundle (9 tests).
+// ALM runs the lead-form + prospectus bundle (8 tests) with pixel disabled.
+const MODES = {
+  mlp: {
+    label: 'MLP',
+    fixturePath: FIXTURE_PATH_MLP,
+    specs: [
+      'cypress/e2e/mlp/mlpLeadForm.cy.js',
+      'cypress/e2e/mlp/downloadBrochure.cy.js',
+      'cypress/e2e/mlp/downloadSyllabus.cy.js',
+    ],
+    expectedTestCount: 9,
+    pixelEnabled: true,
+    deleteBases: {
+      test: { email: TEST_EMAIL_DELETE_BASE, phone: TEST_PHONE_DELETE_BASE },
+      main: { email: MAIN_EMAIL_DELETE_BASE, phone: MAIN_PHONE_DELETE_BASE },
+    },
+  },
+  alm: {
+    label: 'ALM',
+    fixturePath: FIXTURE_PATH_ALM,
+    specs: [
+      'cypress/e2e/alm/almLeadForm.cy.js',
+      'cypress/e2e/alm/almDownloadProspectus.cy.js',
+    ],
+    expectedTestCount: 8,
+    pixelEnabled: false,
+    deleteBases: {
+      test: { email: ALM_TEST_EMAIL_DELETE_BASE, phone: TEST_PHONE_DELETE_BASE },
+      main: { email: ALM_MAIN_EMAIL_DELETE_BASE, phone: MAIN_PHONE_DELETE_BASE },
+    },
+  },
+  // SEO checklist — no lead deletion, no fixture write, no pixel capture.
+  // Each test in the spec is one page; results are written to
+  // cypress/reports/seo-results.json and surfaced via parsed.seoResults.
+  seo: {
+    label: 'SEO',
+    fixturePath: null, // no fixture write
+    specs: ['cypress/e2e/seo/seoChecklist.cy.js'],
+    expectedTestCount: 7, // 7 pages in seo-page-data.json
+    pixelEnabled: false,
+    isSeo: true,
+    deleteBases: null, // no leads to clean
+  },
+  // Request CallBack — single test that reads name/email/phone directly from
+  // the MLP fixture file (cypress/fixtures/mlp/mlpTestData.json). No inputs
+  // required on the UI, no separate fixture write, no lead deletion.
+  callback: {
+    label: 'CALLBACK',
+    fixturePath: null,
+    specs: ['cypress/e2e/callback/requestCallback.cy.js'],
+    expectedTestCount: 1,
+    pixelEnabled: false,
+    isCallback: true,
+    deleteBases: null,
+  },
+  // KS Live — 4 tests (3 user-input scenarios + 1 MLP-fixture scenario), each
+  // registers on both the 1st and 2nd KS Live event cards. No lead deletion
+  // (KS Live registrations are event-bound, not on the MLP /lead/create endpoint).
+  kslive: {
+    label: 'KSLIVE',
+    fixturePath: FIXTURE_PATH_KSLIVE,
+    specs: ['cypress/e2e/kslive/ksLiveRegistration.cy.js'],
+    expectedTestCount: 4,
+    pixelEnabled: false,
+    isKslive: true,
+    deleteBases: null,
+  },
+  // SMBL (Sales & Marketing Business Leaders) — 7 edge cases mirroring MLP,
+  // success URL is /pgp/learn-sales-and-marketing/thank-you/?id=<uuid>.
+  smbl: {
+    label: 'SMBL',
+    fixturePath: FIXTURE_PATH_SMBL,
+    specs: ['cypress/e2e/smbl/smblLeadForm.cy.js'],
+    expectedTestCount: 7,
+    pixelEnabled: false,
+    isSmbl: true,
+    deleteBases: {
+      test: { email: SMBL_TEST_EMAIL_DELETE_BASE, phone: TEST_PHONE_DELETE_BASE },
+      main: { email: SMBL_MAIN_EMAIL_DELETE_BASE, phone: MAIN_PHONE_DELETE_BASE },
+    },
+  },
+};
+
+function resolveMode(input) {
+  const m = String(input || '').toLowerCase().trim();
+  return Object.prototype.hasOwnProperty.call(MODES, m) ? m : 'mlp';
+}
+const API_DATA_FILE = path.join(
+  __dirname,
+  'cypress',
+  'reports',
+  'api-monitor-data.json'
+);
+const PIXEL_DATA_FILE = path.join(
+  __dirname,
+  'cypress',
+  'reports',
+  'pixel-monitor-data.json'
+);
+const SEO_RESULTS_FILE = path.join(
+  __dirname,
+  'cypress',
+  'reports',
+  'seo-results.json'
+);
+
+function readJsonFileSafe(file) {
+  if (!fs.existsSync(file)) return [];
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (_err) {
+    return [];
+  }
+}
+
+// API monitor entries are written one-per-test by cypress/support/apiMonitor.js.
+// Returns a Map keyed on the Cypress test title so we can attach per-test data
+// to the parsed dashboard tests list (which is also keyed by test title).
+function readApiCallsByTest() {
+  const data = readJsonFileSafe(API_DATA_FILE);
+  const byTitle = new Map();
+  for (const entry of Array.isArray(data) ? data : []) {
+    if (!entry || !entry.testTitle) continue;
+    byTitle.set(entry.testTitle, entry.apiCalls || []);
+  }
+  return byTitle;
+}
+
+// Aggregate every Meta Pixel fire into a per-(pixelId, eventName) summary —
+// pixel-monitor only captures during the FIRST test of a run, so the aggregate
+// is across that single capture window. Excludes blank-id POST beacons.
+function aggregatePixelEvents() {
+  const data = readJsonFileSafe(PIXEL_DATA_FILE);
+  const byKey = new Map();
+  for (const entry of Array.isArray(data) ? data : []) {
+    for (const call of entry.pixelCalls || []) {
+      const pixelId = call.pixelId || '';
+      const eventName = call.eventName || '';
+      if (!pixelId && !eventName) continue;
+      const key = pixelId + '|' + eventName;
+      if (!byKey.has(key)) {
+        byKey.set(key, { pixelId, eventName, count: 0, sourceUrls: [] });
+      }
+      const item = byKey.get(key);
+      item.count += 1;
+      if (call.sourceUrl && !item.sourceUrls.includes(call.sourceUrl)) {
+        item.sourceUrls.push(call.sourceUrl);
+      }
+    }
+  }
+  return Array.from(byKey.values()).sort((a, b) => {
+    if (a.pixelId !== b.pixelId) return a.pixelId.localeCompare(b.pixelId);
+    return a.eventName.localeCompare(b.eventName);
+  });
+}
+
+// Mutates `parsed` to attach `apiCalls` to each test entry (keyed by name)
+// and a top-level `pixelEvents` array. Called once at the end of a Cypress
+// run, before the SSE 'complete' event is emitted.
+function attachMonitoringData(parsed) {
+  const apiByTest = readApiCallsByTest();
+  for (const t of parsed.tests || []) {
+    t.apiCalls = apiByTest.get(t.name) || [];
+  }
+  parsed.pixelEvents = aggregatePixelEvents();
+  return parsed;
+}
+
+// SEO checklist results — produced by cypress/e2e/seo/seoChecklist.cy.js via
+// cy.writeFile at the end of the run. Attached to the SSE 'complete' payload
+// only when the SEO mode was selected (otherwise field is omitted).
+function readSeoResults() {
+  return readJsonFileSafe(SEO_RESULTS_FILE);
+}
+function attachSeoResults(parsed) {
+  parsed.seoResults = readSeoResults();
+  return parsed;
+}
 const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_WORKFLOW_FILE = process.env.GITHUB_WORKFLOW_FILE || 'mlp-run.yml';
@@ -268,8 +500,17 @@ function parseCypressOutputToDashboardData({ output, code, fixtureData, selected
   const signalLines = lines.filter((line) => !/WARN|WARNING|DEPRECATION/i.test(line));
 
   const rawTests = [];
+  // `inSummary` toggles on each per-spec "X passing" line and resets on the
+  // next "Running:" line — necessary so multi-spec runs don't lose tests from
+  // the second/third spec after the first spec's summary block.
+  let inSummary = false;
   for (const line of signalLines) {
-    if (/^\s*\d+\s+passing/i.test(line)) break;
+    if (/^\s*Running:\s+/i.test(line)) inSummary = false;
+    if (/^\s*\d+\s+passing/i.test(line) || /^\s*\d+\s+failing/i.test(line)) {
+      inSummary = true;
+      continue;
+    }
+    if (inSummary) continue;
     const passMatch = line.match(/^\s*[✓✔√]\s+(.*?)(\s+\(|$)/);
     if (passMatch) { rawTests.push({ name: passMatch[1].trim(), status: 'passed' }); continue; }
     const failMatch = line.match(/^\s*\d+\)\s+(.*)$/);
@@ -344,28 +585,38 @@ async function fetchWorkflowRunLogs(runId) {
 }
 
 app.post('/prepare-tests', async (req, res) => {
-  const { name, baseEmail, basePhone, differentEmail, differentPhone, platform } =
+  const { name, baseEmail, basePhone, differentEmail, differentPhone, platform, mode } =
     req.body || {};
+  const selectedMode = resolveMode(mode);
+  const modeConfig = MODES[selectedMode];
   console.log('[UI] /prepare-tests request received');
   console.log(
-    `[UI] Inputs => platform=${platform || 'test'}, baseEmail=${baseEmail || '-'}, basePhone=${basePhone || '-'}, differentEmail=${differentEmail || '-'}, differentPhone=${differentPhone || '-'}`
+    `[UI] Inputs => mode=${selectedMode}, platform=${platform || 'test'}, baseEmail=${baseEmail || '-'}, basePhone=${basePhone || '-'}, differentEmail=${differentEmail || '-'}, differentPhone=${differentPhone || '-'}`
   );
-  const selectedPlatform =
-    String(platform || 'test').toLowerCase() === 'main' ? 'main' : 'test';
-  const selectedBaseUrl =
-    selectedPlatform === 'main'
-      ? MAIN_PLATFORM_BASE_URL
-      : TEST_PLATFORM_BASE_URL;
-  const selectedDeleteBases =
-    selectedPlatform === 'main'
-      ? {
-          emailDeleteBase: MAIN_EMAIL_DELETE_BASE,
-          phoneDeleteBase: MAIN_PHONE_DELETE_BASE,
-        }
-      : {
-          emailDeleteBase: TEST_EMAIL_DELETE_BASE,
-          phoneDeleteBase: TEST_PHONE_DELETE_BASE,
-        };
+  // The SEO mode supports the test platform AND the production platform
+  // (per spec: "platform=production → www.kraftshala.com"). MLP/ALM still use
+  // only test/main as before.
+  const isSeoMode = modeConfig.isSeo === true;
+  const isCallbackMode = modeConfig.isCallback === true;
+  const isKsliveMode = modeConfig.isKslive === true;
+  const isSmblMode = modeConfig.isSmbl === true;
+  const rawPlatform = String(platform || 'test').toLowerCase();
+  const selectedPlatform = isSeoMode
+    ? (rawPlatform === 'production' ? 'production' : 'test')
+    : (rawPlatform === 'main' ? 'main' : 'test');
+  const selectedBaseUrl = isSeoMode
+    ? (selectedPlatform === 'production'
+        ? 'https://www.kraftshala.com/'
+        : TEST_PLATFORM_BASE_URL)
+    : (selectedPlatform === 'main' ? MAIN_PLATFORM_BASE_URL : TEST_PLATFORM_BASE_URL);
+
+  // Lead-clean URLs only apply to MLP/ALM — SEO mode skips deletion entirely.
+  const selectedDeleteBases = !isSeoMode && modeConfig.deleteBases
+    ? {
+        emailDeleteBase: modeConfig.deleteBases[selectedPlatform].email,
+        phoneDeleteBase: modeConfig.deleteBases[selectedPlatform].phone,
+      }
+    : null;
 
   const trimmedName = name != null ? String(name).trim() : '';
   const trimmedBaseEmail = baseEmail != null ? String(baseEmail).trim() : '';
@@ -373,32 +624,48 @@ app.post('/prepare-tests', async (req, res) => {
   const trimmedDifferentEmail = differentEmail != null ? String(differentEmail).trim() : '';
   const trimmedDifferentPhone = differentPhone != null ? String(differentPhone).trim() : '';
 
-  if (
-    !trimmedName ||
-    !trimmedBaseEmail ||
-    !trimmedBasePhone ||
-    !trimmedDifferentEmail ||
-    !trimmedDifferentPhone
-  ) {
-    return res.status(400).json({
-      ok: false,
-      message:
-        'name, baseEmail, basePhone, differentEmail, and differentPhone are required (no auto-generated values).',
-    });
-  }
+  // Lead-input validation runs in MLP / ALM. Callback only needs base name/email/phone.
+  if (!isSeoMode && !isCallbackMode) {
+    if (
+      !trimmedName ||
+      !trimmedBaseEmail ||
+      !trimmedBasePhone ||
+      !trimmedDifferentEmail ||
+      !trimmedDifferentPhone
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message:
+          'name, baseEmail, basePhone, differentEmail, and differentPhone are required (no auto-generated values).',
+      });
+    }
 
-  if (
-    trimmedBaseEmail.toLowerCase() === trimmedDifferentEmail.toLowerCase() ||
-    trimmedBasePhone === trimmedDifferentPhone
-  ) {
-    return res.status(400).json({
-      ok: false,
-      message:
-        'differentEmail must differ from base email, and differentPhone must differ from base phone.',
-    });
+    if (
+      trimmedBaseEmail.toLowerCase() === trimmedDifferentEmail.toLowerCase() ||
+      trimmedBasePhone === trimmedDifferentPhone
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message:
+          'differentEmail must differ from base email, and differentPhone must differ from base phone.',
+      });
+    }
   }
+  // Callback mode: no input validation — values are read from the MLP fixture
+  // by the spec itself, so the UI doesn't need to send anything.
 
-  const fixtureData = buildFixtureFromForm({
+  // KS Live uses a flat fixture shape (name + base/different email + base/different
+  // phone + otp) — distinct from MLP/ALM's nested shape. Build it inline.
+  const ksLiveFixture = isKsliveMode ? {
+    name: trimmedName,
+    baseEmail: trimmedBaseEmail,
+    basePhone: trimmedBasePhone,
+    differentEmail: trimmedDifferentEmail,
+    differentPhone: trimmedDifferentPhone,
+    otp: '159753',
+  } : null;
+
+  const fixtureData = isSeoMode || isCallbackMode || isKsliveMode ? null : buildFixtureFromForm({
     name: trimmedName,
     baseEmail: trimmedBaseEmail,
     basePhone: trimmedBasePhone,
@@ -406,30 +673,60 @@ app.post('/prepare-tests', async (req, res) => {
     differentPhone: trimmedDifferentPhone,
   });
 
-  try {
-    console.log('[RUN] Deleting leads once before automation...');
-    await deleteLeads(
-      [
-        fixtureData.existingEmail,
-        fixtureData.newEmail,
-        fixtureData.samePhoneDifferentEmail.email,
-      ],
-      [fixtureData.existingPhone, fixtureData.newPhone, fixtureData.sameEmailDifferentPhone.phone],
-      selectedDeleteBases
-    );
-    console.log('[RUN] Lead deletion completed');
-  } catch (err) {
-    console.error('Error during lead deletion:', err);
-  }
+  if (!isSeoMode && !isCallbackMode && !isKsliveMode) {
+    // MLP / ALM — full lead-form fixture + lead deletion + per-mode fixture file.
+    try {
+      console.log('[RUN] Deleting leads once before automation...');
+      await deleteLeads(
+        [
+          fixtureData.existingEmail,
+          fixtureData.newEmail,
+          fixtureData.samePhoneDifferentEmail.email,
+        ],
+        [fixtureData.existingPhone, fixtureData.newPhone, fixtureData.sameEmailDifferentPhone.phone],
+        selectedDeleteBases
+      );
+      console.log('[RUN] Lead deletion completed');
+    } catch (err) {
+      console.error('Error during lead deletion:', err);
+    }
 
-  try {
-    fs.writeFileSync(FIXTURE_PATH, JSON.stringify(fixtureData, null, 2));
-  } catch (err) {
-    console.error('Error writing fixture file:', err);
-    return res.status(500).json({
-      ok: false,
-      message: 'Failed to write fixture file',
-    });
+    try {
+      const fixtureDir = path.dirname(modeConfig.fixturePath);
+      if (!fs.existsSync(fixtureDir)) {
+        fs.mkdirSync(fixtureDir, { recursive: true });
+      }
+      fs.writeFileSync(modeConfig.fixturePath, JSON.stringify(fixtureData, null, 2));
+    } catch (err) {
+      console.error('Error writing fixture file:', err);
+      return res.status(500).json({
+        ok: false,
+        message: 'Failed to write fixture file',
+      });
+    }
+  } else if (isCallbackMode) {
+    // Callback mode reads directly from the MLP fixture — nothing to write.
+  } else if (isKsliveMode) {
+    // KS Live — write the flat fixture from user inputs.
+    try {
+      const fixtureDir = path.dirname(modeConfig.fixturePath);
+      if (!fs.existsSync(fixtureDir)) {
+        fs.mkdirSync(fixtureDir, { recursive: true });
+      }
+      fs.writeFileSync(modeConfig.fixturePath, JSON.stringify(ksLiveFixture, null, 2));
+    } catch (err) {
+      console.error('Error writing KS Live fixture:', err);
+      return res.status(500).json({
+        ok: false,
+        message: 'Failed to write KS Live fixture file',
+      });
+    }
+  } else {
+    // SEO mode: clear any stale seo-results.json from a previous run so the UI
+    // doesn't render leftover data before the new run finishes.
+    try {
+      if (fs.existsSync(SEO_RESULTS_FILE)) fs.writeFileSync(SEO_RESULTS_FILE, '[]');
+    } catch (_err) { /* noop */ }
   }
 
   if (shouldUseGitHubActionsRunner()) {
@@ -499,6 +796,10 @@ app.post('/prepare-tests', async (req, res) => {
   res.json({
     ok: true,
     mode: 'local',
+    runMode: selectedMode,
+    runLabel: modeConfig.label,
+    expectedTestCount: modeConfig.expectedTestCount,
+    pixelEnabled: modeConfig.pixelEnabled,
     requestId,
     streamUrl: `/run-stream/${encodeURIComponent(requestId)}`,
     tests: [],
@@ -507,10 +808,14 @@ app.post('/prepare-tests', async (req, res) => {
   });
 
   const cypressCmd = process.env.MLP_CYPRESS_CMD || 'npx';
+  // Mode-driven spec list. ALM passes disablePixel=true via --env so the pixel
+  // monitor short-circuits (per user spec: no pixel checks for ALM).
+  const envParts = [`platform=${selectedPlatform}`];
+  if (!modeConfig.pixelEnabled) envParts.push('disablePixel=true');
   const cypressArgs = [
-    '--spec', 'cypress/e2e/mlpLeadForm.cy.js',
+    '--spec', modeConfig.specs.join(','),
     '--config', `baseUrl=${selectedBaseUrl}`,
-    '--env', `platform=${selectedPlatform}`,
+    '--env', envParts.join(','),
   ];
   const finalCypressArgs = cypressCmd === 'npx' ? ['cypress', 'run', ...cypressArgs] : ['run', ...cypressArgs];
 
@@ -525,8 +830,22 @@ app.post('/prepare-tests', async (req, res) => {
   let summaryReached = false;
   const seenTestNames = new Set();
 
+  // Attach the just-finished test's apiCalls to its SSE payload. The Cypress
+  // reporter prints `✓ name` *after* the test's afterEach hook completes, and
+  // apiMonitor.js flushes via cy.task in afterEach — so by the time this line
+  // appears in stdout, the corresponding entry is already in api-monitor-data.json.
+  const decorateWithApi = (ctx) => {
+    const apiByTest = readApiCallsByTest();
+    ctx.apiCalls = apiByTest.get(ctx.name) || [];
+    return ctx;
+  };
+
   const processLine = (raw) => {
     const line = stripTimestamp(stripAnsi(raw));
+    // Cypress prints `Running:  <spec>` once per spec — reset the per-spec
+    // summary flag here so test results from later specs aren't dropped after
+    // the first spec's "X passing" summary line.
+    if (/^\s*Running:\s+/i.test(line)) summaryReached = false;
     if (/^\s*\d+\s+passing/i.test(line) || /^\s*\d+\s+failing/i.test(line)) summaryReached = true;
     if (summaryReached) return;
 
@@ -535,7 +854,7 @@ app.post('/prepare-tests', async (req, res) => {
       const name = passMatch[1].trim();
       if (name && !seenTestNames.has(name)) {
         seenTestNames.add(name);
-        emitSSE('test_result', buildTestContext(name, 'passed', fixtureData));
+        emitSSE('test_result', decorateWithApi(buildTestContext(name, 'passed', fixtureData)));
       }
       return;
     }
@@ -544,7 +863,7 @@ app.post('/prepare-tests', async (req, res) => {
       const name = failMatch[1].trim();
       if (name && !seenTestNames.has(name)) {
         seenTestNames.add(name);
-        emitSSE('test_result', buildTestContext(name, 'failed', fixtureData));
+        emitSSE('test_result', decorateWithApi(buildTestContext(name, 'failed', fixtureData)));
       }
     }
   };
@@ -577,7 +896,14 @@ app.post('/prepare-tests', async (req, res) => {
 
   child.on('exit', (code) => {
     console.log(`Cypress run finished with code ${code}`);
-    const parsed = parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl });
+    let parsed = attachMonitoringData(
+      parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl })
+    );
+    if (isSeoMode) parsed = attachSeoResults(parsed);
+    parsed.runMode = selectedMode;
+    parsed.runLabel = modeConfig.label;
+    parsed.expectedTestCount = modeConfig.expectedTestCount;
+    parsed.pixelEnabled = modeConfig.pixelEnabled;
     console.log('Lead URL-verification summary:');
     for (const t of parsed.tests || []) {
       const reg = t.registrationStatus === 'registered' ? 'URL_FOUND' : 'URL_NOT_FOUND';

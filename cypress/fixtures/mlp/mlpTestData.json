@@ -1,0 +1,32 @@
+{
+  "name": "Tester Swayam",
+  "existingEmail": "kogayo3693@bittnex.com",
+  "existingPhone": "4458960066",
+  "newEmail": "kogayo3693@bittnex.com",
+  "newPhone": "4458960066",
+  "sameEmailDifferentPhone": {
+    "email": "kogayo3693@bittnex.com",
+    "phone": "4568962310"
+  },
+  "samePhoneDifferentEmail": {
+    "email": "vigip66609@ameady.com",
+    "phone": "4458960066"
+  },
+  "extraValidEmails": [],
+  "extraValidPhones": [],
+  "invalidEmails": [
+    "plainaddress",
+    "missingatsign.com",
+    "missing-domain@",
+    "user@domain",
+    "user@.com"
+  ],
+  "invalidPhones": [
+    "",
+    "12345",
+    "abcdefghij",
+    "9999999999999",
+    "123-456-7890"
+  ],
+  "otp": "159753"
+}

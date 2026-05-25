@@ -1,0 +1,195 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "PGP in AI Led Marketing by Kraftshala School of Business",
+    "description": "The PGP in AI Led Marketing by Kraftshala School of Business is a 9-month post graduate program preparing you for entry-level marketing roles in brands and agencies with average starting salaries of 5.5 - 11 LPA.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Kraftshala School of Business",
+      "url": "https://www.kraftshala.com/"
+    },
+    "url": "https://www.kraftshala.com/pgp-in-marketing/",
+    "image": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/03/World-Tech-Park-V2.webp",
+    "category": "AI Led Marketing",
+    "offers": {
+      "@type": "Offer",
+      "price": "370000",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://www.kraftshala.com/pgp-in-marketing/",
+      "category": "AI Led Marketing"
+    },
+    "hasCourseInstance": [
+      {
+        "@type": "CourseInstance",
+        "courseMode": "Online",
+        "duration": "P9M",
+        "courseSchedule": {
+          "@type": "Schedule",
+          "repeatCount": 1,
+          "repeatFrequency": "Monthly",
+          "description": "Full-time, with live offline classes"
+        }
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Kraftshala's PGP in AI-Led Marketing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The PGP in AI-Led Marketing is a 9-month, full-time program conducted on campus in Gurgaon. The program is designed for digital and AI-first careers. Companies today need professionals with real depth, hands-on practice, and the ability to work with AI tools in real business environments. At Kraftshala School of Business, students build campaigns, analyse performance, work with AI tools, and solve real business problems so that they are ready to deliver from day one."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is Kraftshala's PGP in AI-Led Marketing different from a traditional MBA?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Many traditional MBA programs rely heavily on lectures and case discussions and may struggle to keep pace with how businesses operate in a digital and AI-driven world. The PGP in AI-Led Marketing is designed as a practical MBA alternative focused on real work rather than classroom-only learning. Students spend more time building campaigns, analysing data, using AI tools, and solving real business problems that companies face today."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why should I choose PGP in AI-Led Marketing over a traditional MBA?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Companies increasingly value depth, proof of work, and the ability to solve real problems using AI. This program focuses on building those capabilities. Instead of mainly studying frameworks, students build campaigns, analyse data, and solve real business problems using AI tools. By graduation, students have real work to demonstrate in interviews and gain practical skills while spending less time and lower overall cost compared to many traditional MBA programs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Who is the program best suited for?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The PGP in AI-Led Marketing is designed for people early in their careers who want to build strong capabilities in modern marketing and business growth. This typically includes final-year students, recent graduates, and professionals with up to two or three years of experience who want to work in digital-first companies, brands, agencies, or high-growth startups."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What qualities do you look for in applicants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The admissions process focuses less on perfect resumes and more on how applicants think. The program looks for curiosity about how businesses work, strong problem-solving ability, and a sense of ownership toward learning and growth."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What kind of peer group can I expect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The program admits a small cohort of around 30 students, allowing a selective admissions process and close collaboration among peers. Students usually come from diverse academic backgrounds but share a strong interest in building careers in digital-first businesses."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What outcomes can I expect after completing the program?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Graduates leave the program with a clear understanding of how growth happens inside businesses and the ability to demonstrate this capability in interviews. Based on the roles the program prepares students for, average outcomes are expected to fall in the ₹6.5–7L range in top companies, with some roles reaching ₹11–12L. Students with prior relevant experience may see salary increases of 50–100%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What kind of roles will I get after the program?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Graduates typically move into roles across growth, marketing, and digital strategy. These may include performance marketing, ecommerce growth, brand and communication strategy, digital media planning, content systems, and marketing analytics across consumer brands, agencies, and digital-first companies."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do Kraftshala outcomes compare to traditional MBA outcomes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Many MBA programs take two years and involve significantly higher fees, with outcomes varying widely across institutions. Kraftshala programs focus on building practical capabilities and preparing students for roles companies hire for today. Over the last decade, the institution has delivered strong placement rates and career outcomes across marketing and revenue roles."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the program ensure real industry exposure?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Industry exposure is integrated into the program through real projects, practitioner-led industry sprints, and immersive learning experiences where students observe how decisions are made inside companies. This ensures learning connects directly to real business environments."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the duration and format of the program?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The program runs for nine months and is conducted full-time on campus in Gurgaon. Learning combines structured coursework, applied projects where students execute real campaigns, practitioner-led industry sprints, and industry immersions so that concepts and execution reinforce each other."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will I receive a degree or certificate after completing the program?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Students who successfully complete the program receive a Post Graduate Program certificate called INDUSTRYCreds™ from Kraftshala School of Business. The program focuses on building practical capability and career readiness rather than following a traditional academic degree structure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the fee for the program and how is it paid?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The program fee is ₹3.7L plus 18% GST. Kraftshala operates with placement accountability. If a graduate secures a role below the defined minimum salary threshold, 60% of the program fee is refunded."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is the Kraftshala PGP in AI-Led Marketing priced the way it is?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The pricing philosophy is to charge the lowest fee required to run a high-quality institution sustainably. Instead of spending heavily on infrastructure or marketing optics, the institution invests primarily in practitioners, continuously improving the marketing syllabus, and building strong career support systems."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the eligibility criteria for applying?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Applicants should hold a bachelor's degree, although final-year students graduating before the program ends may also apply if they can commit to the full-time on-campus program. The program is typically suited for individuals with zero to three years of experience who want to build careers in AI and digital-first marketing roles."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the admissions process?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The admissions process begins with an online application followed by a short screening exercise where applicants analyse a marketing communication. Shortlisted applicants then have a conversation with the admissions team and a personal interview with the program team. Based on the evaluation, applicants receive an admit, waitlist, or decline decision."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is PGP in AI-Led Marketing conducted? Is it residential?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The program is conducted on campus in Gurgaon, one of the major hubs for digital businesses and marketing teams in India. Being located in this ecosystem allows students to interact with industry practitioners and participate in sessions and projects connected to real business environments. Classes typically run for about five hours a day, with additional time spent on projects, immersions, and challenges."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is accommodation available for students?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The admissions team can guide students in finding PGs and housing options close to the campus. Many students prefer staying nearby to fully participate in the immersive program schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I speak with someone before applying?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. You can connect with the admissions team to understand whether the program is the right fit, ask questions about career paths, or arrange a campus visit. You can call +91-7827135490 to set this up."
+        }
+      }
+    ]
+  }
+]

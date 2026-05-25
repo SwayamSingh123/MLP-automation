@@ -1,0 +1,182 @@
+{
+  "_README": [
+    "Expected SEO values per page. Canonical URLs always use production domain (https://www.kraftshala.com) regardless of platform being tested.",
+    "jsonLdFixture: refers to a JSON file under cypress/fixtures/seo/seo-jsonld/ for FULL expected JSON-LD comparison.",
+    "jsonLdType: 'fixture' = deep compare against fixture file, 'blog-template' = validate BlogPosting schema structure, 'none' = skip JSON-LD check.",
+    "faqAnswerSnippets: 2-3 text snippets (first 20-30 words) of FAQ answers, used to verify they exist in raw server HTML (not JS-injected).",
+    "locationFooterLinks (shared): cities + slugs that must appear as 'Digital Marketing Course in {City}' footer links on pages with hasLocationFooter=true."
+  ],
+
+  "robotsContent": {
+    "production": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+    "test": "noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+  },
+
+  "locationFooterLinks": [
+    { "city": "Pune", "slug": "pune" },
+    { "city": "Mumbai", "slug": "mumbai" },
+    { "city": "Delhi", "slug": "delhi" },
+    { "city": "Bangalore", "slug": "bangalore" },
+    { "city": "Hyderabad", "slug": "hyderabad" },
+    { "city": "Kolkata", "slug": "kolkata" },
+    { "city": "Ahmedabad", "slug": "ahmedabad" },
+    { "city": "Jaipur", "slug": "jaipur" },
+    { "city": "Lucknow", "slug": "lucknow" }
+  ],
+
+  "hiddenElementSkipClasses": [
+    "mobile-menu",
+    "mobile-nav",
+    "mob-nav",
+    "mob-nav-wrap",
+    "pc-hide",
+    "mob-hide",
+    "show-error",
+    "modal",
+    "popup",
+    "dialog",
+    "sr-only",
+    "screen-reader-only",
+    "visually-hidden",
+    "hamburger",
+    "drawer"
+  ],
+
+  "faqSelectors": {
+    "_README": "Inspect the live FAQ accordion HTML and replace these placeholder selectors.",
+    "faqContainer": ".faq, [data-section='faq'], section.faq",
+    "toggleButton": ".faq-question, .accordion-toggle, button[aria-expanded]",
+    "answerPanel": ".faq-answer, .accordion-panel, [aria-labelledby]"
+  },
+
+  "blogJsonLdTemplate": {
+    "_README": "Blog posts use BlogPosting schema with dynamic values per post. Instead of exact fixture match, validate structure and required fields.",
+    "requiredFields": {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "must exist and not be empty",
+      "description": "must exist and not be empty",
+      "image": "must exist and be a valid URL",
+      "author.@type": "Person",
+      "author.name": "must exist and not be empty",
+      "publisher.@type": "Organization",
+      "publisher.name": "Kraftshala",
+      "publisher.logo.@type": "ImageObject",
+      "publisher.logo.url": "https://s3.ap-south-1.amazonaws.com/convexstorage.kraftshala.com/production/453b391a-01f1-4431-a281-8c58470d35bc/events/banner-upload/14i86y16fv8m1qdwai0.webp",
+      "mainEntityOfPage.@type": "WebPage",
+      "mainEntityOfPage.@id": "must match canonical URL of the page",
+      "datePublished": "must exist and be valid date format",
+      "dateModified": "must exist and be valid date format"
+    }
+  },
+
+  "pages": [
+    {
+      "key": "home",
+      "name": "Home",
+      "path": "/",
+      "title": "Kraftshala School of Business - Best Job-linked Course Platform in India",
+      "description": "Kraftshala School of Business makes India\u2019s most loved courses for students & professionals that are 100% industry-driven. Be a part of India\u2019s most promising talent today.",
+      "canonical": "https://www.kraftshala.com/",
+      "hasLocationFooter": false,
+      "hasFaq": false,
+      "jsonLdType": "fixture",
+      "jsonLdFixture": "home.json",
+      "faqAnswerSnippets": []
+    },
+    {
+      "key": "mlp-core",
+      "name": "MLP Core",
+      "path": "/marketing-launchpad/digital-marketing-course/",
+      "title": "#1 AI-Integrated Digital Marketing Course with Placements",
+      "description": "Join the best AI-Integrated digital marketing course in India with placement. This 22-week live digital marketing course helps you get jobs from \u20b94.5-10.05 LPA. Enroll now!",
+      "canonical": "https://www.kraftshala.com/marketing-launchpad/digital-marketing-course/",
+      "hasLocationFooter": true,
+      "hasFaq": true,
+      "jsonLdType": "fixture",
+      "jsonLdFixture": "mlp-core.json",
+      "faqAnswerSnippets": [
+        "You need a laptop, internet, English skills, and 12th pass",
+        "No job guarantee, but if you\u2019re not placed at \u20b94.5L+",
+        "60% are placed by Week 6, 80% by Week 8"
+      ]
+    },
+    {
+      "key": "mlp-pt",
+      "name": "MLP Part-Time",
+      "path": "/marketing-launchpad/part-time-digital-marketing-course/",
+      "title": "Best Part-time Digital Marketing Weekend Course With Placement [& AI Tools Training]",
+      "description": "Enroll into India\u2019s best part-time digital marketing course and learn Facebook Ads, Google Ads and Amazon Ads on your weekends. Apply today!",
+      "canonical": "https://www.kraftshala.com/marketing-launchpad/part-time-digital-marketing-course/",
+      "hasLocationFooter": true,
+      "hasFaq": true,
+      "jsonLdType": "fixture",
+      "jsonLdFixture": "mlp-pt.json",
+      "faqAnswerSnippets": [
+        "You\u2019ll attend classes on Sundays (10AM\u20137PM) and have 2-hour sessions",
+        "Yes, you\u2019ll run live campaigns on Meta and Google Ads"
+      ]
+    },
+    {
+      "key": "mlp-hindi",
+      "name": "MLP Hindi",
+      "path": "/marketing-launchpad/digital-marketing-course-in-hindi/",
+      "title": "Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent",
+      "description": "Join India\u2019s first digital marketing course in Hindi with placement. This 23-week live Hindi digital marketing course helps you get jobs upto \u20b96 LPA. Enroll now!",
+      "canonical": "https://www.kraftshala.com/marketing-launchpad/digital-marketing-course-in-hindi/",
+      "hasLocationFooter": false,
+      "hasFaq": true,
+      "jsonLdType": "fixture",
+      "jsonLdFixture": "mlp-hindi.json",
+      "faqAnswerSnippets": [
+        "FILL IN \u2014 first 20-30 words of FAQ answer #1",
+        "FILL IN \u2014 first 20-30 words of FAQ answer #2"
+      ]
+    },
+    {
+      "key": "alm",
+      "name": "ALM (AI-Led Marketing)",
+      "path": "/pgp-in-marketing/",
+      "title": "PGP in Marketing (AI Led) by Kraftshala School of Business",
+      "description": "Kraftshala\u2019s PGP in AI Led Marketing is a 9-month industry-backed program that helps you land marketing roles with salaries from 5.5-11 LPA.",
+      "canonical": "https://www.kraftshala.com/pgp-in-marketing/",
+      "hasLocationFooter": false,
+      "hasFaq": true,
+      "jsonLdType": "fixture",
+      "jsonLdFixture": "alm.json",
+      "faqAnswerSnippets": [
+        "The PGP in AI-Led Marketing is a 9-month, full-time program conducted on campus in Gurgaon",
+        "Many traditional MBA programs rely heavily on lectures and case discussions"
+      ]
+    },
+    {
+      "key": "pgp-sales-marketing",
+      "name": "PGP Sales & Marketing",
+      "path": "/pgp/learn-sales-and-marketing/",
+      "title": "Learn Sales & Marketing With Placements from \u20b99- 22 LPA",
+      "description": "India\u2019s most practical AI - powered sales & marketing program. Learn sales and marketing through real projects & land top roles at \u20b99 - 22 LPA. Apply now!",
+      "canonical": "https://www.kraftshala.com/pgp/learn-sales-and-marketing/",
+      "hasLocationFooter": false,
+      "hasFaq": true,
+      "jsonLdType": "fixture",
+      "jsonLdFixture": "pgp-sales-marketing.json",
+      "faqAnswerSnippets": [
+        "FILL IN \u2014 first 20-30 words of FAQ answer #1",
+        "FILL IN \u2014 first 20-30 words of FAQ answer #2"
+      ]
+    },
+    {
+      "key": "blog",
+      "name": "Blog",
+      "path": "/blog/",
+      "title": "Latest Articles on Sales and Marketing Careers | Kraftshala School of Business",
+      "description": "Read the best articles on sales & marketing careers, case studies, courses, jobs and skills required to crack interviews. Get Reading!",
+      "canonical": "https://www.kraftshala.com/blog/",
+      "hasLocationFooter": true,
+      "hasFaq": false,
+      "jsonLdType": "none",
+      "jsonLdFixture": null,
+      "faqAnswerSnippets": []
+    }
+  ]
+}

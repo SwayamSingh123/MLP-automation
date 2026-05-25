@@ -1,0 +1,34 @@
+
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Kraftshala",
+    "url": "https://www.kraftshala.com/",
+    "logo": "https://www.kraftshala.com/static/91fae91e429948d7db90a40999c96093/83b9e/14i86y16fv8m1qdwai0.webp",
+    "description": "Kraftshala is an online course platform offering two highly popular programs: Digital Marketing Course and Sales Course. With a focus on bridging the gap between academic learning and industry demands, Kraftshala has the highest placement rate of 94% in India, and salary packages starting from ₹ 4.5 LPA for digital marketing students, and ₹ 7.5 LPA for sales students. Kraftshala's mission is to deliver practical, job-ready education that helps students secure rewarding career opportunities.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+91-78271-35490",
+      "email": "contact@kraftshala.com",
+      "contactType": "Customer Support",
+      "areaServed": "IN",
+      "availableLanguage": [
+        "English",
+        "Hindi"
+      ]
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Spacetime, A-16, Mohan Cooperative Industrial Estate, Sarita Vihar",
+      "addressLocality": "New Delhi",
+      "addressRegion": "Delhi",
+      "postalCode": "110044",
+      "addressCountry": "IN"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/school/learn-kraftshala/",
+      "https://www.instagram.com/kraftshala/"
+    ]
+  }
+]

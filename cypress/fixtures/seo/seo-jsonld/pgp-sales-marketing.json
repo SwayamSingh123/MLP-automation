@@ -1,0 +1,38 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "PGP in AI-Led Sales, Marketing and Business",
+    "description": "The PGP in AI-Led Sales,  Marketing and Business by Kraftshala is India's best online sales course with placements starting from 7.5 LPA up to 17 LPA in top companies. It's a 7 months full-time sales program with 4 live projects with real brands and full-time jobs.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Kraftshala",
+      "url": "https://www.kraftshala.com/"
+    },
+    "url": "https://www.kraftshala.com/sales-course/",
+    "image": "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yiylkm6oyo9do.png",
+    "category": "Sales and Business",
+    "offers": {
+      "@type": "Offer",
+      "price": "200000",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://www.kraftshala.com/sales-course/",
+      "category": "Sales and Business"
+    },
+    "hasCourseInstance": [
+      {
+        "@type": "CourseInstance",
+        "courseMode": "Online",
+        "duration": "P19W",
+        "courseSchedule": {
+          "@type": "Schedule",
+          "repeatCount": 1,
+          "repeatFrequency": "Monthly",
+          "description": "Full-time, with live online classes"
+        }
+      }
+    ]
+  }
+]
+

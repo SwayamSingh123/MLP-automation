@@ -1,0 +1,38 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Marketing Launchpad Emerging Talent Digital Marketing Course",
+    "description": "The Marketing Launchpad by Kraftshala is India's best online digital marketing course with placements up to 9.5 LPA in top companies. It's a 19-week course with an 8-week paid internship and full-time jobs.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Kraftshala",
+      "url": "https://www.kraftshala.com/"
+    },
+    "url": "https://www.kraftshala.com/marketing-launchpad/digital-marketing-course-in-hindi/",
+    "image": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/Group-11686.png",
+    "category": "Digital Marketing",
+    "inLanguage": "hi",
+    "offers": {
+      "@type": "Offer",
+      "price": "140000",
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://www.kraftshala.com/marketing-launchpad/digital-marketing-course-in-hindi/",
+      "category": "Digital Marketing"
+    },
+    "hasCourseInstance": [
+      {
+        "@type": "CourseInstance",
+        "courseMode": "Online",
+        "duration": "P19W",
+        "courseSchedule": {
+          "@type": "Schedule",
+          "repeatCount": 1,
+          "repeatFrequency": "Monthly",
+          "description": "Full-time, with live online classes"
+        }
+      }
+    ]
+  }
+]

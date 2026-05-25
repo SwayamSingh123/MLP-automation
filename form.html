@@ -57,6 +57,278 @@
         .layout { grid-template-columns: 1fr; }
       }
 
+      /* Stack the program forms in the left column. With the stepper UI,
+         only one card is visible at a time — non-active cards get .is-hidden. */
+      .forms-column {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* Stepper bar — top of the forms column, one chip per section. */
+      .step-bar {
+        display: flex;
+        gap: 4px;
+        background: var(--card-bg);
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
+        flex-wrap: wrap;
+      }
+      .step {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 8px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--text-muted);
+        white-space: nowrap;
+        transition: background-color 0.15s, color 0.15s;
+        font-family: inherit;
+        line-height: 1.2;
+        text-align: center;
+      }
+      .step:hover { background: var(--bg-soft); color: #1f2937; }
+      .step.is-active {
+        background: linear-gradient(180deg, #ffc92e 0%, var(--yellow-main) 100%);
+        color: #1f2937;
+        box-shadow: 0 2px 6px rgba(245, 183, 0, 0.25);
+      }
+      .step .step-num {
+        display: inline-block;
+        font-weight: 800;
+        opacity: 0.6;
+        margin-right: 4px;
+      }
+      .step.is-active .step-num { opacity: 1; }
+
+      /* Hide non-active cards in step mode. */
+      .card.is-step-hidden { display: none; }
+
+      /* Bottom Prev / Next bar. */
+      .step-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .step-nav button {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        background: var(--card-bg);
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.86rem;
+        cursor: pointer;
+        color: var(--text-main);
+        font-family: inherit;
+        transition: background-color 0.15s, opacity 0.15s;
+      }
+      .step-nav button:hover:not(:disabled) { background: var(--bg-soft); }
+      .step-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+      .step-nav .step-counter {
+        align-self: center;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        padding: 0 6px;
+        min-width: 50px;
+        text-align: center;
+      }
+      .card-tag {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 9px;
+        border-radius: 999px;
+        margin-bottom: 8px;
+      }
+      .card-tag.mlp { background: #fff7e3; color: #92400e; border: 1px solid #fde68a; }
+      .card-tag.alm { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+      .card-tag.seo { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+      .card-tag.callback { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+      .card-tag.kslive { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+      .card-tag.smbl { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+      /* Active-card highlight — applied while that mode's run is active. */
+      .card.is-active { box-shadow: 0 8px 28px rgba(91, 33, 182, 0.18); }
+
+      /* ── SEO Checklist section ──────────────────────────────────────────── */
+      .seo-section { margin-top: 24px; }
+      .seo-section h3 {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #374151;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .seo-summary {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .seo-summary .chip {
+        font-size: 0.74rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid;
+      }
+      .seo-summary .chip.total { background: #fffaf0; color: #92400e; border-color: var(--line); }
+      .seo-summary .chip.pass  { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+      .seo-summary .chip.fail  { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+      .seo-summary .chip.warn  { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+      .seo-summary .chip.skip  { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+
+      .seo-page {
+        background: #fffef9;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+      }
+      .seo-page-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        cursor: pointer;
+      }
+      .seo-page-head .page-name {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #111827;
+        flex: 1;
+      }
+      .seo-page-head .page-path {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.74rem;
+        color: var(--text-muted);
+      }
+      .seo-page-head .toggle-caret {
+        font-weight: 800;
+        color: #6b7280;
+      }
+
+      .seo-checks {
+        margin-top: 10px;
+        display: none;
+      }
+      .seo-page.is-open .seo-checks { display: block; }
+
+      .seo-check-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        margin-bottom: 4px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+      }
+      .seo-check-row .status-pill {
+        flex-shrink: 0;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 2px 8px;
+        border-radius: 999px;
+        min-width: 60px;
+        text-align: center;
+      }
+      .seo-check-row.pass    .status-pill { background: #dcfce7; color: #166534; }
+      .seo-check-row.fail    .status-pill { background: #fee2e2; color: #991b1b; }
+      .seo-check-row.warning .status-pill { background: #fef3c7; color: #92400e; }
+      .seo-check-row.skipped .status-pill { background: #f3f4f6; color: #6b7280; }
+
+      .seo-check-row .check-body { flex: 1; min-width: 0; }
+      .seo-check-row .check-name {
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #111827;
+      }
+      .seo-check-row .check-details {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 3px;
+        word-break: break-word;
+      }
+      .seo-check-row .check-expected,
+      .seo-check-row .check-actual {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.74rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        margin-top: 4px;
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+      .seo-check-row .check-expected { background: #ecfdf5; color: #065f46; }
+      .seo-check-row .check-actual   { background: #fef2f2; color: #991b1b; }
+      .seo-check-row .label {
+        font-size: 0.66rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-right: 6px;
+        opacity: 0.7;
+      }
+
+      .seo-section-tag {
+        display: inline-block;
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: #eef2ff;
+        color: #4338ca;
+        margin-right: 6px;
+      }
+
+      .jsonld-diff {
+        margin-top: 6px;
+        background: #fffaf0;
+        border: 1px solid #f3e1b0;
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      .jsonld-diff .block-head {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #92400e;
+        margin-bottom: 4px;
+      }
+      .jsonld-diff .diff-row {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.72rem;
+        padding: 3px 0;
+        word-break: break-word;
+      }
+      .jsonld-diff .diff-row.missing { color: #991b1b; }
+      .jsonld-diff .diff-row.extra   { color: #92400e; }
+      .jsonld-diff .diff-row.changed { color: #1e40af; }
+      .jsonld-diff .diff-kind {
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.66rem;
+        letter-spacing: 0.05em;
+        margin-right: 5px;
+      }
+
       .card {
         background: var(--card-bg);
         border-radius: 16px;
@@ -312,19 +584,181 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+
+      /* ── API + Pixel monitoring panels ─────────────────────────────────── */
+      .monitor-section { margin-top: 24px; }
+      .monitor-section h3 {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #374151;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      /* Inline API chip strip rendered inside each .test-item card. */
+      .api-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .api-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.74rem;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid;
+      }
+      .api-chip.ok { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+      .api-chip.miss { background: #fef3f2; color: #9f1239; border-color: #fecdd3; }
+      .api-chip.err { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+      .api-chip .check { font-weight: 800; }
+      .api-expand-btn {
+        background: #fffaf0;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 3px 11px;
+        font-size: 0.74rem;
+        font-family: inherit;
+        color: #92400e;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .api-expand-btn:hover { background: #fff3d6; }
+      .api-details {
+        margin-top: 10px;
+        background: #fffaf0;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 0.78rem;
+        max-height: 480px;
+        overflow: auto;
+      }
+      .api-details .call-block { margin-bottom: 18px; }
+      .api-details .call-block:last-child { margin-bottom: 0; }
+      .api-details .call-head {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.82rem;
+        color: #111827;
+        font-weight: 800;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .api-details .call-endpoint { color: #111827; }
+      .api-details .call-status {
+        font-weight: 800;
+      }
+      .api-details .call-status.ok { color: var(--pass); }
+      .api-details .call-status.err { color: var(--fail); }
+      .api-details .call-method {
+        color: var(--text-muted);
+        font-weight: 700;
+      }
+      .api-details .call-duration {
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .api-details .call-section-label {
+        color: #6b7280;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 10px 0 4px;
+      }
+      .api-details .call-section-label:first-child { margin-top: 0; }
+      .api-details .json-box {
+        background: #ffffff;
+        border: 1px solid #f3e1b0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.78rem;
+        color: #1f2937;
+        line-height: 1.45;
+      }
+      .api-details pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .pixel-group {
+        background: #fffef9;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+      }
+      .pixel-group-id {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #5b21b6;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        margin-bottom: 6px;
+      }
+      .pixel-event-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 3px 0;
+        font-size: 0.8rem;
+      }
+      .pixel-event-name {
+        font-weight: 700;
+        color: #111827;
+        min-width: 170px;
+      }
+      .pixel-count {
+        background: var(--bg-soft);
+        color: #92400e;
+        font-weight: 800;
+        font-size: 0.72rem;
+        padding: 1px 7px;
+        border-radius: 999px;
+      }
+      .pixel-reason {
+        flex: 1;
+        font-size: 0.74rem;
+        color: var(--text-muted);
+      }
     </style>
   </head>
   <body>
 
     <header>
-      <h1>Kraftshala MLP Test Runner</h1>
-      <p>Fill lead details, clean old data, and run all edge-case tests in one click.</p>
+      <h1>Kraftshala Test Runner</h1>
+      <p>Fill lead details for each program, clean old data, and run edge-case tests in one click.</p>
     </header>
 
     <div class="layout">
 
-      <!-- LEFT: Form -->
+      <!-- LEFT: Forms — stepper navigation, one section visible at a time -->
+      <div class="forms-column">
+
+      <!-- Stepper bar — click any chip to jump to that section. -->
+      <div class="step-bar" id="stepBar" role="tablist" aria-label="Test sections">
+        <button type="button" class="step" data-step="0" role="tab"><span class="step-num">1.</span> MLP</button>
+        <button type="button" class="step" data-step="1" role="tab"><span class="step-num">2.</span> ALM</button>
+        <button type="button" class="step" data-step="2" role="tab"><span class="step-num">3.</span> Callback</button>
+        <button type="button" class="step" data-step="3" role="tab"><span class="step-num">4.</span> KS Live</button>
+        <button type="button" class="step" data-step="4" role="tab"><span class="step-num">5.</span> SMBL</button>
+        <button type="button" class="step" data-step="5" role="tab"><span class="step-num">6.</span> SEO</button>
+      </div>
+
+      <!-- MLP card -->
       <div class="card">
+        <div class="card-tag mlp">MLP — Marketing Launchpad</div>
         <h2>Lead details</h2>
         <form id="leadForm">
           <div class="field">
@@ -366,15 +800,230 @@
             <input id="differentPhone" name="differentPhone" type="tel" required placeholder="9yyyyyyyyy" />
             <small>Required. Used for the new-lead test (with different email) and in the cross scenarios. Must differ from base phone.</small>
           </div>
-          <button class="btn" type="submit">Run tests</button>
+          <button class="btn" type="submit">Run MLP tests</button>
           <div id="status" class="form-status"></div>
         </form>
+      </div>
+
+      <!-- ALM card -->
+      <div class="card">
+        <div class="card-tag alm">ALM — AI-Led Marketing</div>
+        <h2>ALM lead details</h2>
+        <form id="almForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="almPlatform" value="test" checked />
+                <span class="platform-card">Testing on Test Platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="almPlatform" value="main" />
+                <span class="platform-card">Testing on Main Platform</span>
+              </label>
+            </div>
+            <small>ALM leads are tracked separately from MLP — different lead pool.</small>
+          </div>
+          <div class="field">
+            <label for="almName">Name</label>
+            <input id="almName" name="almName" type="text" required placeholder="Full name" />
+            <small>Shown on the ALM lead form for every scenario.</small>
+          </div>
+          <div class="field">
+            <label for="almBaseEmail">Base email</label>
+            <input id="almBaseEmail" name="almBaseEmail" type="email" required placeholder="alm-user@example.com" />
+            <small>Used for the existing-lead test and as the fixed email in same-email / different-phone.</small>
+          </div>
+          <div class="field">
+            <label for="almBasePhone">Base phone</label>
+            <input id="almBasePhone" name="almBasePhone" type="tel" required placeholder="9xxxxxxxxx" />
+            <small>Used for the existing-lead test and as the fixed phone in same-phone / different-email.</small>
+          </div>
+          <div class="field">
+            <label for="almDifferentEmail">Different email</label>
+            <input id="almDifferentEmail" name="almDifferentEmail" type="email" required placeholder="other@example.com" />
+            <small>Used for the same-phone / different-email scenario. Must differ from base email.</small>
+          </div>
+          <div class="field">
+            <label for="almDifferentPhone">Different phone</label>
+            <input id="almDifferentPhone" name="almDifferentPhone" type="tel" required placeholder="9yyyyyyyyy" />
+            <small>Used for the same-email / different-phone scenario. Must differ from base phone.</small>
+          </div>
+          <button class="btn" type="submit">Run ALM tests</button>
+          <div id="almStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            Runs 7 ALM edge cases + Download Prospectus — with API logging (no pixel checks).
+          </small>
+        </form>
+      </div>
+
+      <!-- Request a CallBack card — reads name/email/phone directly from
+           cypress/fixtures/mlp/mlpTestData.json. No UI inputs needed. -->
+      <div class="card">
+        <div class="card-tag callback">Request a CallBack</div>
+        <h2>Callback flow</h2>
+        <form id="callbackForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="callbackPlatform" value="test" checked />
+                <span class="platform-card">Testing on Test Platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="callbackPlatform" value="main" />
+                <span class="platform-card">Testing on Main Platform</span>
+              </label>
+            </div>
+            <small>Inputs are read from <code>cypress/fixtures/mlp/mlpTestData.json</code> — name, base email, base phone. Run MLP first if you want fresh values in the fixture.</small>
+          </div>
+          <button class="btn" type="submit">Run Callback test</button>
+          <div id="callbackStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            Opens the callback widget, fills the form, selects "Digital Marketing", submits OTP, and verifies the success message.
+          </small>
+        </form>
+      </div>
+
+      <!-- KS Live card — 4 tests across the 1st and 2nd event cards on /kraftshala-live/. -->
+      <div class="card">
+        <div class="card-tag kslive">KS Live — Events</div>
+        <h2>KS Live registration</h2>
+        <form id="kslivForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="kslivPlatform" value="test" checked />
+                <span class="platform-card">Testing on Test Platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="kslivPlatform" value="main" />
+                <span class="platform-card">Testing on Main Platform</span>
+              </label>
+            </div>
+            <small>Runs 4 registration scenarios across the 1st &amp; 2nd KS Live event cards on the page.</small>
+          </div>
+          <div class="field">
+            <label for="kslivName">Name</label>
+            <input id="kslivName" name="kslivName" type="text" required placeholder="Full name" />
+          </div>
+          <div class="field">
+            <label for="kslivBaseEmail">Base email (Email A)</label>
+            <input id="kslivBaseEmail" name="kslivBaseEmail" type="email" required placeholder="base@example.com" />
+          </div>
+          <div class="field">
+            <label for="kslivBasePhone">Base phone</label>
+            <input id="kslivBasePhone" name="kslivBasePhone" type="tel" required placeholder="9xxxxxxxxx" />
+            <small>Used in Scenario 3 (2nd card's "different number").</small>
+          </div>
+          <div class="field">
+            <label for="kslivDifferentEmail">Different email (Email B)</label>
+            <input id="kslivDifferentEmail" name="kslivDifferentEmail" type="email" required placeholder="other@example.com" />
+            <small>Must differ from base email.</small>
+          </div>
+          <div class="field">
+            <label for="kslivDifferentPhone">Different / new phone</label>
+            <input id="kslivDifferentPhone" name="kslivDifferentPhone" type="tel" required placeholder="9yyyyyyyyy" />
+            <small>Must differ from base phone.</small>
+          </div>
+          <button class="btn" type="submit">Run KS Live tests</button>
+          <div id="kslivStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            4 tests total — 3 user-input scenarios + 1 MLP-fixture scenario. API logs captured automatically.
+          </small>
+        </form>
+      </div>
+
+      <!-- SMBL (PGP Sales & Marketing) card — 7 edge cases mirroring MLP, success URL is /thank-you/?id=… -->
+      <div class="card">
+        <div class="card-tag smbl">SMBL — Sales &amp; Marketing</div>
+        <h2>SMBL lead details</h2>
+        <form id="smblForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="smblPlatform" value="test" checked />
+                <span class="platform-card">Testing on Test Platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="smblPlatform" value="main" />
+                <span class="platform-card">Testing on Main Platform</span>
+              </label>
+            </div>
+            <small>Runs 7 SMBL edge cases on /pgp/learn-sales-and-marketing/ — success = redirect to /thank-you/?id=…</small>
+          </div>
+          <div class="field">
+            <label for="smblName">Name</label>
+            <input id="smblName" name="smblName" type="text" required placeholder="Full name" />
+          </div>
+          <div class="field">
+            <label for="smblBaseEmail">Base email</label>
+            <input id="smblBaseEmail" name="smblBaseEmail" type="email" required placeholder="smbl-base@example.com" />
+          </div>
+          <div class="field">
+            <label for="smblBasePhone">Base phone</label>
+            <input id="smblBasePhone" name="smblBasePhone" type="tel" required placeholder="9xxxxxxxxx" />
+          </div>
+          <div class="field">
+            <label for="smblDifferentEmail">Different email</label>
+            <input id="smblDifferentEmail" name="smblDifferentEmail" type="email" required placeholder="other@example.com" />
+            <small>Must differ from base email.</small>
+          </div>
+          <div class="field">
+            <label for="smblDifferentPhone">Different phone</label>
+            <input id="smblDifferentPhone" name="smblDifferentPhone" type="tel" required placeholder="9yyyyyyyyy" />
+            <small>Must differ from base phone.</small>
+          </div>
+          <button class="btn" type="submit">Run SMBL tests</button>
+          <div id="smblStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            7 edge cases — new / different / same-email-diff-phone / same-phone-diff-email / invalid email / invalid phone / empty form. API logs captured automatically.
+          </small>
+        </form>
+      </div>
+
+      <!-- SEO Checklist card -->
+      <div class="card">
+        <div class="card-tag seo">SEO — Checklist</div>
+        <h2>SEO checks</h2>
+        <form id="seoForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="seoPlatform" value="test" checked />
+                <span class="platform-card">Test platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="seoPlatform" value="production" />
+                <span class="platform-card">Production (live)</span>
+              </label>
+            </div>
+            <small>Runs against testprogram.kraftshala.com or www.kraftshala.com. Canonical URLs always check against the production domain regardless.</small>
+          </div>
+          <button class="btn" type="submit">Run SEO checks</button>
+          <div id="seoStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            17 checks across 7 pages — head / body / footer / FAQ. No leads or pixel; reads from fixtures/seo/.
+          </small>
+        </form>
+      </div>
+
+      <!-- Prev / Next nav — sits below the active card. -->
+      <div class="step-nav">
+        <button type="button" id="stepPrev">← Previous</button>
+        <div class="step-counter" id="stepCounter">1 / 6</div>
+        <button type="button" id="stepNext">Next →</button>
+      </div>
+
       </div>
 
       <!-- RIGHT: Results -->
       <div class="card" id="resultsCard">
         <div class="results-header">
-          <h2>Test results</h2>
+          <h2>Test results <span id="runLabel" class="card-tag" style="display:none; margin-left:8px; vertical-align: middle;"></span></h2>
           <span id="overallBadge" class="overall-badge idle">Waiting</span>
         </div>
 
@@ -391,15 +1040,92 @@
         </div>
 
         <ul id="testList" class="test-list" style="display:none;"></ul>
+
+        <div id="pixelSection" class="monitor-section" style="display:none;">
+          <h3>Meta Pixel fires</h3>
+          <div id="pixelEventList"></div>
+        </div>
+
+        <div id="seoSection" class="seo-section" style="display:none;">
+          <h3>SEO Checklist</h3>
+          <div id="seoSummary" class="seo-summary"></div>
+          <div id="seoPageList"></div>
+        </div>
       </div>
 
     </div>
 
     <script>
+      // ── Stepper navigation — UI-only, purely visibility-based ───────────
+      // Hides all program cards except the active one. Does NOT touch any
+      // form state, runner logic, button refs, or API plumbing — every
+      // hidden card's inputs and listeners remain wired exactly as before.
+      (function initStepper() {
+        const formsCol = document.querySelector('.forms-column');
+        if (!formsCol) return;
+        const stepCards = Array.from(formsCol.querySelectorAll(':scope > .card'));
+        const stepButtons = Array.from(formsCol.querySelectorAll('.step-bar .step'));
+        const prevBtn = document.getElementById('stepPrev');
+        const nextBtn = document.getElementById('stepNext');
+        const counter = document.getElementById('stepCounter');
+        const totalSteps = stepCards.length;
+        let currentStep = 0;
+
+        function showStep(idx) {
+          if (idx < 0 || idx >= totalSteps) return;
+          currentStep = idx;
+          stepCards.forEach((c, i) => c.classList.toggle('is-step-hidden', i !== idx));
+          stepButtons.forEach((b, i) => {
+            const active = i === idx;
+            b.classList.toggle('is-active', active);
+            b.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          if (prevBtn) prevBtn.disabled = idx === 0;
+          if (nextBtn) nextBtn.disabled = idx === totalSteps - 1;
+          if (counter) counter.textContent = (idx + 1) + ' / ' + totalSteps;
+        }
+
+        stepButtons.forEach((b, i) => b.addEventListener('click', () => showStep(i)));
+        if (prevBtn) prevBtn.addEventListener('click', () => showStep(currentStep - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => showStep(currentStep + 1));
+        showStep(0);
+      })();
+
+      // MLP form refs (existing).
       const form = document.getElementById('leadForm');
       const statusEl = document.getElementById('status');
       const btn = form.querySelector('button[type="submit"]');
 
+      // ALM form refs (new).
+      const almForm = document.getElementById('almForm');
+      const almStatusEl = document.getElementById('almStatus');
+      const almBtn = almForm.querySelector('button[type="submit"]');
+
+      // SEO form refs (new).
+      const seoForm = document.getElementById('seoForm');
+      const seoStatusEl = document.getElementById('seoStatus');
+      const seoBtn = seoForm.querySelector('button[type="submit"]');
+      const seoSection = document.getElementById('seoSection');
+      const seoSummary = document.getElementById('seoSummary');
+      const seoPageList = document.getElementById('seoPageList');
+
+      // Callback form refs (new). The card has no inputs of its own — it pulls
+      // name / baseEmail / basePhone from the MLP form when the user clicks Run.
+      const callbackForm = document.getElementById('callbackForm');
+      const callbackStatusEl = document.getElementById('callbackStatus');
+      const callbackBtn = callbackForm.querySelector('button[type="submit"]');
+
+      // KS Live form refs (new).
+      const kslivForm = document.getElementById('kslivForm');
+      const kslivStatusEl = document.getElementById('kslivStatus');
+      const kslivBtn = kslivForm.querySelector('button[type="submit"]');
+
+      // SMBL form refs (new).
+      const smblForm = document.getElementById('smblForm');
+      const smblStatusEl = document.getElementById('smblStatus');
+      const smblBtn = smblForm.querySelector('button[type="submit"]');
+
+      const runLabelEl = document.getElementById('runLabel');
       const overallBadge = document.getElementById('overallBadge');
       const statsBar = document.getElementById('statsBar');
       const statTotal = document.getElementById('statTotal');
@@ -410,14 +1136,87 @@
       const emptySpinner = document.getElementById('emptySpinner');
       const emptyMsg = document.getElementById('emptyMsg');
       const testList = document.getElementById('testList');
+      const pixelSection = document.getElementById('pixelSection');
+      const pixelEventList = document.getElementById('pixelEventList');
+
+      // Endpoints we expose as chips on every test card. Order matters — chips
+      // render in this order so cards line up visually across tests.
+      const API_TRACKED_ENDPOINTS = ['lead/create', 'otp-validation/validate'];
+
+      // Updated per-run from the server's /prepare-tests response (MLP=9, ALM=8).
+      // Used by live-streaming stats and the "Running... (X/Y)" badge.
+      let expectedTestCount = 9;
+
+      // Documented reason for each known (pixelId, eventName) — shown next to
+      // the count so a glance answers "what is this fire". Anything missing
+      // from this map is rendered without a reason — that's fine.
+      const PIXEL_EVENT_REASONS = {
+        '254822124949497|PageView':      'Fires when a page loads',
+        '848180154775619|PageView':      'Fires when a page loads',
+        '848180154775619|step1_submit':  'Fires when "Start your marketing journey" is clicked with valid data',
+        '254822124949497|Lead':          'Fires on OTP submit click (regardless of OTP validation result)',
+        '848180154775619|step2_submit':  'Fires on OTP submit click (regardless of OTP validation result)',
+        '254822124949497|FormSubmitMLP': 'Fires when OTP is validated and the lead is captured',
+        '848180154775619|lead_mlp':      'Fires when OTP is validated and the lead is captured',
+      };
+
+      // The currently-running form's status element + button. Updated by
+      // runTests whenever a run starts so streaming + polling callbacks update
+      // the right card.
+      let activeStatusEl = statusEl;
+      let activeBtn = btn;
 
       function setStatus(msg, type) {
-        statusEl.textContent = msg || '';
-        statusEl.className = 'form-status ' + (type || '');
+        if (!activeStatusEl) return;
+        activeStatusEl.textContent = msg || '';
+        activeStatusEl.className = 'form-status ' + (type || '');
+      }
+      function clearOtherStatus() {
+        // When one mode runs, clear status text on inactive cards so stale
+        // messages don't sit on them.
+        if (activeStatusEl !== statusEl) {
+          statusEl.textContent = '';
+          statusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== almStatusEl) {
+          almStatusEl.textContent = '';
+          almStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== seoStatusEl) {
+          seoStatusEl.textContent = '';
+          seoStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== callbackStatusEl) {
+          callbackStatusEl.textContent = '';
+          callbackStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== kslivStatusEl) {
+          kslivStatusEl.textContent = '';
+          kslivStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== smblStatusEl) {
+          smblStatusEl.textContent = '';
+          smblStatusEl.className = 'form-status';
+        }
+      }
+      function setRunLabel(modeLabel) {
+        if (!modeLabel) {
+          runLabelEl.style.display = 'none';
+          runLabelEl.className = 'card-tag';
+          runLabelEl.textContent = '';
+          return;
+        }
+        runLabelEl.style.display = 'inline-block';
+        // Collapse whitespace + lowercase for the CSS class token, keep the
+        // display text as-is. e.g. "MLP" → class "mlp", text "MLP".
+        const classToken = modeLabel.toLowerCase().replace(/\s+/g, '');
+        runLabelEl.className = 'card-tag ' + classToken;
+        runLabelEl.textContent = modeLabel;
       }
 
       function renderResults(data) {
         const tests = data.tests || [];
+        const isSeoResult = String(data.runMode || '') === 'seo';
         const totals = data.totals || {
           total: 0,
           automationPassed: 0,
@@ -429,6 +1228,13 @@
           userRegistrationAttempts: 0,
           allUserRegistrationOk: false,
         };
+
+        // Update the per-run expected count + label from the server payload
+        // so subsequent live-stat renders use the right denominator.
+        if (typeof data.expectedTestCount === 'number') {
+          expectedTestCount = data.expectedTestCount;
+        }
+        if (data.runLabel) setRunLabel(data.runLabel);
 
         const autoPass = totals.automationPassed ?? 0;
         const autoFail = totals.automationFailed ?? 0;
@@ -451,6 +1257,38 @@
           overallBadge.className = 'overall-badge failed';
         }
 
+        // SEO mode: hide the lead-test stats/list entirely — SEO has its own
+        // dedicated section below. Header badge is set from SEO summary.
+        if (isSeoResult) {
+          statsBar.style.display = 'none';
+          testList.style.display = 'none';
+          emptyState.style.display = 'none';
+          renderSeoResults(data.seoResults || []);
+          // Mirror SEO summary to overall badge.
+          let pass = 0, fail = 0, warn = 0;
+          for (const p of (data.seoResults || [])) {
+            for (const c of (p.checks || [])) {
+              if (c.status === 'pass') pass++;
+              else if (c.status === 'fail') fail++;
+              else if (c.status === 'warning') warn++;
+            }
+          }
+          if (fail > 0) {
+            overallBadge.textContent = fail + ' SEO checks failing';
+            overallBadge.className = 'overall-badge failed';
+          } else if (warn > 0) {
+            overallBadge.textContent = 'SEO OK · ' + warn + ' warning(s)';
+            overallBadge.className = 'overall-badge idle';
+          } else if (pass > 0) {
+            overallBadge.textContent = 'All SEO checks passed';
+            overallBadge.className = 'overall-badge passed';
+          } else {
+            overallBadge.textContent = 'No SEO results';
+            overallBadge.className = 'overall-badge idle';
+          }
+          return;
+        }
+
         statTotal.textContent = totals.total;
         statLeadOutcomes.textContent = userRegOk + '/' + userRegAtt;
         statAuto.textContent = autoPass + ' pass / ' + autoFail + ' fail';
@@ -471,6 +1309,225 @@
         for (const t of tests) {
           testList.appendChild(buildTestListItem(t));
         }
+
+        renderPixelEvents(data.pixelEvents || []);
+        renderSeoResults(data.seoResults || []);
+      }
+
+      // Render the SEO Checklist section — collapsible per-page groups with
+      // colored status pills and JSON-LD diff blocks for Check 7 failures.
+      function renderSeoResults(seoResults) {
+        seoSummary.innerHTML = '';
+        seoPageList.innerHTML = '';
+        if (!Array.isArray(seoResults) || seoResults.length === 0) {
+          seoSection.style.display = 'none';
+          return;
+        }
+
+        // Aggregate counts across all pages.
+        let total = 0, pass = 0, fail = 0, warn = 0, skip = 0;
+        for (const p of seoResults) {
+          for (const c of (p.checks || [])) {
+            total++;
+            if (c.status === 'pass') pass++;
+            else if (c.status === 'fail') fail++;
+            else if (c.status === 'warning') warn++;
+            else if (c.status === 'skipped') skip++;
+          }
+        }
+        seoSummary.innerHTML =
+          '<span class="chip total">Total ' + total + '</span>' +
+          '<span class="chip pass">Pass ' + pass + '</span>' +
+          '<span class="chip fail">Fail ' + fail + '</span>' +
+          '<span class="chip warn">Warning ' + warn + '</span>' +
+          '<span class="chip skip">Skipped ' + skip + '</span>';
+
+        for (const p of seoResults) {
+          const pageEl = document.createElement('div');
+          pageEl.className = 'seo-page';
+
+          const pageFail = (p.checks || []).filter((c) => c.status === 'fail').length;
+          const pageWarn = (p.checks || []).filter((c) => c.status === 'warning').length;
+          // Auto-expand pages with failures so issues are visible immediately.
+          if (pageFail > 0 || pageWarn > 0) pageEl.classList.add('is-open');
+
+          const head = document.createElement('div');
+          head.className = 'seo-page-head';
+          head.innerHTML =
+            '<span class="page-name">' + escapeHtml(p.page || '(page)') + '</span>' +
+            '<span class="page-path">' + escapeHtml(p.path || '') + '</span>' +
+            '<span class="chip pass">' + (p.checks || []).filter((c) => c.status === 'pass').length + ' pass</span>' +
+            (pageFail ? '<span class="chip fail">' + pageFail + ' fail</span>' : '') +
+            (pageWarn ? '<span class="chip warn">' + pageWarn + ' warn</span>' : '') +
+            '<span class="toggle-caret">▾</span>';
+          head.addEventListener('click', () => pageEl.classList.toggle('is-open'));
+          pageEl.appendChild(head);
+
+          const checksWrap = document.createElement('div');
+          checksWrap.className = 'seo-checks';
+          for (const c of (p.checks || [])) {
+            checksWrap.appendChild(buildSeoCheckRow(c));
+          }
+          pageEl.appendChild(checksWrap);
+          seoPageList.appendChild(pageEl);
+        }
+
+        seoSection.style.display = 'block';
+      }
+
+      function buildSeoCheckRow(c) {
+        const row = document.createElement('div');
+        row.className = 'seo-check-row ' + (c.status || 'skipped');
+
+        const pill = document.createElement('span');
+        pill.className = 'status-pill';
+        pill.textContent = (c.status || 'skipped').toUpperCase();
+        row.appendChild(pill);
+
+        const body = document.createElement('div');
+        body.className = 'check-body';
+
+        const name = document.createElement('div');
+        name.className = 'check-name';
+        const sectionTag = c.section
+          ? '<span class="seo-section-tag">' + escapeHtml(c.section) + '</span>'
+          : '';
+        name.innerHTML = sectionTag + escapeHtml(c.name || c.id || 'Check');
+        body.appendChild(name);
+
+        if (c.details) {
+          const details = document.createElement('div');
+          details.className = 'check-details';
+          details.textContent = c.details;
+          body.appendChild(details);
+        }
+
+        if (c.status === 'fail' && (c.expected != null || c.actual != null)) {
+          if (c.expected != null) {
+            const ex = document.createElement('div');
+            ex.className = 'check-expected';
+            ex.innerHTML = '<span class="label">expected</span>' + escapeHtml(stringifyShort(c.expected));
+            body.appendChild(ex);
+          }
+          if (c.actual != null) {
+            const ac = document.createElement('div');
+            ac.className = 'check-actual';
+            ac.innerHTML = '<span class="label">actual</span>' + escapeHtml(stringifyShort(c.actual));
+            body.appendChild(ac);
+          }
+        }
+
+        // JSON-LD diff (Check 7) — render structured diff blocks.
+        if (c.id === 'head-7' && c.status === 'fail' && Array.isArray(c.jsonLdDiff)) {
+          for (const block of c.jsonLdDiff) {
+            const wrap = document.createElement('div');
+            wrap.className = 'jsonld-diff';
+            const blockHead = document.createElement('div');
+            blockHead.className = 'block-head';
+            blockHead.textContent = '@type: ' + (block.type || '(unknown)') +
+              (typeof block.index === 'number' ? ' [' + block.index + ']' : '');
+            wrap.appendChild(blockHead);
+            for (const d of (block.diffs || [])) {
+              const drow = document.createElement('div');
+              drow.className = 'diff-row ' + d.kind;
+              const kindLabel = '<span class="diff-kind">' + d.kind + '</span>';
+              if (d.kind === 'missing') {
+                drow.innerHTML = kindLabel + escapeHtml(d.path) + ' — expected ' + escapeHtml(stringifyShort(d.expected));
+              } else if (d.kind === 'extra') {
+                drow.innerHTML = kindLabel + escapeHtml(d.path) + ' — found ' + escapeHtml(stringifyShort(d.actual));
+              } else {
+                drow.innerHTML = kindLabel + escapeHtml(d.path) +
+                  ' — expected ' + escapeHtml(stringifyShort(d.expected)) +
+                  ', got ' + escapeHtml(stringifyShort(d.actual));
+              }
+              wrap.appendChild(drow);
+            }
+            body.appendChild(wrap);
+          }
+        }
+
+        // Generic offender lists (links, images, panels, ARIA toggles, etc.).
+        const offenderLists = [
+          { key: 'offenders', label: 'Offenders' },
+          { key: 'images', label: 'Images missing alt' },
+          { key: 'missingCities', label: 'Missing cities' },
+          { key: 'missingSnippets', label: 'Missing FAQ snippets' },
+          { key: 'badToggles', label: 'Toggles with ARIA issues' },
+        ];
+        for (const list of offenderLists) {
+          if (Array.isArray(c[list.key]) && c[list.key].length) {
+            const wrap = document.createElement('div');
+            wrap.className = 'check-actual';
+            const items = c[list.key].slice(0, 12).map((o) => stringifyShort(o)).join('\n');
+            const more = c[list.key].length > 12 ? '\n…and ' + (c[list.key].length - 12) + ' more' : '';
+            wrap.innerHTML = '<span class="label">' + list.label + '</span>' + escapeHtml(items + more);
+            body.appendChild(wrap);
+          }
+        }
+
+        row.appendChild(body);
+        return row;
+      }
+
+      function stringifyShort(v) {
+        if (v == null) return String(v);
+        if (typeof v === 'string') return v.length > 240 ? v.slice(0, 240) + '…' : v;
+        try {
+          const s = JSON.stringify(v);
+          return s.length > 240 ? s.slice(0, 240) + '…' : s;
+        } catch (_e) {
+          return String(v);
+        }
+      }
+
+      // Aggregated pixel-fire summary, grouped by pixelId.
+      function renderPixelEvents(events) {
+        pixelEventList.innerHTML = '';
+        if (!Array.isArray(events) || events.length === 0) {
+          pixelSection.style.display = 'none';
+          return;
+        }
+        const byPixel = new Map();
+        for (const e of events) {
+          if (!byPixel.has(e.pixelId)) byPixel.set(e.pixelId, []);
+          byPixel.get(e.pixelId).push(e);
+        }
+        for (const [pixelId, items] of byPixel) {
+          const group = document.createElement('div');
+          group.className = 'pixel-group';
+
+          const idEl = document.createElement('div');
+          idEl.className = 'pixel-group-id';
+          idEl.textContent = 'Pixel ID ' + (pixelId || '(blank)');
+          group.appendChild(idEl);
+
+          for (const item of items) {
+            const row = document.createElement('div');
+            row.className = 'pixel-event-row';
+
+            const name = document.createElement('span');
+            name.className = 'pixel-event-name';
+            name.textContent = item.eventName || '(unnamed)';
+            row.appendChild(name);
+
+            const count = document.createElement('span');
+            count.className = 'pixel-count';
+            count.textContent = '×' + item.count;
+            row.appendChild(count);
+
+            const reasonText =
+              PIXEL_EVENT_REASONS[(item.pixelId || '') + '|' + (item.eventName || '')] || '';
+            if (reasonText) {
+              const reason = document.createElement('span');
+              reason.className = 'pixel-reason';
+              reason.textContent = reasonText;
+              row.appendChild(reason);
+            }
+            group.appendChild(row);
+          }
+          pixelEventList.appendChild(group);
+        }
+        pixelSection.style.display = 'block';
       }
 
       function escapeHtml(str) {
@@ -523,7 +1580,125 @@
             '<div class="test-label ' + primaryClass + '">' + primaryLine + '</div>' +
             '<div class="test-label unknown">Automation (Cypress): ' + (autoOk ? 'PASS' : 'FAIL') + '</div>' +
           '</div>';
+
+        // Inline API chip strip — only rendered when this test ran the
+        // monitored endpoints (apiMonitor.js attaches `apiCalls`). Streaming
+        // `test_result` events arrive without apiCalls (the JSON file is
+        // written progressively), so the strip appears after `complete`.
+        const apiCalls = Array.isArray(t.apiCalls) ? t.apiCalls : [];
+        const info = li.querySelector('.test-info');
+        info.appendChild(buildApiChipStrip(apiCalls));
+
         return li;
+      }
+
+      // Builds the chip row + collapsible details panel for one test card.
+      function buildApiChipStrip(apiCalls) {
+        const wrap = document.createElement('div');
+
+        const chips = document.createElement('div');
+        chips.className = 'api-chips';
+
+        // One chip per tracked endpoint; the chip class reflects whether the
+        // endpoint was hit and whether the call succeeded.
+        for (const endpoint of API_TRACKED_ENDPOINTS) {
+          const callsForEndpoint = apiCalls.filter((c) => c.endpoint === endpoint);
+          const chip = document.createElement('span');
+          if (callsForEndpoint.length === 0) {
+            chip.className = 'api-chip miss';
+            chip.innerHTML = '<span class="check">×</span> ' + endpoint;
+          } else {
+            const allOk = callsForEndpoint.every(
+              (c) => c.status >= 200 && c.status < 400
+            );
+            chip.className = 'api-chip ' + (allOk ? 'ok' : 'err');
+            chip.innerHTML =
+              '<span class="check">' + (allOk ? '✓' : '×') + '</span> ' + endpoint;
+          }
+          chips.appendChild(chip);
+        }
+
+        const totalCalls = apiCalls.length;
+        if (totalCalls > 0) {
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'api-expand-btn';
+          toggle.textContent =
+            totalCalls + ' call' + (totalCalls === 1 ? '' : 's') + ' · click to expand';
+          chips.appendChild(toggle);
+
+          const details = document.createElement('div');
+          details.className = 'api-details';
+          details.style.display = 'none';
+          details.innerHTML = renderApiDetailsHtml(apiCalls);
+
+          toggle.addEventListener('click', () => {
+            const open = details.style.display !== 'none';
+            details.style.display = open ? 'none' : 'block';
+            toggle.textContent =
+              open
+                ? totalCalls + ' call' + (totalCalls === 1 ? '' : 's') + ' · click to expand'
+                : 'click to collapse';
+          });
+
+          wrap.appendChild(chips);
+          wrap.appendChild(details);
+        } else {
+          wrap.appendChild(chips);
+        }
+        return wrap;
+      }
+
+      function renderApiDetailsHtml(apiCalls) {
+        return apiCalls
+          .map((call) => {
+            const ok = call.status >= 200 && call.status < 400;
+            const status = String(call.status || '—');
+            const method = escapeHtml(call.method || 'POST');
+            const endpoint = escapeHtml(call.endpoint || '');
+            const duration = call.duration != null ? call.duration + 'ms' : '—';
+
+            // Header line — endpoint, status (green/red), method, duration —
+            // mirrors the previous UI exactly (e.g. "otp-validation/validate 200 POST · 229ms").
+            const head =
+              '<div class="call-head">' +
+              '<span class="call-endpoint">' + endpoint + '</span> ' +
+              '<span class="call-status ' + (ok ? 'ok' : 'err') + '">' + escapeHtml(status) + '</span> ' +
+              '<span class="call-method">' + method + '</span>' +
+              '<span class="call-duration">· ' + escapeHtml(String(duration)) + '</span>' +
+              '</div>';
+
+            const payloadStr = formatJsonPretty(call.payload);
+            const responseStr = formatJsonPretty(call.response);
+            return (
+              '<div class="call-block">' +
+              head +
+              '<div class="call-section-label">Request Payload</div>' +
+              '<div class="json-box"><pre>' + escapeHtml(payloadStr) + '</pre></div>' +
+              '<div class="call-section-label">Response Body</div>' +
+              '<div class="json-box"><pre>' + escapeHtml(responseStr) + '</pre></div>' +
+              '</div>'
+            );
+          })
+          .join('');
+      }
+
+      function formatJsonPretty(value) {
+        if (value == null) return '(empty)';
+        if (typeof value === 'string') {
+          // Sometimes the server returns stringified JSON inside a JSON field —
+          // try parsing once for readability, fall back to the raw string.
+          try {
+            return JSON.stringify(JSON.parse(value), null, 2);
+          } catch (_err) {
+            return value;
+          }
+        }
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch (_err) {
+          return String(value);
+        }
       }
 
       // ── Real-time streaming for local Cypress runs ────────────────────────────
@@ -552,14 +1727,14 @@
         const failed = _streamedTests.filter((x) => x.status === 'failed').length;
         const total = _streamedTests.length;
         const userOk = _streamedTests.filter((x) => x.userRegistrationPass).length;
-        statTotal.textContent = total + ' / 7';
+        statTotal.textContent = total + ' / ' + expectedTestCount;
         statLeadOutcomes.textContent = userOk + '/' + total;
         statAuto.textContent = passed + ' pass / ' + failed + ' fail';
         statsBar.style.display = 'flex';
 
         // Live badge
-        if (total < 7) {
-          overallBadge.textContent = 'Running... (' + total + '/7)';
+        if (total < expectedTestCount) {
+          overallBadge.textContent = 'Running... (' + total + '/' + expectedTestCount + ')';
           overallBadge.className = 'overall-badge idle';
         } else if (failed === 0) {
           overallBadge.textContent = 'All lead outcomes OK';
@@ -627,6 +1802,7 @@
         overallBadge.className = 'overall-badge idle';
         statsBar.style.display = 'none';
         testList.style.display = 'none';
+        pixelSection.style.display = 'none';
         emptyState.style.display = 'block';
         emptyIcon.style.display = 'none';
         emptySpinner.style.display = 'block';
@@ -696,56 +1872,89 @@
         setStatus('Tests are taking longer than expected. Please try again.', 'error');
       }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      // Generic run launcher — used by MLP, ALM, and SEO submit handlers.
+      // opts: { form, mode, runBtn, runStatusEl, fields, platformName, modeLabel, isSeo }
+      //   fields: { name, baseEmail, basePhone, differentEmail, differentPhone } — only used for lead-form modes
+      //   isSeo:  when true, skip name/email/phone validation entirely
+      async function runTests(opts) {
+        const { form: formEl, mode, runBtn, runStatusEl, fields, platformName, modeLabel, isSeo } = opts;
+
+        // Switch active refs so setStatus / streaming callbacks update THIS card.
+        activeStatusEl = runStatusEl;
+        activeBtn = runBtn;
+        clearOtherStatus();
         setStatus('', '');
 
-        const nameVal = form.name.value.trim();
-        const baseEmail = form.baseEmail.value.trim();
-        const basePhone = form.basePhone.value.trim();
-        const diffEmail = form.differentEmail.value.trim();
-        const diffPhone = form.differentPhone.value.trim();
+        let nameVal = '', baseEmail = '', basePhone = '', diffEmail = '', diffPhone = '';
+        if (!isSeo) {
+          nameVal = formEl[fields.name].value.trim();
+          baseEmail = formEl[fields.baseEmail].value.trim();
+          basePhone = formEl[fields.basePhone].value.trim();
+          diffEmail = formEl[fields.differentEmail].value.trim();
+          diffPhone = formEl[fields.differentPhone].value.trim();
 
-        if (!nameVal || !baseEmail || !basePhone || !diffEmail || !diffPhone) {
-          setStatus(
-            'Name, base email, base phone, different email, and different phone are all required.',
-            'error'
-          );
-          return;
+          if (!nameVal || !baseEmail || !basePhone || !diffEmail || !diffPhone) {
+            setStatus(
+              'Name, base email, base phone, different email, and different phone are all required.',
+              'error'
+            );
+            return;
+          }
+          if (baseEmail.toLowerCase() === diffEmail.toLowerCase() || basePhone === diffPhone) {
+            setStatus(
+              'Different email must differ from base email, and different phone must differ from base phone.',
+              'error'
+            );
+            return;
+          }
         }
 
-        if (baseEmail.toLowerCase() === diffEmail.toLowerCase() || basePhone === diffPhone) {
-          setStatus(
-            'Different email must differ from base email, and different phone must differ from base phone.',
-            'error'
-          );
-          return;
-        }
-
+        // Disable ALL submit buttons during a run so the user can't kick off
+        // a second run on top of the first.
         btn.disabled = true;
+        almBtn.disabled = true;
+        seoBtn.disabled = true;
+        callbackBtn.disabled = true;
+        kslivBtn.disabled = true;
+        smblBtn.disabled = true;
 
-        // Reset results to running state
+        // Reset results panel to running state.
+        setRunLabel(modeLabel);
         overallBadge.textContent = 'Running...';
         overallBadge.className = 'overall-badge idle';
         statsBar.style.display = 'none';
         testList.style.display = 'none';
+        pixelSection.style.display = 'none';
+        seoSection.style.display = 'none';
         emptyState.style.display = 'block';
         emptyIcon.style.display = 'none';
         emptySpinner.style.display = 'block';
         emptyMsg.innerHTML = 'Preparing test data and cleaning old leads...';
         setStatus('Starting tests...', 'running');
 
+        const finishRun = () => {
+          btn.disabled = false;
+          almBtn.disabled = false;
+          seoBtn.disabled = false;
+          callbackBtn.disabled = false;
+          kslivBtn.disabled = false;
+          smblBtn.disabled = false;
+        };
+
         try {
           const selectedPlatform =
-            form.querySelector('input[name="platform"]:checked')?.value || 'test';
-          const payload = {
-            platform: selectedPlatform,
-            name: nameVal,
-            baseEmail,
-            basePhone,
-            differentEmail: diffEmail,
-            differentPhone: diffPhone,
-          };
+            formEl.querySelector('input[name="' + platformName + '"]:checked')?.value || 'test';
+          const payload = isSeo
+            ? { mode, platform: selectedPlatform }
+            : {
+                mode,
+                platform: selectedPlatform,
+                name: nameVal,
+                baseEmail,
+                basePhone,
+                differentEmail: diffEmail,
+                differentPhone: diffPhone,
+              };
 
           const resp = await fetch('/prepare-tests', {
             method: 'POST',
@@ -756,26 +1965,26 @@
           const data = await resp.json().catch(() => ({}));
 
           if (!resp.ok) {
-            // HTTP error — server failed before tests could run
             emptyIcon.style.display = 'block';
             emptySpinner.style.display = 'none';
             emptyMsg.innerHTML = 'Could not start the test run. See the error message above.';
             setStatus(data.message || 'Run failed to execute.', 'error');
-            btn.disabled = false;
+            finishRun();
           } else if (data.mode === 'local' && data.streamUrl) {
-            // Local Cypress run — real-time SSE streaming
+            if (typeof data.expectedTestCount === 'number') {
+              expectedTestCount = data.expectedTestCount;
+            }
             setStatus('Tests are running...', 'running');
-            overallBadge.textContent = 'Running... (0/7)';
+            overallBadge.textContent = 'Running... (0/' + expectedTestCount + ')';
             overallBadge.className = 'overall-badge idle';
             emptyMsg.innerHTML = 'Tests are starting up...';
-            handleLocalStream(data.streamUrl, () => { btn.disabled = false; });
+            handleLocalStream(data.streamUrl, finishRun);
           } else if (data.mode === 'github_actions') {
             setStatus('Tests queued. Waiting for results...', 'running');
             renderGitHubQueued();
             await pollGitHubRunCompletion(data);
-            btn.disabled = false;
+            finishRun();
           } else {
-            // Fallback: direct result (no streaming)
             emptyIcon.style.display = 'block';
             emptySpinner.style.display = 'none';
             if (data.tests && data.tests.length > 0) {
@@ -791,7 +2000,7 @@
               emptyMsg.innerHTML = 'Could not start the test run. See the error message above.';
               setStatus(data.message || 'Tests could not complete.', 'error');
             }
-            btn.disabled = false;
+            finishRun();
           }
         } catch (err) {
           console.error(err);
@@ -799,8 +2008,112 @@
           emptySpinner.style.display = 'none';
           emptyMsg.innerHTML = 'Connection error. Please check your network and try again.';
           setStatus('Connection error. Please try again.', 'error');
-          btn.disabled = false;
+          finishRun();
         }
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form,
+          mode: 'mlp',
+          runBtn: btn,
+          runStatusEl: statusEl,
+          fields: {
+            name: 'name',
+            baseEmail: 'baseEmail',
+            basePhone: 'basePhone',
+            differentEmail: 'differentEmail',
+            differentPhone: 'differentPhone',
+          },
+          platformName: 'platform',
+          modeLabel: 'MLP',
+        });
+      });
+
+      almForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form: almForm,
+          mode: 'alm',
+          runBtn: almBtn,
+          runStatusEl: almStatusEl,
+          fields: {
+            name: 'almName',
+            baseEmail: 'almBaseEmail',
+            basePhone: 'almBasePhone',
+            differentEmail: 'almDifferentEmail',
+            differentPhone: 'almDifferentPhone',
+          },
+          platformName: 'almPlatform',
+          modeLabel: 'ALM',
+        });
+      });
+
+      seoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form: seoForm,
+          mode: 'seo',
+          runBtn: seoBtn,
+          runStatusEl: seoStatusEl,
+          platformName: 'seoPlatform',
+          modeLabel: 'SEO',
+          isSeo: true,
+        });
+      });
+
+      kslivForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form: kslivForm,
+          mode: 'kslive',
+          runBtn: kslivBtn,
+          runStatusEl: kslivStatusEl,
+          fields: {
+            name: 'kslivName',
+            baseEmail: 'kslivBaseEmail',
+            basePhone: 'kslivBasePhone',
+            differentEmail: 'kslivDifferentEmail',
+            differentPhone: 'kslivDifferentPhone',
+          },
+          platformName: 'kslivPlatform',
+          modeLabel: 'KSLIVE',
+        });
+      });
+
+      smblForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form: smblForm,
+          mode: 'smbl',
+          runBtn: smblBtn,
+          runStatusEl: smblStatusEl,
+          fields: {
+            name: 'smblName',
+            baseEmail: 'smblBaseEmail',
+            basePhone: 'smblBasePhone',
+            differentEmail: 'smblDifferentEmail',
+            differentPhone: 'smblDifferentPhone',
+          },
+          platformName: 'smblPlatform',
+          modeLabel: 'SMBL',
+        });
+      });
+
+      // Callback: spec reads name/email/phone from cypress/fixtures/mlp/mlpTestData.json
+      // directly, so the UI only needs to pick the platform and click Run.
+      callbackForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form: callbackForm,
+          mode: 'callback',
+          runBtn: callbackBtn,
+          runStatusEl: callbackStatusEl,
+          platformName: 'callbackPlatform',
+          modeLabel: 'CALLBACK',
+          isSeo: true, // reuse the no-validation path; same shape (mode + platform only)
+        });
       });
     </script>
   </body>

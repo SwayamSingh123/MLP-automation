@@ -1,16 +1,16 @@
 {
-  "name": "Sarvagya Singh",
-  "existingEmail": "cidarer680@tatefarm.com",
-  "existingPhone": "6787019931",
-  "newEmail": "cidarer680@tatefarm.com",
-  "newPhone": "6787019931",
+  "name": "Tester Swayam",
+  "existingEmail": "hiveve5144@cadinr.com",
+  "existingPhone": "6987450011",
+  "newEmail": "hiveve5144@cadinr.com",
+  "newPhone": "6987450011",
   "sameEmailDifferentPhone": {
-    "email": "cidarer680@tatefarm.com",
-    "phone": "2463001601"
+    "email": "hiveve5144@cadinr.com",
+    "phone": "8529631400"
   },
   "samePhoneDifferentEmail": {
-    "email": "kimaba8239@tatefarm.com",
-    "phone": "6787019931"
+    "email": "sebop38130@cadinr.com",
+    "phone": "6987450011"
   },
   "extraValidEmails": [],
   "extraValidPhones": [],

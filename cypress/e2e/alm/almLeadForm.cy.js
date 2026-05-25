@@ -1,16 +1,19 @@
 /// <reference types="cypress" />
 //
-// Fixture (from UI / prepare-tests):
-// - new + existing registration → base email + base phone (same pair in fixture)
-// - samePhoneDifferentEmail     → different email + base phone (expect screening URL)
-// - sameEmailDifferentPhone     → base email + different phone (blocked: no screening URL)
+// Kraftshala ALM (AI-Led Marketing) — lead form sanity tests.
+// (Product URL is /pgp-in-marketing/ — kept as-is — but internally the page
+//  is referred to as ALM.)
+// Mirrors the 7 MLP edge cases. Reuses MLP form-fill / OTP / blocked-flow
+// commands; only the page URL, success-URL pattern, and blocked-message
+// detection differ.
 
-const testData = require('../fixtures/mlpTestData.json');
+const testData = require('../../fixtures/alm/almTestData.json');
 
-describe('Kraftshala MLP lead form', () => {
-  const assertPositiveFlowOutcome = () => {
-    cy.assertLeadRegistrationSuccess(testData.name);
-  };
+const ALM_SUCCESS_URL_PATTERN =
+  /\/pgp-in-marketing\/screening-test\/[^/]+\/[^/]+\/?$/;
+const ALM_DENY_URL_PATTERN = /\/pgp-in-marketing\/screening-test\//;
+
+describe('Kraftshala ALM lead form', () => {
   const submitLeadAndVerifySuccess = ({ email, phone }) => {
     cy.fillLeadForm({
       name: testData.name,
@@ -19,12 +22,15 @@ describe('Kraftshala MLP lead form', () => {
       whatsappOptIn: true,
     });
     cy.enterOtpAndSubmit(testData.otp);
-    assertPositiveFlowOutcome();
+    cy.assertLeadRegistrationSuccess(testData.name, {
+      successUrlPattern: ALM_SUCCESS_URL_PATTERN,
+      // ALM success page may not have the same on-demand header as MLP.
+      requireOnDemandHeader: false,
+    });
   };
 
-
   beforeEach(() => {
-    cy.visitMlpPage();
+    cy.visitAlmPage();
   });
 
   it('New registration with base email and base phone', () => {
@@ -41,9 +47,7 @@ describe('Kraftshala MLP lead form', () => {
     });
   });
 
-  // Real app: same email + different phone often does not validate OTP / no screening URL — pass if we stay off success URL.
   it('Base email with different phone number should be blocked', () => {
-    // Match validate/verify only (not send-otp or removeNumber under otp-validation).
     cy.intercept('POST', /otp-validation[^?]*(?:validate|verify)/i).as(
       'otpValidateBlocked'
     );
@@ -55,26 +59,30 @@ describe('Kraftshala MLP lead form', () => {
       whatsappOptIn: true,
     });
 
-    cy.assertSameEmailDifferentPhoneBlockedFlow(testData.otp);
+    cy.assertSameEmailDifferentPhoneBlockedFlow(testData.otp, {
+      denyUrlPattern: ALM_DENY_URL_PATTERN,
+      includeUrl: '/pgp-in-marketing/',
+      // ALM always renders OTP step before blocking — force the OTP path so
+      // baseline marketing copy on the page can't trip the dual-path heuristic.
+      requireOtp: true,
+      // After OTP validation the product surfaces:
+      //   "The phone number associated with <email> is xxxxxx4699. Try using this phone number"
+      blockedMessagePattern:
+        /phone number associated with[\s\S]*?try using this phone number/i,
+    });
     cy.contains(/thank you|we have received|registration successful/i).should('not.exist');
   });
 
   it('Base phone number with different email', () => {
-    cy.fillLeadForm({
-      name: testData.name,
+    submitLeadAndVerifySuccess({
       email: testData.samePhoneDifferentEmail.email,
       phone: testData.samePhoneDifferentEmail.phone,
-      whatsappOptIn: true,
     });
-
-    cy.enterOtpAndSubmit(testData.otp);
-    assertPositiveFlowOutcome();
   });
 
   it('Invalid email should show error and not open OTP', () => {
     cy.fillLeadForm({
       name: testData.name,
-      // Intentionally invalid format from fixture data
       email: testData.invalidEmails[0],
       phone: testData.existingPhone,
       whatsappOptIn: true,
@@ -93,16 +101,13 @@ describe('Kraftshala MLP lead form', () => {
     });
 
     cy.assertOtpStageNotOpened();
-    // For invalid number, success state must not appear.
     cy.contains(/thank you|we have received|registration successful/i).should('not.exist');
   });
 
   it('Submitting empty form should show required field errors', () => {
-    // Click submit CTA without filling anything
     cy.submitLeadForm();
 
     cy.assertOtpStageNotOpened();
-    // For blank form, success state must not appear.
     cy.contains(/thank you|we have received|registration successful/i).should('not.exist');
     cy.get('body', { timeout: 10000 })
       .invoke('text')

@@ -1,0 +1,32 @@
+{
+  "name": "test",
+  "existingEmail": "refoke9944@ameady.com",
+  "existingPhone": "4580090601",
+  "newEmail": "refoke9944@ameady.com",
+  "newPhone": "4580090601",
+  "sameEmailDifferentPhone": {
+    "email": "refoke9944@ameady.com",
+    "phone": "5956501290"
+  },
+  "samePhoneDifferentEmail": {
+    "email": "gatev86482@ameady.com",
+    "phone": "4580090601"
+  },
+  "extraValidEmails": [],
+  "extraValidPhones": [],
+  "invalidEmails": [
+    "plainaddress",
+    "missingatsign.com",
+    "missing-domain@",
+    "user@domain",
+    "user@.com"
+  ],
+  "invalidPhones": [
+    "",
+    "12345",
+    "abcdefghij",
+    "9999999999999",
+    "123-456-7890"
+  ],
+  "otp": "159753"
+}

@@ -4,6 +4,7 @@ node_modules/
 # Cypress artifacts (generated on each run)
 cypress/videos/
 cypress/screenshots/
+cypress/reports/
 
 # Environment and secrets
 .env
