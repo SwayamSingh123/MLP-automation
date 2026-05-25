@@ -267,6 +267,39 @@ function attachSeoResults(parsed) {
 const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_WORKFLOW_FILE = process.env.GITHUB_WORKFLOW_FILE || 'mlp-run.yml';
+
+// Each MODES key maps to its own workflow file in .github/workflows/. When a
+// Run button is clicked on the dashboard, the matching workflow gets dispatched
+// (instead of always dispatching GITHUB_WORKFLOW_FILE for every mode).
+const WORKFLOW_FILE_BY_MODE = {
+  mlp:      'mlp-run.yml',
+  alm:      'alm-run.yml',
+  smbl:     'smbl-run.yml',
+  kslive:   'kslive-run.yml',
+  callback: 'callback-run.yml',
+  seo:      'seo-run.yml',
+};
+
+function resolveWorkflowFile(mode) {
+  return WORKFLOW_FILE_BY_MODE[mode] || GITHUB_WORKFLOW_FILE;
+}
+
+function buildWorkflowRunsUrl(workflowFile) {
+  const file = workflowFile || GITHUB_WORKFLOW_FILE;
+  return `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${file}`;
+}
+
+// GitHub returns 422 if we send an `inputs` key the workflow doesn't declare,
+// so each mode gets ONLY the inputs its workflow expects.
+//   mlp / alm / smbl / kslive → full 5-field lead form set
+//   callback                  → name + baseEmail + basePhone only
+//   seo                       → platform only (no lead fields)
+function buildWorkflowInputs(mode, args) {
+  const { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId } = args;
+  if (mode === 'seo') return { platform, requestId };
+  if (mode === 'callback') return { platform, name, baseEmail, basePhone, requestId };
+  return { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId };
+}
 const GITHUB_REF = process.env.GITHUB_REF || 'main';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const workflowRunsUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW_FILE}`;
@@ -373,6 +406,7 @@ function createRequestId() {
 }
 
 async function dispatchGitHubWorkflow({
+  mode,
   platform,
   name,
   baseEmail,
@@ -381,11 +415,16 @@ async function dispatchGitHubWorkflow({
   differentPhone,
   requestId,
 }) {
+  const workflowFile = resolveWorkflowFile(mode);
   const dispatchUrl = `https://api.github.com/repos/${encodeURIComponent(
     GITHUB_OWNER
   )}/${encodeURIComponent(GITHUB_REPO)}/actions/workflows/${encodeURIComponent(
-    GITHUB_WORKFLOW_FILE
+    workflowFile
   )}/dispatches`;
+  const inputs = buildWorkflowInputs(mode, {
+    platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId,
+  });
+  console.log(`[RUN] Dispatching ${workflowFile} (mode=${mode}) for request ${requestId}`);
   const resp = await fetch(dispatchUrl, {
     method: 'POST',
     headers: {
@@ -395,23 +434,13 @@ async function dispatchGitHubWorkflow({
       'Content-Type': 'application/json',
       'User-Agent': 'mlp-form-server',
     },
-    body: JSON.stringify({
-      ref: GITHUB_REF,
-      inputs: {
-        platform,
-        name,
-        baseEmail,
-        basePhone,
-        differentEmail,
-        differentPhone,
-        requestId,
-      },
-    }),
+    body: JSON.stringify({ ref: GITHUB_REF, inputs }),
   });
   if (!resp.ok) {
     const bodyText = await resp.text().catch(() => '');
     throw new Error(`GitHub workflow dispatch failed (${resp.status}): ${bodyText || 'no response body'}`);
   }
+  return { workflowFile };
 }
 
 // ── Shared helpers (used by both batch parser and real-time streaming) ────────
@@ -540,13 +569,17 @@ function parseCypressOutputToDashboardData({ output, code, fixtureData, selected
   };
 }
 
-async function findWorkflowRunByRequestId(requestId) {
+async function findWorkflowRunByRequestId(requestId, workflowFile) {
+  // Polls the workflow that was actually dispatched (per-mode) rather than the
+  // GITHUB_WORKFLOW_FILE default — otherwise an ALM dispatch's run wouldn't be
+  // found when looking at mlp-run.yml's run list.
+  const file = workflowFile || GITHUB_WORKFLOW_FILE;
   const listUrl = `https://api.github.com/repos/${encodeURIComponent(
     GITHUB_OWNER
   )}/${encodeURIComponent(
     GITHUB_REPO
   )}/actions/workflows/${encodeURIComponent(
-    GITHUB_WORKFLOW_FILE
+    file
   )}/runs?event=workflow_dispatch&branch=${encodeURIComponent(GITHUB_REF)}&per_page=30`;
   const resp = await fetch(listUrl, {
     headers: {
@@ -732,7 +765,8 @@ app.post('/prepare-tests', async (req, res) => {
   if (shouldUseGitHubActionsRunner()) {
     try {
       const requestId = createRequestId();
-      await dispatchGitHubWorkflow({
+      const dispatchResult = await dispatchGitHubWorkflow({
+        mode: selectedMode,
         platform: selectedPlatform,
         name: trimmedName,
         baseEmail: trimmedBaseEmail,
@@ -741,19 +775,23 @@ app.post('/prepare-tests', async (req, res) => {
         differentPhone: trimmedDifferentPhone,
         requestId,
       });
+      const dispatchedWorkflowFile = dispatchResult && dispatchResult.workflowFile;
       githubRunJobs.set(requestId, {
         requestId,
         fixtureData,
         selectedPlatform,
         selectedBaseUrl,
+        runMode: selectedMode,
+        workflowFile: dispatchedWorkflowFile,
         status: 'queued',
         result: null,
         runId: null,
       });
-      console.log('[RUN] Workflow dispatched to GitHub Actions');
+      console.log(`[RUN] Workflow ${dispatchedWorkflowFile} dispatched to GitHub Actions (mode=${selectedMode})`);
       return res.json({
         ok: true,
         mode: 'github_actions',
+        runMode: selectedMode,
         requestId,
         statusPollUrl: `/github-actions-status/${encodeURIComponent(requestId)}`,
         tests: [],
@@ -770,7 +808,7 @@ app.post('/prepare-tests', async (req, res) => {
         },
         message:
           'Automation has been queued on GitHub Actions. We will fetch and show final results here shortly.',
-        workflowRunsUrl,
+        workflowRunsUrl: buildWorkflowRunsUrl(dispatchedWorkflowFile),
       });
     } catch (err) {
       console.error('[RUN] Failed to dispatch GitHub workflow:', err.message);
@@ -928,20 +966,24 @@ app.get('/github-actions-status/:requestId', async (req, res) => {
   if (!job) {
     return res.status(404).json({ ok: false, message: 'Unknown request id' });
   }
+  // Poll the workflow that was actually dispatched for this job — falls back
+  // to the default if the job pre-dates the per-mode dispatch refactor.
+  const jobWorkflowFile = job.workflowFile || GITHUB_WORKFLOW_FILE;
+  const jobWorkflowRunsUrl = buildWorkflowRunsUrl(jobWorkflowFile);
   try {
-    const run = await findWorkflowRunByRequestId(requestId);
+    const run = await findWorkflowRunByRequestId(requestId, jobWorkflowFile);
     if (!run) {
       return res.json({
         ok: true,
         mode: 'github_actions',
         state: 'queued',
         message: 'Workflow is still being queued on GitHub Actions...',
-        workflowRunsUrl,
+        workflowRunsUrl: jobWorkflowRunsUrl,
       });
     }
     job.runId = run.id;
     job.status = run.status;
-    const workflowRunUrl = run.html_url || workflowRunsUrl;
+    const workflowRunUrl = run.html_url || jobWorkflowRunsUrl;
     if (run.status !== 'completed') {
       const steps = await fetchWorkflowJobSteps(run.id).catch(() => []);
       return res.json({
@@ -978,7 +1020,7 @@ app.get('/github-actions-status/:requestId', async (req, res) => {
       ok: false,
       mode: 'github_actions',
       message: `Failed to read workflow status: ${err.message}`,
-      workflowRunsUrl,
+      workflowRunsUrl: jobWorkflowRunsUrl,
     });
   }
 });
