@@ -38,7 +38,7 @@ describe('Kraftshala SMBL lead form', () => {
     // Meta Pixel / analytics on hydration, and any of those throwing inside
     // the AUT iframe is reported by Cypress as an "after each" hook failure
     // even when the URL assertion already passed. Scoped to this spec only —
-    // does not affect MLP / ALM / Callback / KS Live / SEO.
+    // does not affect MLP / ALM / Callback / SEO.
     Cypress.on('uncaught:exception', () => false);
 
     cy.visit('/pgp/learn-sales-and-marketing/', { failOnStatusCode: false });

@@ -1,16 +1,16 @@
 {
-  "name": "lead test",
-  "existingEmail": "bobato9086@cadinr.com",
-  "existingPhone": "5200085966",
-  "newEmail": "bobato9086@cadinr.com",
-  "newPhone": "5200085966",
+  "name": "test",
+  "existingEmail": "fatewav575@4nly.com",
+  "existingPhone": "4850025969",
+  "newEmail": "fatewav575@4nly.com",
+  "newPhone": "4850025969",
   "sameEmailDifferentPhone": {
-    "email": "bobato9086@cadinr.com",
-    "phone": "4005210300"
+    "email": "fatewav575@4nly.com",
+    "phone": "3798567800"
   },
   "samePhoneDifferentEmail": {
-    "email": "fokat70008@cadinr.com",
-    "phone": "5200085966"
+    "email": "hoyehar831@4nly.com",
+    "phone": "4850025969"
   },
   "extraValidEmails": [],
   "extraValidPhones": [],

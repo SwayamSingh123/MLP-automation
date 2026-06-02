@@ -154,8 +154,8 @@
       .card-tag.alm { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
       .card-tag.seo { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
       .card-tag.callback { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-      .card-tag.kslive { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
       .card-tag.smbl { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+      .card-tag.kslive { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
       /* Active-card highlight — applied while that mode's run is active. */
       .card.is-active { box-shadow: 0 8px 28px rgba(91, 33, 182, 0.18); }
 
@@ -751,9 +751,9 @@
         <button type="button" class="step" data-step="0" role="tab"><span class="step-num">1.</span> MLP</button>
         <button type="button" class="step" data-step="1" role="tab"><span class="step-num">2.</span> ALM</button>
         <button type="button" class="step" data-step="2" role="tab"><span class="step-num">3.</span> Callback</button>
-        <button type="button" class="step" data-step="3" role="tab"><span class="step-num">4.</span> KS Live</button>
-        <button type="button" class="step" data-step="4" role="tab"><span class="step-num">5.</span> SMBL</button>
-        <button type="button" class="step" data-step="5" role="tab"><span class="step-num">6.</span> SEO</button>
+        <button type="button" class="step" data-step="3" role="tab"><span class="step-num">4.</span> SMBL</button>
+        <button type="button" class="step" data-step="4" role="tab"><span class="step-num">5.</span> SEO</button>
+        <button type="button" class="step" data-step="5" role="tab"><span class="step-num">6.</span> KS Live</button>
       </div>
 
       <!-- MLP card -->
@@ -885,56 +885,6 @@
         </form>
       </div>
 
-      <!-- KS Live card — 4 tests across the 1st and 2nd event cards on /kraftshala-live/. -->
-      <div class="card">
-        <div class="card-tag kslive">KS Live — Events</div>
-        <h2>KS Live registration</h2>
-        <form id="kslivForm">
-          <div class="field">
-            <label>Platform</label>
-            <div class="platform-group">
-              <label class="platform-option">
-                <input type="radio" name="kslivPlatform" value="test" checked />
-                <span class="platform-card">Testing on Test Platform</span>
-              </label>
-              <label class="platform-option">
-                <input type="radio" name="kslivPlatform" value="main" />
-                <span class="platform-card">Testing on Main Platform</span>
-              </label>
-            </div>
-            <small>Runs 4 registration scenarios across the 1st &amp; 2nd KS Live event cards on the page.</small>
-          </div>
-          <div class="field">
-            <label for="kslivName">Name</label>
-            <input id="kslivName" name="kslivName" type="text" required placeholder="Full name" />
-          </div>
-          <div class="field">
-            <label for="kslivBaseEmail">Base email (Email A)</label>
-            <input id="kslivBaseEmail" name="kslivBaseEmail" type="email" required placeholder="base@example.com" />
-          </div>
-          <div class="field">
-            <label for="kslivBasePhone">Base phone</label>
-            <input id="kslivBasePhone" name="kslivBasePhone" type="tel" required placeholder="9xxxxxxxxx" />
-            <small>Used in Scenario 3 (2nd card's "different number").</small>
-          </div>
-          <div class="field">
-            <label for="kslivDifferentEmail">Different email (Email B)</label>
-            <input id="kslivDifferentEmail" name="kslivDifferentEmail" type="email" required placeholder="other@example.com" />
-            <small>Must differ from base email.</small>
-          </div>
-          <div class="field">
-            <label for="kslivDifferentPhone">Different / new phone</label>
-            <input id="kslivDifferentPhone" name="kslivDifferentPhone" type="tel" required placeholder="9yyyyyyyyy" />
-            <small>Must differ from base phone.</small>
-          </div>
-          <button class="btn" type="submit">Run KS Live tests</button>
-          <div id="kslivStatus" class="form-status"></div>
-          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
-            4 tests total — 3 user-input scenarios + 1 MLP-fixture scenario. API logs captured automatically.
-          </small>
-        </form>
-      </div>
-
       <!-- SMBL (PGP Sales & Marketing) card — 7 edge cases mirroring MLP, success URL is /thank-you/?id=… -->
       <div class="card">
         <div class="card-tag smbl">SMBL — Sales &amp; Marketing</div>
@@ -1007,6 +957,55 @@
           <div id="seoStatus" class="form-status"></div>
           <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
             17 checks across 7 pages — head / body / footer / FAQ. No leads or pixel; reads from fixtures/seo/.
+          </small>
+        </form>
+      </div>
+
+      <!-- KS Live card — 5 event-registration scenarios on /kraftshala-live/ (1st card × 4, 2nd card × 1). -->
+      <div class="card">
+        <div class="card-tag kslive">KS Live — Event Registration</div>
+        <h2>KS Live lead details</h2>
+        <form id="ksliveForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="ksLivePlatform" value="test" checked />
+                <span class="platform-card">Testing on Test Platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="ksLivePlatform" value="main" />
+                <span class="platform-card">Testing on Main Platform</span>
+              </label>
+            </div>
+            <small>Runs 5 registration scenarios on /kraftshala-live/ — success = "Your Session Registration Is Confirmed! Thank you".</small>
+          </div>
+          <div class="field">
+            <label for="ksLiveName">Name</label>
+            <input id="ksLiveName" name="ksLiveName" type="text" required placeholder="Full name" />
+          </div>
+          <div class="field">
+            <label for="ksLiveBaseEmail">Base email</label>
+            <input id="ksLiveBaseEmail" name="ksLiveBaseEmail" type="email" required placeholder="kslive-base@example.com" />
+          </div>
+          <div class="field">
+            <label for="ksLiveBasePhone">Base phone</label>
+            <input id="ksLiveBasePhone" name="ksLiveBasePhone" type="tel" required placeholder="9xxxxxxxxx" />
+          </div>
+          <div class="field">
+            <label for="ksLiveDifferentEmail">Different email</label>
+            <input id="ksLiveDifferentEmail" name="ksLiveDifferentEmail" type="email" required placeholder="other@example.com" />
+            <small>Must differ from base email.</small>
+          </div>
+          <div class="field">
+            <label for="ksLiveDifferentPhone">Different phone</label>
+            <input id="ksLiveDifferentPhone" name="ksLiveDifferentPhone" type="tel" required placeholder="9yyyyyyyyy" />
+            <small>Must differ from base phone.</small>
+          </div>
+          <button class="btn" type="submit">Run KS Live tests</button>
+          <div id="ksliveStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            5 scenarios — 4 on the 1st KS Live card, 1 on the 2nd. API logs and pixel fires captured automatically.
           </small>
         </form>
       </div>
@@ -1115,15 +1114,15 @@
       const callbackStatusEl = document.getElementById('callbackStatus');
       const callbackBtn = callbackForm.querySelector('button[type="submit"]');
 
-      // KS Live form refs (new).
-      const kslivForm = document.getElementById('kslivForm');
-      const kslivStatusEl = document.getElementById('kslivStatus');
-      const kslivBtn = kslivForm.querySelector('button[type="submit"]');
-
       // SMBL form refs (new).
       const smblForm = document.getElementById('smblForm');
       const smblStatusEl = document.getElementById('smblStatus');
       const smblBtn = smblForm.querySelector('button[type="submit"]');
+
+      // KS Live form refs (new).
+      const ksliveForm = document.getElementById('ksliveForm');
+      const ksliveStatusEl = document.getElementById('ksliveStatus');
+      const ksliveBtn = ksliveForm.querySelector('button[type="submit"]');
 
       const runLabelEl = document.getElementById('runLabel');
       const overallBadge = document.getElementById('overallBadge');
@@ -1146,19 +1145,6 @@
       // Updated per-run from the server's /prepare-tests response (MLP=9, ALM=8).
       // Used by live-streaming stats and the "Running... (X/Y)" badge.
       let expectedTestCount = 9;
-
-      // Documented reason for each known (pixelId, eventName) — shown next to
-      // the count so a glance answers "what is this fire". Anything missing
-      // from this map is rendered without a reason — that's fine.
-      const PIXEL_EVENT_REASONS = {
-        '254822124949497|PageView':      'Fires when a page loads',
-        '848180154775619|PageView':      'Fires when a page loads',
-        '848180154775619|step1_submit':  'Fires when "Start your marketing journey" is clicked with valid data',
-        '254822124949497|Lead':          'Fires on OTP submit click (regardless of OTP validation result)',
-        '848180154775619|step2_submit':  'Fires on OTP submit click (regardless of OTP validation result)',
-        '254822124949497|FormSubmitMLP': 'Fires when OTP is validated and the lead is captured',
-        '848180154775619|lead_mlp':      'Fires when OTP is validated and the lead is captured',
-      };
 
       // The currently-running form's status element + button. Updated by
       // runTests whenever a run starts so streaming + polling callbacks update
@@ -1190,13 +1176,13 @@
           callbackStatusEl.textContent = '';
           callbackStatusEl.className = 'form-status';
         }
-        if (activeStatusEl !== kslivStatusEl) {
-          kslivStatusEl.textContent = '';
-          kslivStatusEl.className = 'form-status';
-        }
         if (activeStatusEl !== smblStatusEl) {
           smblStatusEl.textContent = '';
           smblStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== ksliveStatusEl) {
+          ksliveStatusEl.textContent = '';
+          ksliveStatusEl.className = 'form-status';
         }
       }
       function setRunLabel(modeLabel) {
@@ -1515,13 +1501,17 @@
             count.textContent = '×' + item.count;
             row.appendChild(count);
 
-            const reasonText =
-              PIXEL_EVENT_REASONS[(item.pixelId || '') + '|' + (item.eventName || '')] || '';
-            if (reasonText) {
-              const reason = document.createElement('span');
-              reason.className = 'pixel-reason';
-              reason.textContent = reasonText;
-              row.appendChild(reason);
+            // Show the source URL(s) the pixel fired from — purely informational,
+            // no hardcoded descriptions. If multiple URLs, show the first and
+            // a "(+N more)" suffix.
+            const urls = Array.isArray(item.sourceUrls) ? item.sourceUrls : [];
+            if (urls.length) {
+              const detail = document.createElement('span');
+              detail.className = 'pixel-reason';
+              const first = urls[0];
+              detail.textContent = first + (urls.length > 1 ? ' (+' + (urls.length - 1) + ' more)' : '');
+              detail.title = urls.join('\n');
+              row.appendChild(detail);
             }
             group.appendChild(row);
           }
@@ -1915,8 +1905,8 @@
         almBtn.disabled = true;
         seoBtn.disabled = true;
         callbackBtn.disabled = true;
-        kslivBtn.disabled = true;
         smblBtn.disabled = true;
+        ksliveBtn.disabled = true;
 
         // Reset results panel to running state.
         setRunLabel(modeLabel);
@@ -1937,8 +1927,8 @@
           almBtn.disabled = false;
           seoBtn.disabled = false;
           callbackBtn.disabled = false;
-          kslivBtn.disabled = false;
           smblBtn.disabled = false;
+          ksliveBtn.disabled = false;
         };
 
         try {
@@ -2063,25 +2053,6 @@
         });
       });
 
-      kslivForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        runTests({
-          form: kslivForm,
-          mode: 'kslive',
-          runBtn: kslivBtn,
-          runStatusEl: kslivStatusEl,
-          fields: {
-            name: 'kslivName',
-            baseEmail: 'kslivBaseEmail',
-            basePhone: 'kslivBasePhone',
-            differentEmail: 'kslivDifferentEmail',
-            differentPhone: 'kslivDifferentPhone',
-          },
-          platformName: 'kslivPlatform',
-          modeLabel: 'KSLIVE',
-        });
-      });
-
       smblForm.addEventListener('submit', (e) => {
         e.preventDefault();
         runTests({
@@ -2115,6 +2086,28 @@
           isSeo: true, // reuse the no-validation path; same shape (mode + platform only)
         });
       });
+
+      // KS Live: same 5-field validation as MLP/ALM/SMBL — server writes a flat
+      // fixture (name + base/different email + phone + otp).
+      ksliveForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runTests({
+          form: ksliveForm,
+          mode: 'kslive',
+          runBtn: ksliveBtn,
+          runStatusEl: ksliveStatusEl,
+          fields: {
+            name: 'ksLiveName',
+            baseEmail: 'ksLiveBaseEmail',
+            basePhone: 'ksLiveBasePhone',
+            differentEmail: 'ksLiveDifferentEmail',
+            differentPhone: 'ksLiveDifferentPhone',
+          },
+          platformName: 'ksLivePlatform',
+          modeLabel: 'KSLIVE',
+        });
+      });
+
     </script>
   </body>
 </html>

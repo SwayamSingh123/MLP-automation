@@ -47,19 +47,19 @@ const FIXTURE_PATH_CALLBACK = path.join(
   'callback',
   'callbackTestData.json'
 );
-const FIXTURE_PATH_KSLIVE = path.join(
-  __dirname,
-  'cypress',
-  'fixtures',
-  'kslive',
-  'ksLiveTestData.json'
-);
 const FIXTURE_PATH_SMBL = path.join(
   __dirname,
   'cypress',
   'fixtures',
   'smbl',
   'smblTestData.json'
+);
+const FIXTURE_PATH_KSLIVE = path.join(
+  __dirname,
+  'cypress',
+  'fixtures',
+  'kslive',
+  'ksLiveTestData.json'
 );
 
 // SMBL-specific lead-delete endpoints. Shares phone delete with MLP (otp-validation
@@ -111,7 +111,7 @@ const MODES = {
       'cypress/e2e/alm/almDownloadProspectus.cy.js',
     ],
     expectedTestCount: 8,
-    pixelEnabled: false,
+    pixelEnabled: true,
     deleteBases: {
       test: { email: ALM_TEST_EMAIL_DELETE_BASE, phone: TEST_PHONE_DELETE_BASE },
       main: { email: ALM_MAIN_EMAIL_DELETE_BASE, phone: MAIN_PHONE_DELETE_BASE },
@@ -141,18 +141,6 @@ const MODES = {
     isCallback: true,
     deleteBases: null,
   },
-  // KS Live — 4 tests (3 user-input scenarios + 1 MLP-fixture scenario), each
-  // registers on both the 1st and 2nd KS Live event cards. No lead deletion
-  // (KS Live registrations are event-bound, not on the MLP /lead/create endpoint).
-  kslive: {
-    label: 'KSLIVE',
-    fixturePath: FIXTURE_PATH_KSLIVE,
-    specs: ['cypress/e2e/kslive/ksLiveRegistration.cy.js'],
-    expectedTestCount: 4,
-    pixelEnabled: false,
-    isKslive: true,
-    deleteBases: null,
-  },
   // SMBL (Sales & Marketing Business Leaders) — 7 edge cases mirroring MLP,
   // success URL is /pgp/learn-sales-and-marketing/thank-you/?id=<uuid>.
   smbl: {
@@ -160,12 +148,25 @@ const MODES = {
     fixturePath: FIXTURE_PATH_SMBL,
     specs: ['cypress/e2e/smbl/smblLeadForm.cy.js'],
     expectedTestCount: 7,
-    pixelEnabled: false,
+    pixelEnabled: true,
     isSmbl: true,
     deleteBases: {
       test: { email: SMBL_TEST_EMAIL_DELETE_BASE, phone: TEST_PHONE_DELETE_BASE },
       main: { email: SMBL_MAIN_EMAIL_DELETE_BASE, phone: MAIN_PHONE_DELETE_BASE },
     },
+  },
+  // KS Live — event registration on /kraftshala-live/. 5 tests across the
+  // first two visible event cards. Uses a flat fixture (not the MLP shape)
+  // because the spec just needs name + base/different email + phone + otp.
+  // No lead-delete API exists for event registrations, so deleteBases is null.
+  kslive: {
+    label: 'KSLIVE',
+    fixturePath: FIXTURE_PATH_KSLIVE,
+    specs: ['cypress/e2e/kslive/ksLiveRegistration.cy.js'],
+    expectedTestCount: 5,
+    pixelEnabled: true,
+    isKslive: true,
+    deleteBases: null,
   },
 };
 
@@ -214,9 +215,20 @@ function readApiCallsByTest() {
   return byTitle;
 }
 
+// Pixel fires from post-success transition pages shouldn't count toward the
+// page-under-test's pixel matrix — those pages fire their own PageView when
+// the user lands on them, which would inflate the count and not match what
+// Meta Pixel Helper shows for the original page.
+function isPostSuccessSourceUrl(sourceUrl) {
+  if (!sourceUrl) return false;
+  return /\/screening-test\/|\/thank-you\//i.test(sourceUrl);
+}
+
 // Aggregate every Meta Pixel fire into a per-(pixelId, eventName) summary —
 // pixel-monitor only captures during the FIRST test of a run, so the aggregate
-// is across that single capture window. Excludes blank-id POST beacons.
+// is across that single capture window. Excludes blank-id POST beacons and
+// fires that originated from the post-success redirect pages (so the count
+// matches what Meta Pixel Helper shows for the page under test).
 function aggregatePixelEvents() {
   const data = readJsonFileSafe(PIXEL_DATA_FILE);
   const byKey = new Map();
@@ -225,6 +237,7 @@ function aggregatePixelEvents() {
       const pixelId = call.pixelId || '';
       const eventName = call.eventName || '';
       if (!pixelId && !eventName) continue;
+      if (isPostSuccessSourceUrl(call.sourceUrl)) continue;
       const key = pixelId + '|' + eventName;
       if (!byKey.has(key)) {
         byKey.set(key, { pixelId, eventName, count: 0, sourceUrls: [] });
@@ -264,6 +277,7 @@ function attachSeoResults(parsed) {
   parsed.seoResults = readSeoResults();
   return parsed;
 }
+
 const GITHUB_OWNER = process.env.GITHUB_OWNER || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_WORKFLOW_FILE = process.env.GITHUB_WORKFLOW_FILE || 'mlp-run.yml';
@@ -275,9 +289,9 @@ const WORKFLOW_FILE_BY_MODE = {
   mlp:      'mlp-run.yml',
   alm:      'alm-run.yml',
   smbl:     'smbl-run.yml',
-  kslive:   'kslive-run.yml',
   callback: 'callback-run.yml',
   seo:      'seo-run.yml',
+  kslive:   'kslive-run.yml',
 };
 
 function resolveWorkflowFile(mode) {
@@ -291,9 +305,9 @@ function buildWorkflowRunsUrl(workflowFile) {
 
 // GitHub returns 422 if we send an `inputs` key the workflow doesn't declare,
 // so each mode gets ONLY the inputs its workflow expects.
-//   mlp / alm / smbl / kslive → full 5-field lead form set
-//   callback                  → name + baseEmail + basePhone only
-//   seo                       → platform only (no lead fields)
+//   mlp / alm / smbl → full 5-field lead form set
+//   callback        → name + baseEmail + basePhone only
+//   seo             → platform only (no lead fields)
 function buildWorkflowInputs(mode, args) {
   const { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId } = args;
   if (mode === 'seo') return { platform, requestId };
@@ -691,6 +705,8 @@ function attachRemoteMonitoringData(parsed, zip) {
   }
 
   // Aggregated Meta Pixel events — same shape as the local aggregator.
+  // Skips fires from /screening-test/ and /thank-you/ (post-success pages)
+  // so the count matches what Meta Pixel Helper shows for the page under test.
   const pixelData = readJsonFromZip(zip, 'reports/pixel-monitor-data.json');
   if (Array.isArray(pixelData)) {
     const byKey = new Map();
@@ -699,6 +715,7 @@ function attachRemoteMonitoringData(parsed, zip) {
         const pixelId = call.pixelId || '';
         const eventName = call.eventName || '';
         if (!pixelId && !eventName) continue;
+        if (isPostSuccessSourceUrl(call.sourceUrl)) continue;
         const key = pixelId + '|' + eventName;
         if (!byKey.has(key)) byKey.set(key, { pixelId, eventName, count: 0, sourceUrls: [] });
         const item = byKey.get(key);
@@ -735,8 +752,8 @@ app.post('/prepare-tests', async (req, res) => {
   // only test/main as before.
   const isSeoMode = modeConfig.isSeo === true;
   const isCallbackMode = modeConfig.isCallback === true;
-  const isKsliveMode = modeConfig.isKslive === true;
   const isSmblMode = modeConfig.isSmbl === true;
+  const isKsliveMode = modeConfig.isKslive === true;
   const rawPlatform = String(platform || 'test').toLowerCase();
   const selectedPlatform = isSeoMode
     ? (rawPlatform === 'production' ? 'production' : 'test')
@@ -761,7 +778,8 @@ app.post('/prepare-tests', async (req, res) => {
   const trimmedDifferentEmail = differentEmail != null ? String(differentEmail).trim() : '';
   const trimmedDifferentPhone = differentPhone != null ? String(differentPhone).trim() : '';
 
-  // Lead-input validation runs in MLP / ALM. Callback only needs base name/email/phone.
+  // Lead-input validation runs in MLP / ALM / SMBL (full 5-field set).
+  // Callback + SEO skip validation entirely.
   if (!isSeoMode && !isCallbackMode) {
     if (
       !trimmedName ||
@@ -788,30 +806,46 @@ app.post('/prepare-tests', async (req, res) => {
       });
     }
   }
-  // Callback mode: no input validation — values are read from the MLP fixture
-  // by the spec itself, so the UI doesn't need to send anything.
+  // Callback / SEO: no input validation.
 
-  // KS Live uses a flat fixture shape (name + base/different email + base/different
-  // phone + otp) — distinct from MLP/ALM's nested shape. Build it inline.
-  const ksLiveFixture = isKsliveMode ? {
-    name: trimmedName,
-    baseEmail: trimmedBaseEmail,
-    basePhone: trimmedBasePhone,
-    differentEmail: trimmedDifferentEmail,
-    differentPhone: trimmedDifferentPhone,
-    otp: '159753',
-  } : null;
+  const fixtureData =
+    isSeoMode || isCallbackMode || isKsliveMode
+      ? null
+      : buildFixtureFromForm({
+          name: trimmedName,
+          baseEmail: trimmedBaseEmail,
+          basePhone: trimmedBasePhone,
+          differentEmail: trimmedDifferentEmail,
+          differentPhone: trimmedDifferentPhone,
+        });
 
-  const fixtureData = isSeoMode || isCallbackMode || isKsliveMode ? null : buildFixtureFromForm({
-    name: trimmedName,
-    baseEmail: trimmedBaseEmail,
-    basePhone: trimmedBasePhone,
-    differentEmail: trimmedDifferentEmail,
-    differentPhone: trimmedDifferentPhone,
-  });
-
-  if (!isSeoMode && !isCallbackMode && !isKsliveMode) {
-    // MLP / ALM — full lead-form fixture + lead deletion + per-mode fixture file.
+  if (isKsliveMode) {
+    // KS Live — event registration; no lead-delete API. Fixture shape is flat
+    // (name + base/different email + phone + otp). The spec reads ksFixture.*
+    // directly from this file.
+    try {
+      const fixtureDir = path.dirname(modeConfig.fixturePath);
+      if (!fs.existsSync(fixtureDir)) {
+        fs.mkdirSync(fixtureDir, { recursive: true });
+      }
+      const ksLiveFixture = {
+        name: trimmedName,
+        baseEmail: trimmedBaseEmail,
+        basePhone: trimmedBasePhone,
+        differentEmail: trimmedDifferentEmail,
+        differentPhone: trimmedDifferentPhone,
+        otp: '159753',
+      };
+      fs.writeFileSync(modeConfig.fixturePath, JSON.stringify(ksLiveFixture, null, 2));
+    } catch (err) {
+      console.error('Error writing KS Live fixture file:', err);
+      return res.status(500).json({
+        ok: false,
+        message: 'Failed to write KS Live fixture file',
+      });
+    }
+  } else if (!isSeoMode && !isCallbackMode) {
+    // MLP / ALM / SMBL — full lead-form fixture + lead deletion + per-mode fixture file.
     try {
       console.log('[RUN] Deleting leads once before automation...');
       await deleteLeads(
@@ -843,21 +877,6 @@ app.post('/prepare-tests', async (req, res) => {
     }
   } else if (isCallbackMode) {
     // Callback mode reads directly from the MLP fixture — nothing to write.
-  } else if (isKsliveMode) {
-    // KS Live — write the flat fixture from user inputs.
-    try {
-      const fixtureDir = path.dirname(modeConfig.fixturePath);
-      if (!fs.existsSync(fixtureDir)) {
-        fs.mkdirSync(fixtureDir, { recursive: true });
-      }
-      fs.writeFileSync(modeConfig.fixturePath, JSON.stringify(ksLiveFixture, null, 2));
-    } catch (err) {
-      console.error('Error writing KS Live fixture:', err);
-      return res.status(500).json({
-        ok: false,
-        message: 'Failed to write KS Live fixture file',
-      });
-    }
   } else {
     // SEO mode: clear any stale seo-results.json from a previous run so the UI
     // doesn't render leftover data before the new run finishes.

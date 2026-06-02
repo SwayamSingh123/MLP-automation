@@ -113,7 +113,7 @@ jobs:
           npx cypress run \
             --spec "cypress/e2e/smbl/smblLeadForm.cy.js" \
             --config baseUrl=${{ steps.platform.outputs.baseUrl }} \
-            --env platform=${{ github.event.inputs.platform }},disablePixel=true
+            --env platform=${{ github.event.inputs.platform }}
 
       - name: Upload Cypress artifacts (screenshots, videos, reports)
         if: always()
