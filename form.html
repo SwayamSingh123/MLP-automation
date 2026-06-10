@@ -156,6 +156,7 @@
       .card-tag.callback { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
       .card-tag.smbl { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
       .card-tag.kslive { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+      .card-tag.links { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
       /* Active-card highlight — applied while that mode's run is active. */
       .card.is-active { box-shadow: 0 8px 28px rgba(91, 33, 182, 0.18); }
 
@@ -585,6 +586,146 @@
         to { transform: rotate(360deg); }
       }
 
+      /* ── Broken Link Checker — clear 3-tier hierarchy ─────────────────── */
+      .links-hero {
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .links-hero-headline {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .links-hero-headline .num { color: #0f172a; font-weight: 800; }
+      .links-status-row, .links-type-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .links-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid;
+        white-space: nowrap;
+      }
+      .links-stat.ok      { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+      .links-stat.redir   { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+      .links-stat.forbid  { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+      .links-stat.bad     { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+      .links-stat.type    { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+      .links-stat .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+      .links-stat.ok .dot     { background: #10b981; }
+      .links-stat.redir .dot  { background: #f59e0b; }
+      .links-stat.forbid .dot { background: #64748b; }
+      .links-stat.bad .dot    { background: #ef4444; }
+      .links-stat.type .dot   { background: #3b82f6; }
+
+      .links-page {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+      .links-page-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        background: #fff;
+      }
+      .links-page-head:hover { background: #f9fafb; }
+      .links-page-status {
+        font-size: 14px;
+        font-weight: 700;
+        width: 20px;
+        flex-shrink: 0;
+      }
+      .links-page.is-clean .links-page-status { color: #10b981; }
+      .links-page.has-issues .links-page-status { color: #ef4444; }
+      .links-page-title {
+        font-weight: 700;
+        color: #0f172a;
+        flex: 1;
+        min-width: 0;
+      }
+      .links-page-url {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-family: ui-monospace, monospace;
+        margin-left: 6px;
+        word-break: break-all;
+      }
+      .links-page-counts {
+        font-size: 12px;
+        color: #475569;
+        white-space: nowrap;
+        margin-left: auto;
+        padding-left: 12px;
+      }
+      .links-page-counts .ok    { color: #059669; font-weight: 700; }
+      .links-page-counts .bad   { color: #dc2626; font-weight: 700; }
+      .links-page-caret { color: #94a3b8; transition: transform 0.15s; flex-shrink: 0; }
+      .links-page.is-open .links-page-caret { transform: rotate(180deg); }
+      .links-page-body {
+        display: none;
+        padding: 8px 14px 12px;
+        background: #fafbfc;
+        border-top: 1px solid var(--line);
+      }
+      .links-page.is-open .links-page-body { display: block; }
+
+      .links-item {
+        display: grid;
+        grid-template-columns: 70px 1fr;
+        gap: 6px 12px;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e5e7eb;
+        align-items: start;
+      }
+      .links-item:last-child { border-bottom: none; }
+      .links-item-status {
+        font-weight: 700;
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        text-align: center;
+        align-self: start;
+      }
+      .links-item-status.bad     { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+      .links-item-status.forbid  { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+      .links-item-status.unknown { background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
+      .links-item-detail .type-text { color: #0f172a; font-weight: 600; font-size: 13px; }
+      .links-item-detail .url { font-family: ui-monospace, monospace; font-size: 12px; color: #475569; word-break: break-all; margin-top: 3px; }
+      .links-item-detail .err { color: #b91c1c; font-size: 12px; margin-top: 3px; }
+      .links-clean-banner {
+        background: #ecfdf5;
+        color: #065f46;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+      .links-pageerror-banner {
+        background: #fef2f2;
+        color: #b91c1c;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+
       /* ── API + Pixel monitoring panels ─────────────────────────────────── */
       .monitor-section { margin-top: 24px; }
       .monitor-section h3 {
@@ -754,6 +895,7 @@
         <button type="button" class="step" data-step="3" role="tab"><span class="step-num">4.</span> SMBL</button>
         <button type="button" class="step" data-step="4" role="tab"><span class="step-num">5.</span> SEO</button>
         <button type="button" class="step" data-step="5" role="tab"><span class="step-num">6.</span> KS Live</button>
+        <button type="button" class="step" data-step="6" role="tab"><span class="step-num">7.</span> Links</button>
       </div>
 
       <!-- MLP card -->
@@ -1010,6 +1152,55 @@
         </form>
       </div>
 
+      <!-- Broken Link Checker card — crawls each selected Kraftshala page and probes every <a>/<img>/<link>/<script> URL. -->
+      <div class="card">
+        <div class="card-tag links">Links — Broken Link Checker</div>
+        <h2>Broken Link Checker</h2>
+        <form id="linksForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="linksPlatform" value="test" checked />
+                <span class="platform-card">Test platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="linksPlatform" value="main" />
+                <span class="platform-card">Production (live)</span>
+              </label>
+            </div>
+            <small>Test → testprogram.kraftshala.com  ·  Production → program.kraftshala.com. Cross-origin subdomains (placement-reports, reviews) are always tested at their live URLs.</small>
+          </div>
+          <div class="field">
+            <label>Pages to crawl</label>
+            <div style="margin-bottom:6px;">
+              <button type="button" id="linksSelectAll" style="font-size: 12px; padding: 2px 8px; margin-right: 6px;">Select all</button>
+              <button type="button" id="linksDeselectAll" style="font-size: 12px; padding: 2px 8px;">Deselect all</button>
+            </div>
+            <div id="linksPagesList" style="display:grid; grid-template-columns: 1fr 1fr; gap:4px 12px; font-size: 13px;">
+              <label><input type="checkbox" class="links-page-cb" value="home" checked> Homepage</label>
+              <label><input type="checkbox" class="links-page-cb" value="about" checked> About Us</label>
+              <label><input type="checkbox" class="links-page-cb" value="blog" checked> Blog</label>
+              <label><input type="checkbox" class="links-page-cb" value="mlp" checked> MLP Digital Marketing</label>
+              <label><input type="checkbox" class="links-page-cb" value="mlp-pt" checked> MLP Part-Time</label>
+              <label><input type="checkbox" class="links-page-cb" value="mlp-hindi" checked> MLP Hindi</label>
+              <label><input type="checkbox" class="links-page-cb" value="alm" checked> PGP in Marketing</label>
+              <label><input type="checkbox" class="links-page-cb" value="smbl" checked> BASL Sales & Marketing</label>
+              <label><input type="checkbox" class="links-page-cb" value="glossary" checked> Marketing Glossary</label>
+              <label><input type="checkbox" class="links-page-cb" value="press" checked> Press Releases</label>
+              <label><input type="checkbox" class="links-page-cb" value="hire" checked> Hire Digital Marketers</label>
+              <label><input type="checkbox" class="links-page-cb" value="placement-reports" checked> Placement Reports</label>
+              <label><input type="checkbox" class="links-page-cb" value="reviews" checked> Reviews</label>
+            </div>
+          </div>
+          <button class="btn" type="submit">Run Link Checker</button>
+          <div id="linksStatus" class="form-status"></div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            Each page is fetched once, then every &lt;a&gt; / &lt;img&gt; / &lt;link&gt; / &lt;script&gt; URL is probed (10s timeout). Skips mailto / tel / javascript / # / data: links.
+          </small>
+        </form>
+      </div>
+
       <!-- Prev / Next nav — sits below the active card. -->
       <div class="step-nav">
         <button type="button" id="stepPrev">← Previous</button>
@@ -1049,6 +1240,12 @@
           <h3>SEO Checklist</h3>
           <div id="seoSummary" class="seo-summary"></div>
           <div id="seoPageList"></div>
+        </div>
+
+        <div id="linksSection" class="monitor-section" style="display:none;">
+          <h3>Broken Link Checker</h3>
+          <div id="linksSummary" class="seo-summary"></div>
+          <div id="linksPageList"></div>
         </div>
       </div>
 
@@ -1124,6 +1321,14 @@
       const ksliveStatusEl = document.getElementById('ksliveStatus');
       const ksliveBtn = ksliveForm.querySelector('button[type="submit"]');
 
+      // Broken Link Checker form refs (new).
+      const linksForm = document.getElementById('linksForm');
+      const linksStatusEl = document.getElementById('linksStatus');
+      const linksBtn = linksForm.querySelector('button[type="submit"]');
+      const linksSection = document.getElementById('linksSection');
+      const linksSummary = document.getElementById('linksSummary');
+      const linksPageListEl = document.getElementById('linksPageList');
+
       const runLabelEl = document.getElementById('runLabel');
       const overallBadge = document.getElementById('overallBadge');
       const statsBar = document.getElementById('statsBar');
@@ -1183,6 +1388,10 @@
         if (activeStatusEl !== ksliveStatusEl) {
           ksliveStatusEl.textContent = '';
           ksliveStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== linksStatusEl) {
+          linksStatusEl.textContent = '';
+          linksStatusEl.className = 'form-status';
         }
       }
       function setRunLabel(modeLabel) {
@@ -1298,6 +1507,146 @@
 
         renderPixelEvents(data.pixelEvents || []);
         renderSeoResults(data.seoResults || []);
+        renderBrokenLinksResults(data.brokenLinksResults || null);
+      }
+
+      // Render Broken Link Checker results. Clear 3-tier layout:
+      //   1. Hero summary  — big headline + status row + type row
+      //   2. Per-page rows — collapsible; clean pages collapsed, problem pages expanded
+      //   3. Item rows     — only broken/server-error/unreachable items shown inside
+      function renderBrokenLinksResults(linksResults) {
+        linksSummary.innerHTML = '';
+        linksPageListEl.innerHTML = '';
+        if (!linksResults || !Array.isArray(linksResults.pages) || linksResults.pages.length === 0) {
+          linksSection.style.display = 'none';
+          return;
+        }
+        const t = linksResults.totals || {};
+        const brokenTotal =
+          (t.brokenLinks || 0) + (t.brokenImages || 0) + (t.brokenAssets || 0) + (t.brokenMedia || 0)
+          + (t.serverErrors || 0) + (t.unreachable || 0);
+
+        // ── Tier 1: Hero summary ─────────────────────────────────────────
+        const hero = document.createElement('div');
+        hero.className = 'links-hero';
+
+        const headline = document.createElement('div');
+        headline.className = 'links-hero-headline';
+        headline.innerHTML =
+          'Checked <span class="num">' + (t.urlsChecked || 0) + '</span> URLs across ' +
+          '<span class="num">' + (t.pagesCrawled || 0) + '</span> pages — ' +
+          (brokenTotal === 0
+            ? '<span style="color:#059669;">no broken items found</span>'
+            : '<span style="color:#dc2626;">' + brokenTotal + ' broken</span>');
+        hero.appendChild(headline);
+
+        const statusRow = document.createElement('div');
+        statusRow.className = 'links-status-row';
+        const addStat = (cls, label, count) => {
+          if (!count) return;
+          const el = document.createElement('span');
+          el.className = 'links-stat ' + cls;
+          el.innerHTML = '<span class="dot"></span>' + escapeHtml(label) + ' <strong>' + count + '</strong>';
+          statusRow.appendChild(el);
+        };
+        addStat('ok',     'Working',         t.working);
+        addStat('redir',  'Redirects',       t.redirects);
+        addStat('forbid', 'Blocked by host', t.forbidden);
+        addStat('bad',    'Broken (404 etc)',(t.brokenLinks || 0) + (t.brokenImages || 0) + (t.brokenAssets || 0) + (t.brokenMedia || 0));
+        addStat('bad',    'Server errors',   t.serverErrors);
+        addStat('bad',    'Unreachable',     t.unreachable);
+        hero.appendChild(statusRow);
+
+        const typeRow = document.createElement('div');
+        typeRow.className = 'links-type-row';
+        const addType = (label, count) => {
+          if (!count) return;
+          const el = document.createElement('span');
+          el.className = 'links-stat type';
+          el.innerHTML = '<span class="dot"></span>' + escapeHtml(label) + ' <strong>' + count + '</strong>';
+          typeRow.appendChild(el);
+        };
+        addType('Links',  t.linksChecked);
+        addType('Images', t.imagesChecked);
+        addType('CSS',    t.cssChecked);
+        addType('JS',     t.jsChecked);
+        addType('Media',  t.mediaChecked);
+        hero.appendChild(typeRow);
+
+        linksSummary.appendChild(hero);
+
+        // ── Tier 2: Per-page rows ────────────────────────────────────────
+        const typeLabel = (type) =>
+          ({ a: 'Link', img: 'Image', link: 'CSS', script: 'JS', media: 'Media' })[type] || type;
+
+        for (const p of linksResults.pages) {
+          const c = p.counts || {};
+          const issueCount = (c.broken || 0) + (c.server_error || 0) + (c.unreachable || 0);
+          const pageLoadFailed = p.pageStatus && p.pageStatus >= 400;
+          const hasIssues = issueCount > 0 || pageLoadFailed;
+
+          const pageEl = document.createElement('div');
+          pageEl.className = 'links-page' + (hasIssues ? ' has-issues is-open' : ' is-clean');
+
+          const head = document.createElement('div');
+          head.className = 'links-page-head';
+          head.innerHTML =
+            '<span class="links-page-status">' + (hasIssues ? '✗' : '✓') + '</span>' +
+            '<span class="links-page-title">' + escapeHtml(p.name || '(page)') +
+              '<span class="links-page-url">' + escapeHtml(p.url || '') + '</span>' +
+            '</span>' +
+            '<span class="links-page-counts">' +
+              (c.total || 0) + ' URLs · ' +
+              '<span class="ok">' + (c.working || 0) + ' ok</span>' +
+              ((c.redirect || 0) ? ' · ' + c.redirect + ' redir' : '') +
+              ((c.forbidden || 0) ? ' · ' + c.forbidden + ' blocked' : '') +
+              (issueCount ? ' · <span class="bad">' + issueCount + ' broken</span>' : '') +
+            '</span>' +
+            '<span class="links-page-caret">▾</span>';
+          head.addEventListener('click', () => pageEl.classList.toggle('is-open'));
+          pageEl.appendChild(head);
+
+          // ── Tier 3: Item rows inside the page ────────────────────────
+          const body = document.createElement('div');
+          body.className = 'links-page-body';
+
+          if (pageLoadFailed) {
+            const err = document.createElement('div');
+            err.className = 'links-pageerror-banner';
+            err.textContent = 'Could not load page — HTTP ' + p.pageStatus + (p.pageError ? ' (' + p.pageError + ')' : '');
+            body.appendChild(err);
+          } else if (issueCount === 0) {
+            const ok = document.createElement('div');
+            ok.className = 'links-clean-banner';
+            ok.textContent = 'All ' + (c.total || 0) + ' URLs on this page resolved successfully.';
+            body.appendChild(ok);
+          } else {
+            for (const b of (p.broken || [])) {
+              const row = document.createElement('div');
+              row.className = 'links-item';
+
+              const klass =
+                b.status === 0 ? 'unknown' :
+                b.status >= 500 ? 'bad' :
+                b.klass === 'forbidden' ? 'forbid' : 'bad';
+              const statusLabel = b.status === 0 ? 'TIMEOUT' : ('HTTP ' + b.status);
+              const textPart = b.type === 'a' ? ' — "' + escapeHtml((b.text || '(no text)').slice(0, 60)) + '"' : '';
+
+              row.innerHTML =
+                '<span class="links-item-status ' + klass + '">' + statusLabel + '</span>' +
+                '<div class="links-item-detail">' +
+                  '<div class="type-text">' + escapeHtml(typeLabel(b.type)) + textPart + '</div>' +
+                  '<div class="url">' + escapeHtml(b.url || '') + '</div>' +
+                  (b.error ? '<div class="err">' + escapeHtml(b.error) + '</div>' : '') +
+                '</div>';
+              body.appendChild(row);
+            }
+          }
+
+          pageEl.appendChild(body);
+          linksPageListEl.appendChild(pageEl);
+        }
+        linksSection.style.display = 'block';
       }
 
       // Render the SEO Checklist section — collapsible per-page groups with
@@ -1907,6 +2256,7 @@
         callbackBtn.disabled = true;
         smblBtn.disabled = true;
         ksliveBtn.disabled = true;
+        linksBtn.disabled = true;
 
         // Reset results panel to running state.
         setRunLabel(modeLabel);
@@ -1916,6 +2266,7 @@
         testList.style.display = 'none';
         pixelSection.style.display = 'none';
         seoSection.style.display = 'none';
+        linksSection.style.display = 'none';
         emptyState.style.display = 'block';
         emptyIcon.style.display = 'none';
         emptySpinner.style.display = 'block';
@@ -1929,12 +2280,13 @@
           callbackBtn.disabled = false;
           smblBtn.disabled = false;
           ksliveBtn.disabled = false;
+          linksBtn.disabled = false;
         };
 
         try {
           const selectedPlatform =
             formEl.querySelector('input[name="' + platformName + '"]:checked')?.value || 'test';
-          const payload = isSeo
+          const basePayload = isSeo
             ? { mode, platform: selectedPlatform }
             : {
                 mode,
@@ -1945,6 +2297,9 @@
                 differentEmail: diffEmail,
                 differentPhone: diffPhone,
               };
+          // opts.extraPayload — merged in by callers that need to send mode-specific
+          // fields (e.g. Links mode sends `pages` as a comma-separated id list).
+          const payload = Object.assign({}, basePayload, opts.extraPayload || {});
 
           const resp = await fetch('/prepare-tests', {
             method: 'POST',
@@ -2105,6 +2460,36 @@
           },
           platformName: 'ksLivePlatform',
           modeLabel: 'KSLIVE',
+        });
+      });
+
+      // Broken Link Checker — select-all helpers + submit. Reuses the SEO-style
+      // no-validation path (isSeo: true) and passes `pages` via extraPayload.
+      document.getElementById('linksSelectAll').addEventListener('click', () => {
+        document.querySelectorAll('.links-page-cb').forEach((cb) => { cb.checked = true; });
+      });
+      document.getElementById('linksDeselectAll').addEventListener('click', () => {
+        document.querySelectorAll('.links-page-cb').forEach((cb) => { cb.checked = false; });
+      });
+      linksForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const checked = Array.from(document.querySelectorAll('.links-page-cb'))
+          .filter((cb) => cb.checked)
+          .map((cb) => cb.value);
+        if (checked.length === 0) {
+          linksStatusEl.textContent = 'Select at least one page to crawl.';
+          linksStatusEl.className = 'form-status error';
+          return;
+        }
+        runTests({
+          form: linksForm,
+          mode: 'links',
+          runBtn: linksBtn,
+          runStatusEl: linksStatusEl,
+          platformName: 'linksPlatform',
+          modeLabel: 'LINKS',
+          isSeo: true, // reuse the no-validation path (mode + platform only)
+          extraPayload: { pages: checked.join(',') },
         });
       });
 

@@ -27,17 +27,44 @@ function recordPixelCall(req) {
   let eventName = '';
   let sourceUrl = '';
   let queryString = '';
+
+  // Primary: extract id / ev / dl from URL query params. This is how Meta
+  // Pixel sends most browser pixel calls (GET to /tr/?id=X&ev=Y&dl=Z).
   try {
     const urlObj = new URL(req.url);
     pixelId = urlObj.searchParams.get('id') || '';
     eventName = urlObj.searchParams.get('ev') || '';
     // `dl` (document location) is the URL of the page that fired the pixel.
-    // Used to distinguish fires from the MLP page vs. post-redirect pages
-    // (e.g. /screening-test/... fires its own PageView on load).
+    // Used to distinguish fires from the page under test vs. post-redirect
+    // pages (e.g. /screening-test/... fires its own PageView on load).
     sourceUrl = urlObj.searchParams.get('dl') || '';
     queryString = urlObj.search || '';
   } catch (_err) {
     /* ignore malformed URL */
+  }
+
+  // Fallback: some Meta Pixel calls fire as POST with id/ev/dl in the request
+  // body (advanced-matching enabled, large payloads, etc.). The URL-only
+  // extractor above misses them and the aggregator then skips them as empty.
+  // Parsing the body here only fills fields the URL didn't have — never
+  // overwrites good URL data, wrapped in try/catch so any unexpected body
+  // shape silently leaves the field empty (no spec-breaking side-effect).
+  if (!pixelId || !eventName || !sourceUrl) {
+    try {
+      const body = req.body;
+      if (typeof body === 'string' && body.length > 0) {
+        const params = new URLSearchParams(body);
+        if (!pixelId) pixelId = params.get('id') || '';
+        if (!eventName) eventName = params.get('ev') || '';
+        if (!sourceUrl) sourceUrl = params.get('dl') || '';
+      } else if (body && typeof body === 'object') {
+        if (!pixelId && body.id != null) pixelId = String(body.id);
+        if (!eventName && body.ev != null) eventName = String(body.ev);
+        if (!sourceUrl && body.dl != null) sourceUrl = String(body.dl);
+      }
+    } catch (_err) {
+      /* leave fields empty if body is unparseable */
+    }
   }
 
   const calls = getCaptureBucket();

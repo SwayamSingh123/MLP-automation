@@ -168,6 +168,19 @@ const MODES = {
     isKslive: true,
     deleteBases: null,
   },
+  // Broken Link Checker — crawls a configurable set of Kraftshala pages and
+  // probes every <a>/<img>/<link>/<script> URL via cy.task. One test per page,
+  // results flushed to cypress/reports/broken-links-results.json.
+  // No lead inputs, no fixture write, no pixel capture.
+  links: {
+    label: 'LINKS',
+    fixturePath: null,
+    specs: ['cypress/e2e/links/brokenLinkChecker.cy.js'],
+    expectedTestCount: 13, // all 13 pages by default; UI may restrict via linksPages
+    pixelEnabled: false,
+    isLinks: true,
+    deleteBases: null,
+  },
 };
 
 function resolveMode(input) {
@@ -191,6 +204,18 @@ const SEO_RESULTS_FILE = path.join(
   'cypress',
   'reports',
   'seo-results.json'
+);
+const BROKEN_LINKS_RESULTS_FILE = path.join(
+  __dirname,
+  'cypress',
+  'reports',
+  'broken-links-results.json'
+);
+const LINKS_SELECTED_PAGES_FILE = path.join(
+  __dirname,
+  'cypress',
+  'reports',
+  'links-selected-pages.json'
 );
 
 function readJsonFileSafe(file) {
@@ -273,6 +298,50 @@ function attachMonitoringData(parsed) {
 function readSeoResults() {
   return readJsonFileSafe(SEO_RESULTS_FILE);
 }
+
+function readBrokenLinksResults() {
+  return readJsonFileSafe(BROKEN_LINKS_RESULTS_FILE);
+}
+function attachBrokenLinksResults(parsed) {
+  const pages = readBrokenLinksResults();
+  const totals = {
+    pagesCrawled: Array.isArray(pages) ? pages.length : 0,
+    urlsChecked: 0,
+    linksChecked: 0, imagesChecked: 0, cssChecked: 0, jsChecked: 0, mediaChecked: 0,
+    working: 0, redirects: 0, forbidden: 0,
+    broken: 0, brokenLinks: 0, brokenImages: 0, brokenAssets: 0, brokenMedia: 0,
+    serverErrors: 0, unreachable: 0,
+  };
+  const flatBroken = [];
+  for (const p of pages || []) {
+    const c = (p && p.counts) || {};
+    totals.urlsChecked   += Number(c.total)  || 0;
+    totals.linksChecked  += Number(c.a)      || 0;
+    totals.imagesChecked += Number(c.img)    || 0;
+    totals.cssChecked    += Number(c.link)   || 0;
+    totals.jsChecked     += Number(c.script) || 0;
+    totals.mediaChecked  += Number(c.media)  || 0;
+    totals.working       += Number(c.working)      || 0;
+    totals.redirects     += Number(c.redirect)     || 0;
+    totals.forbidden     += Number(c.forbidden)    || 0;
+    totals.broken        += Number(c.broken)       || 0;
+    totals.serverErrors  += Number(c.server_error) || 0;
+    totals.unreachable   += Number(c.unreachable)  || 0;
+    for (const b of (p.broken || [])) {
+      flatBroken.push({ pageUrl: p.url, pageName: p.name, ...b });
+      if (b.type === 'a') totals.brokenLinks++;
+      else if (b.type === 'img') totals.brokenImages++;
+      else if (b.type === 'media') totals.brokenMedia++;
+      else if (b.type === 'link' || b.type === 'script') totals.brokenAssets++;
+    }
+  }
+  parsed.brokenLinksResults = {
+    pages: pages || [],
+    totals,
+    brokenItems: flatBroken,
+  };
+  return parsed;
+}
 function attachSeoResults(parsed) {
   parsed.seoResults = readSeoResults();
   return parsed;
@@ -292,6 +361,7 @@ const WORKFLOW_FILE_BY_MODE = {
   callback: 'callback-run.yml',
   seo:      'seo-run.yml',
   kslive:   'kslive-run.yml',
+  links:    'links-run.yml',
 };
 
 function resolveWorkflowFile(mode) {
@@ -305,13 +375,15 @@ function buildWorkflowRunsUrl(workflowFile) {
 
 // GitHub returns 422 if we send an `inputs` key the workflow doesn't declare,
 // so each mode gets ONLY the inputs its workflow expects.
-//   mlp / alm / smbl → full 5-field lead form set
-//   callback        → name + baseEmail + basePhone only
-//   seo             → platform only (no lead fields)
+//   mlp / alm / smbl / kslive → full 5-field lead form set
+//   callback                  → name + baseEmail + basePhone only
+//   seo                       → platform only (no lead fields)
+//   links                     → platform + pages (comma-separated page IDs)
 function buildWorkflowInputs(mode, args) {
-  const { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId } = args;
+  const { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId, linksPages } = args;
   if (mode === 'seo') return { platform, requestId };
   if (mode === 'callback') return { platform, name, baseEmail, basePhone, requestId };
+  if (mode === 'links') return { platform, pages: linksPages || '', requestId };
   return { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId };
 }
 const GITHUB_REF = process.env.GITHUB_REF || 'main';
@@ -428,6 +500,7 @@ async function dispatchGitHubWorkflow({
   differentEmail,
   differentPhone,
   requestId,
+  linksPages,
 }) {
   const workflowFile = resolveWorkflowFile(mode);
   const dispatchUrl = `https://api.github.com/repos/${encodeURIComponent(
@@ -436,7 +509,7 @@ async function dispatchGitHubWorkflow({
     workflowFile
   )}/dispatches`;
   const inputs = buildWorkflowInputs(mode, {
-    platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId,
+    platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId, linksPages,
   });
   console.log(`[RUN] Dispatching ${workflowFile} (mode=${mode}) for request ${requestId}`);
   const resp = await fetch(dispatchUrl, {
@@ -735,6 +808,49 @@ function attachRemoteMonitoringData(parsed, zip) {
   const seoData = readJsonFromZip(zip, 'reports/seo-results.json');
   if (Array.isArray(seoData)) parsed.seoResults = seoData;
 
+  // Broken Link Checker — only present for the links mode artifact. Compute
+  // the same totals / brokenItems shape as the local attachBrokenLinksResults
+  // so the dashboard's renderer can read either one transparently.
+  const linksData = readJsonFromZip(zip, 'reports/broken-links-results.json');
+  if (Array.isArray(linksData)) {
+    const totals = {
+      pagesCrawled: linksData.length,
+      urlsChecked: 0,
+      linksChecked: 0, imagesChecked: 0, cssChecked: 0, jsChecked: 0, mediaChecked: 0,
+      working: 0, redirects: 0, forbidden: 0,
+      broken: 0, brokenLinks: 0, brokenImages: 0, brokenAssets: 0, brokenMedia: 0,
+      serverErrors: 0, unreachable: 0,
+    };
+    const flatBroken = [];
+    for (const p of linksData) {
+      const c = (p && p.counts) || {};
+      totals.urlsChecked   += Number(c.total)  || 0;
+      totals.linksChecked  += Number(c.a)      || 0;
+      totals.imagesChecked += Number(c.img)    || 0;
+      totals.cssChecked    += Number(c.link)   || 0;
+      totals.jsChecked     += Number(c.script) || 0;
+      totals.mediaChecked  += Number(c.media)  || 0;
+      totals.working       += Number(c.working)      || 0;
+      totals.redirects     += Number(c.redirect)     || 0;
+      totals.forbidden     += Number(c.forbidden)    || 0;
+      totals.broken        += Number(c.broken)       || 0;
+      totals.serverErrors  += Number(c.server_error) || 0;
+      totals.unreachable   += Number(c.unreachable)  || 0;
+      for (const b of (p.broken || [])) {
+        flatBroken.push({ pageUrl: p.url, pageName: p.name, ...b });
+        if (b.type === 'a') totals.brokenLinks++;
+        else if (b.type === 'img') totals.brokenImages++;
+        else if (b.type === 'media') totals.brokenMedia++;
+        else if (b.type === 'link' || b.type === 'script') totals.brokenAssets++;
+      }
+    }
+    parsed.brokenLinksResults = {
+      pages: linksData,
+      totals,
+      brokenItems: flatBroken,
+    };
+  }
+
   return parsed;
 }
 
@@ -754,6 +870,13 @@ app.post('/prepare-tests', async (req, res) => {
   const isCallbackMode = modeConfig.isCallback === true;
   const isSmblMode = modeConfig.isSmbl === true;
   const isKsliveMode = modeConfig.isKslive === true;
+  const isLinksMode = modeConfig.isLinks === true;
+  // linksPages (optional) — comma-separated page IDs to crawl. If omitted, the
+  // spec crawls all pages. Pulled from req.body for the links mode only.
+  const linksPagesInput =
+    isLinksMode && req.body && req.body.pages
+      ? String(req.body.pages).trim()
+      : '';
   const rawPlatform = String(platform || 'test').toLowerCase();
   const selectedPlatform = isSeoMode
     ? (rawPlatform === 'production' ? 'production' : 'test')
@@ -778,9 +901,9 @@ app.post('/prepare-tests', async (req, res) => {
   const trimmedDifferentEmail = differentEmail != null ? String(differentEmail).trim() : '';
   const trimmedDifferentPhone = differentPhone != null ? String(differentPhone).trim() : '';
 
-  // Lead-input validation runs in MLP / ALM / SMBL (full 5-field set).
-  // Callback + SEO skip validation entirely.
-  if (!isSeoMode && !isCallbackMode) {
+  // Lead-input validation runs in MLP / ALM / SMBL / KS Live (full 5-field set).
+  // Callback / SEO / Links skip validation entirely.
+  if (!isSeoMode && !isCallbackMode && !isLinksMode) {
     if (
       !trimmedName ||
       !trimmedBaseEmail ||
@@ -809,7 +932,7 @@ app.post('/prepare-tests', async (req, res) => {
   // Callback / SEO: no input validation.
 
   const fixtureData =
-    isSeoMode || isCallbackMode || isKsliveMode
+    isSeoMode || isCallbackMode || isKsliveMode || isLinksMode
       ? null
       : buildFixtureFromForm({
           name: trimmedName,
@@ -819,7 +942,30 @@ app.post('/prepare-tests', async (req, res) => {
           differentPhone: trimmedDifferentPhone,
         });
 
-  if (isKsliveMode) {
+  if (isLinksMode) {
+    // Broken Link Checker — no fixture, no leads. Write the selected page
+    // IDs to a config file (read by cypress.config.js setupNodeEvents) so
+    // the spec can pick them up via Cypress.env('linksPages') without us
+    // having to squeeze a comma-separated list through --env (which breaks
+    // on Windows because cmd.exe treats | as a pipe and Cypress treats ,
+    // as the key=value separator).
+    try {
+      const reportsDir = path.dirname(BROKEN_LINKS_RESULTS_FILE);
+      if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+      const pageIds = linksPagesInput
+        ? linksPagesInput.split(',').map((s) => s.trim()).filter(Boolean)
+        : [];
+      fs.writeFileSync(
+        LINKS_SELECTED_PAGES_FILE,
+        JSON.stringify({ pages: pageIds }, null, 2)
+      );
+      // Clear stale broken-links-results.json so the dashboard doesn't render
+      // a previous run's data while the new crawl is in progress.
+      if (fs.existsSync(BROKEN_LINKS_RESULTS_FILE)) {
+        fs.writeFileSync(BROKEN_LINKS_RESULTS_FILE, '[]');
+      }
+    } catch (_err) { /* noop */ }
+  } else if (isKsliveMode) {
     // KS Live — event registration; no lead-delete API. Fixture shape is flat
     // (name + base/different email + phone + otp). The spec reads ksFixture.*
     // directly from this file.
@@ -934,6 +1080,7 @@ app.post('/prepare-tests', async (req, res) => {
         differentEmail: trimmedDifferentEmail,
         differentPhone: trimmedDifferentPhone,
         requestId,
+        linksPages: linksPagesInput,
       });
       const dispatchedWorkflowFile = dispatchResult && dispatchResult.workflowFile;
       githubRunJobs.set(requestId, {
@@ -1010,6 +1157,11 @@ app.post('/prepare-tests', async (req, res) => {
   // monitor short-circuits (per user spec: no pixel checks for ALM).
   const envParts = [`platform=${selectedPlatform}`];
   if (!modeConfig.pixelEnabled) envParts.push('disablePixel=true');
+  // Links mode reads its selected-page list from
+  // cypress/reports/links-selected-pages.json (written above and picked up by
+  // setupNodeEvents in cypress.config.js). We don't push linksPages onto
+  // --env here because comma-separated lists break Cypress's --env parser
+  // and pipe-separated lists break Windows cmd.exe.
   const cypressArgs = [
     '--spec', modeConfig.specs.join(','),
     '--config', `baseUrl=${selectedBaseUrl}`,
@@ -1098,6 +1250,7 @@ app.post('/prepare-tests', async (req, res) => {
       parseCypressOutputToDashboardData({ output, code, fixtureData, selectedPlatform, selectedBaseUrl })
     );
     if (isSeoMode) parsed = attachSeoResults(parsed);
+    if (isLinksMode) parsed = attachBrokenLinksResults(parsed);
     parsed.runMode = selectedMode;
     parsed.runLabel = modeConfig.label;
     parsed.expectedTestCount = modeConfig.expectedTestCount;
