@@ -157,6 +157,7 @@
       .card-tag.smbl { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
       .card-tag.kslive { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
       .card-tag.links { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+      .card-tag.runall { background: #ecfeff; color: #164e63; border: 1px solid #a5f3fc; }
       /* Active-card highlight — applied while that mode's run is active. */
       .card.is-active { box-shadow: 0 8px 28px rgba(91, 33, 182, 0.18); }
 
@@ -896,6 +897,7 @@
         <button type="button" class="step" data-step="4" role="tab"><span class="step-num">5.</span> SEO</button>
         <button type="button" class="step" data-step="5" role="tab"><span class="step-num">6.</span> KS Live</button>
         <button type="button" class="step" data-step="6" role="tab"><span class="step-num">7.</span> Links</button>
+        <button type="button" class="step" data-step="7" role="tab"><span class="step-num">8.</span> Run All</button>
       </div>
 
       <!-- MLP card -->
@@ -1120,34 +1122,24 @@
                 <span class="platform-card">Testing on Main Platform</span>
               </label>
             </div>
-            <small>Runs 5 registration scenarios on /kraftshala-live/ — success = "Your Session Registration Is Confirmed! Thank you".</small>
+            <small>Runs a single registration on the 1st visible event card — success = "Your Session Registration Is Confirmed" (or "already registered" for repeat runs).</small>
           </div>
           <div class="field">
             <label for="ksLiveName">Name</label>
             <input id="ksLiveName" name="ksLiveName" type="text" required placeholder="Full name" />
           </div>
           <div class="field">
-            <label for="ksLiveBaseEmail">Base email</label>
-            <input id="ksLiveBaseEmail" name="ksLiveBaseEmail" type="email" required placeholder="kslive-base@example.com" />
+            <label for="ksLiveBaseEmail">Email</label>
+            <input id="ksLiveBaseEmail" name="ksLiveBaseEmail" type="email" required placeholder="lead@example.com" />
           </div>
           <div class="field">
-            <label for="ksLiveBasePhone">Base phone</label>
+            <label for="ksLiveBasePhone">Phone</label>
             <input id="ksLiveBasePhone" name="ksLiveBasePhone" type="tel" required placeholder="9xxxxxxxxx" />
           </div>
-          <div class="field">
-            <label for="ksLiveDifferentEmail">Different email</label>
-            <input id="ksLiveDifferentEmail" name="ksLiveDifferentEmail" type="email" required placeholder="other@example.com" />
-            <small>Must differ from base email.</small>
-          </div>
-          <div class="field">
-            <label for="ksLiveDifferentPhone">Different phone</label>
-            <input id="ksLiveDifferentPhone" name="ksLiveDifferentPhone" type="tel" required placeholder="9yyyyyyyyy" />
-            <small>Must differ from base phone.</small>
-          </div>
-          <button class="btn" type="submit">Run KS Live tests</button>
+          <button class="btn" type="submit">Run KS Live test</button>
           <div id="ksliveStatus" class="form-status"></div>
           <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
-            5 scenarios — 4 on the 1st KS Live card, 1 on the 2nd. API logs and pixel fires captured automatically.
+            1 test — fill name/email/phone, tick WhatsApp Yes, submit OTP, verify success. API logs and pixel fires captured automatically.
           </small>
         </form>
       </div>
@@ -1197,6 +1189,44 @@
           <div id="linksStatus" class="form-status"></div>
           <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
             Each page is fetched once, then every &lt;a&gt; / &lt;img&gt; / &lt;link&gt; / &lt;script&gt; URL is probed (10s timeout). Skips mailto / tel / javascript / # / data: links.
+          </small>
+        </form>
+      </div>
+
+      <!-- Run All Automation — sequential run across every mode using the fixture data currently on disk. -->
+      <div class="card">
+        <div class="card-tag runall">Run All — Auto</div>
+        <h2>Run All Automation</h2>
+        <form id="runAllForm">
+          <div class="field">
+            <label>Platform</label>
+            <div class="platform-group">
+              <label class="platform-option">
+                <input type="radio" name="runAllPlatform" value="test" checked />
+                <span class="platform-card">Test platform</span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="runAllPlatform" value="main" />
+                <span class="platform-card">Main platform</span>
+              </label>
+            </div>
+            <small>All 7 modes run against this platform. Each mode uses its own fixture file for lead data (populated by manual runs or edited directly).</small>
+          </div>
+          <div class="field">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="runAllSendGchat" checked />
+              <span>Send report to Google Chat when done</span>
+            </label>
+            <small>Requires <code>GCHAT_WEBHOOK_URL</code> env var on the server. If unset, the message is skipped and the UI shows a warning — no crash.</small>
+          </div>
+          <button class="btn" type="submit">Run All Automation</button>
+          <div id="runAllStatus" class="form-status"></div>
+          <div id="runAllProgress" style="display:none; margin-top:14px; border-top:1px solid var(--line); padding-top:12px;">
+            <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#374151; margin-bottom:8px;">Progress</div>
+            <div id="runAllModeList"></div>
+          </div>
+          <small style="display:block; margin-top:10px; color: var(--text-muted); text-align:center;">
+            Order: MLP → ALM → SMBL → KS Live → Callback → SEO → Links. Total time ~15-25 min. Manual cards are disabled during the run.
           </small>
         </form>
       </div>
@@ -1329,6 +1359,14 @@
       const linksSummary = document.getElementById('linksSummary');
       const linksPageListEl = document.getElementById('linksPageList');
 
+      // Run All form refs (new).
+      const runAllForm = document.getElementById('runAllForm');
+      const runAllStatusEl = document.getElementById('runAllStatus');
+      const runAllBtn = runAllForm.querySelector('button[type="submit"]');
+      const runAllSendGchat = document.getElementById('runAllSendGchat');
+      const runAllProgress = document.getElementById('runAllProgress');
+      const runAllModeList = document.getElementById('runAllModeList');
+
       const runLabelEl = document.getElementById('runLabel');
       const overallBadge = document.getElementById('overallBadge');
       const statsBar = document.getElementById('statsBar');
@@ -1392,6 +1430,10 @@
         if (activeStatusEl !== linksStatusEl) {
           linksStatusEl.textContent = '';
           linksStatusEl.className = 'form-status';
+        }
+        if (activeStatusEl !== runAllStatusEl) {
+          runAllStatusEl.textContent = '';
+          runAllStatusEl.className = 'form-status';
         }
       }
       function setRunLabel(modeLabel) {
@@ -2229,22 +2271,32 @@
           nameVal = formEl[fields.name].value.trim();
           baseEmail = formEl[fields.baseEmail].value.trim();
           basePhone = formEl[fields.basePhone].value.trim();
-          diffEmail = formEl[fields.differentEmail].value.trim();
-          diffPhone = formEl[fields.differentPhone].value.trim();
 
-          if (!nameVal || !baseEmail || !basePhone || !diffEmail || !diffPhone) {
-            setStatus(
-              'Name, base email, base phone, different email, and different phone are all required.',
-              'error'
-            );
+          if (!nameVal || !baseEmail || !basePhone) {
+            setStatus('Name, email, and phone are required.', 'error');
             return;
           }
-          if (baseEmail.toLowerCase() === diffEmail.toLowerCase() || basePhone === diffPhone) {
-            setStatus(
-              'Different email must differ from base email, and different phone must differ from base phone.',
-              'error'
-            );
-            return;
+
+          // Different email / phone are only required for modes that exercise
+          // edge cases (MLP / ALM / SMBL). KS Live's simplified single-test
+          // flow doesn't declare them in `fields`, so we skip the extra checks.
+          if (fields.differentEmail && fields.differentPhone) {
+            diffEmail = formEl[fields.differentEmail].value.trim();
+            diffPhone = formEl[fields.differentPhone].value.trim();
+            if (!diffEmail || !diffPhone) {
+              setStatus(
+                'Different email and different phone are required for this mode.',
+                'error'
+              );
+              return;
+            }
+            if (baseEmail.toLowerCase() === diffEmail.toLowerCase() || basePhone === diffPhone) {
+              setStatus(
+                'Different email must differ from base email, and different phone must differ from base phone.',
+                'error'
+              );
+              return;
+            }
           }
         }
 
@@ -2455,8 +2507,7 @@
             name: 'ksLiveName',
             baseEmail: 'ksLiveBaseEmail',
             basePhone: 'ksLiveBasePhone',
-            differentEmail: 'ksLiveDifferentEmail',
-            differentPhone: 'ksLiveDifferentPhone',
+            // KS Live is now a single-test smoke — no different email/phone.
           },
           platformName: 'ksLivePlatform',
           modeLabel: 'KSLIVE',
@@ -2491,6 +2542,166 @@
           isSeo: true, // reuse the no-validation path (mode + platform only)
           extraPayload: { pages: checked.join(',') },
         });
+      });
+
+      // Run All — POST /run-all-tests, subscribe to SSE, update per-mode
+      // progress live. Sequential execution on the server. Reports go to
+      // Google Chat when the "send to gchat" checkbox is on (default).
+      const RUN_ALL_ORDER = [
+        { id: 'mlp',      label: 'MLP' },
+        { id: 'alm',      label: 'ALM' },
+        { id: 'smbl',     label: 'SMBL' },
+        { id: 'kslive',   label: 'KS Live' },
+        { id: 'callback', label: 'Callback' },
+        { id: 'seo',      label: 'SEO' },
+        { id: 'links',    label: 'Links' },
+      ];
+
+      runAllForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const platform =
+          runAllForm.querySelector('input[name="runAllPlatform"]:checked')?.value || 'test';
+        const sendToGchat = runAllSendGchat.checked;
+
+        // Disable every submit button so the user can't launch a manual mode
+        // on top of a running Run All.
+        runAllBtn.disabled = true;
+        btn.disabled = true;
+        almBtn.disabled = true;
+        seoBtn.disabled = true;
+        callbackBtn.disabled = true;
+        smblBtn.disabled = true;
+        ksliveBtn.disabled = true;
+        linksBtn.disabled = true;
+
+        runAllStatusEl.textContent = 'Starting Run All…';
+        runAllStatusEl.className = 'form-status running';
+        runAllProgress.style.display = 'block';
+        runAllModeList.innerHTML = '';
+
+        // Seed one row per mode in "pending" state.
+        const modeRows = {};
+        for (const m of RUN_ALL_ORDER) {
+          const row = document.createElement('div');
+          row.style.cssText =
+            'display:flex; align-items:center; gap:12px; padding:8px 10px; ' +
+            'border:1px solid var(--line); border-radius:8px; margin-bottom:6px; ' +
+            'font-size:13px; background:#fff;';
+          row.innerHTML =
+            '<span style="width:80px; font-weight:700; color:#0f172a;">' +
+              escapeHtml(m.label) +
+            '</span>' +
+            '<span class="mode-status" style="flex:1; color:#64748b;">⏸ pending</span>';
+          modeRows[m.id] = row;
+          runAllModeList.appendChild(row);
+        }
+
+        const finishRunAll = () => {
+          runAllBtn.disabled = false;
+          btn.disabled = false;
+          almBtn.disabled = false;
+          seoBtn.disabled = false;
+          callbackBtn.disabled = false;
+          smblBtn.disabled = false;
+          ksliveBtn.disabled = false;
+          linksBtn.disabled = false;
+        };
+
+        try {
+          const resp = await fetch('/run-all-tests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform, sendToGchat }),
+          });
+          const data = await resp.json();
+          if (!data.ok) throw new Error(data.message || 'Failed to start Run All');
+
+          runAllStatusEl.textContent =
+            'Running… this typically takes 15-25 min. Watch per-mode progress below.';
+
+          const es = new EventSource(data.streamUrl);
+
+          es.addEventListener('mode_start', (ev) => {
+            const { mode } = JSON.parse(ev.data);
+            const row = modeRows[mode];
+            if (!row) return;
+            row.querySelector('.mode-status').innerHTML = '🔄 <em>running…</em>';
+            row.style.background = '#fff7ed';
+          });
+
+          es.addEventListener('mode_complete', (ev) => {
+            const { mode, totals } = JSON.parse(ev.data);
+            const row = modeRows[mode];
+            if (!row) return;
+            const t = totals || {};
+            const total = t.total || 0;
+            const pass = t.automationPassed || 0;
+            const fail = t.automationFailed || 0;
+            let icon;
+            if (fail === 0 && total > 0) icon = '✅';
+            else if (fail === 0 && total === 0) icon = '⚠️';
+            else icon = '❌';
+            row.querySelector('.mode-status').innerHTML =
+              icon + ' <strong>' + pass + '/' + total + '</strong> passed' +
+              (fail > 0
+                ? ' <span style="color:#b91c1c;">(' + fail + ' failed)</span>'
+                : '');
+            row.style.background =
+              fail === 0 && total > 0 ? '#f0fdf4' : (fail > 0 ? '#fef2f2' : '#fef3c7');
+          });
+
+          es.addEventListener('mode_error', (ev) => {
+            const { mode, error } = JSON.parse(ev.data);
+            const row = modeRows[mode];
+            if (!row) return;
+            row.querySelector('.mode-status').innerHTML =
+              '⚠️ error: ' + escapeHtml(String(error || '').slice(0, 200));
+            row.style.background = '#fef3c7';
+          });
+
+          es.addEventListener('all_complete', (ev) => {
+            const summary = JSON.parse(ev.data);
+            let tp = 0, tf = 0;
+            for (const m of (summary.modes || [])) {
+              const t = (m.result && m.result.totals) || {};
+              tp += t.automationPassed || 0;
+              tf += t.automationFailed || 0;
+            }
+            const d = summary.durationSec || 0;
+            const dStr = d < 60 ? (d + 's') : (Math.floor(d / 60) + 'm ' + (d % 60) + 's');
+            runAllStatusEl.textContent =
+              'Done. ' + tp + '/' + (tp + tf) + ' tests passed. Duration: ' + dStr + '.';
+            runAllStatusEl.className = tf > 0 ? 'form-status error' : 'form-status success';
+          });
+
+          es.addEventListener('gchat_sent', () => {
+            runAllStatusEl.textContent += ' Report sent to Google Chat.';
+          });
+
+          es.addEventListener('gchat_error', (ev) => {
+            const { error, skipped } = JSON.parse(ev.data);
+            if (skipped) {
+              runAllStatusEl.textContent +=
+                ' (Google Chat skipped — GCHAT_WEBHOOK_URL not set on server.)';
+            } else {
+              runAllStatusEl.textContent += ' (Google Chat error: ' + error + ')';
+            }
+          });
+
+          es.addEventListener('finished', () => {
+            es.close();
+            finishRunAll();
+          });
+
+          es.addEventListener('error', () => {
+            es.close();
+            finishRunAll();
+          });
+        } catch (err) {
+          runAllStatusEl.textContent = 'Failed: ' + (err.message || err);
+          runAllStatusEl.className = 'form-status error';
+          finishRunAll();
+        }
       });
 
     </script>

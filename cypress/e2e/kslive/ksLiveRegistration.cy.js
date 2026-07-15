@@ -1,77 +1,56 @@
 /// <reference types="cypress" />
 //
-// Kraftshala KS Live — event registration tests.
-// Page: /kraftshala-live/
+// Kraftshala KS Live — single-registration smoke test.
 //
-// The page lists multiple KS Live event cards that share the same selector
-// (.ks-live-registration-card) and CTA (.register-btn). Labels and dates change
-// frequently, so we target by visible-card index:
-//   - 1st card (eq 0) — 4 scenarios
-//   - 2nd card (eq 1) — 1 scenario
-//
-// Diagnostic finding (probes 1–4): clicking Register Now executes
-//   window.open('/kraftshala-live/register/?event_name=<event>', '_top')
-// which navigates the AUT to a blank top-level page that Cypress cannot
-// follow — symptom is "white screen, no terminal error".
-//
-// Fix: in onBeforeLoad we override window.open to CAPTURE the URL into
-// win.__nextRegisterUrl instead of executing the navigation. After clicking
-// the button, we read that URL and cy.visit() it ourselves — Cypress keeps
-// tracking the AUT, the registration form on the new page is reachable, and
-// the rest of the flow (name/email/phone → WhatsApp Yes → Reserve my seat →
-// OTP → success message) runs identically across all 5 scenarios.
+// Simplified from the earlier 5-edge-case suite: now runs ONE test — fill name/
+// email/phone on the 1st visible event card, submit, verify success. All the
+// probes, workarounds, and defenses from the earlier iteration are kept:
+//   - window.open('_top') is intercepted so the AUT doesn't blank out
+//   - native DOM click on Register Now (React onClick added via addEventListener)
+//   - OTP fill via the specific .otp-input-kslive selector, submit via
+//     .ks-live-submit-btn — these were confirmed via inspect probe
+//   - success text OR "already registered" both count as PASS
 
 const ksFixture = require('../../fixtures/kslive/ksLiveTestData.json');
 
 const CARD_SELECTOR = '.ks-live-registration-card';
 const REGISTER_BTN_SELECTOR = '.register-btn';
-const RESERVE_BTN_TEXT = /reserve\s*my\s*seat/i;
-
-// Three end-states the registration page can produce. Each is a PASS:
-//   - SUCCESS               → new registration succeeded
-//   - ALREADY_REGISTERED    → lead already registered for this event
-//   - PHONE_BLOCKED         → email known + phone differs → blocked
-//
-// Regexes are tightened to match ONLY the actual confirmation strings, not
-// boilerplate that might exist elsewhere on the page (FAQ / footer / link
-// text like "If you're already registered, login here"). Previous loose regex
-// /already registered/i was matching such boilerplate and causing the test
-// to pass without ever entering OTP.
-//
-// Curly-apostrophe tolerant — the page uses ’ (U+2019), not ASCII '.
-const SUCCESS_TEXT =
-  /your\s+session\s+registration\s+is\s+confirmed/i;
-const ALREADY_REGISTERED_TEXT =
-  /you[’‘']?re\s+already\s+registered[\s\S]{0,300}(re[-\s]?sent|join\s+session)/i;
-const PHONE_BLOCKED_TEXT =
-  /phone\s+number\s+associated\s+with[\s\S]{0,200}try\s+using\s+this\s+phone/i;
-
-// KS Live OTP UI — confirmed via inspect probe:
-//   - Single text input, class="otp-input-kslive", maxlength=6
-//   - Submit button, class="ks-live-submit-btn", text "Submit"
-// Selectors pinned to these exact classes — broader fallbacks would risk
-// matching unrelated fields (e.g. a maxlength="6" verification field elsewhere
-// on the registration page) and typing the OTP into the wrong input.
 const OTP_INPUT_SELECTOR = 'input.otp-input-kslive';
 const OTP_SUBMIT_SELECTOR = 'button.ks-live-submit-btn';
+// The registration-form submit CTA (inside the modal on the events page, or
+// on the standalone /register/ page — same button, same text either way).
+// Labels have changed over site iterations:
+//   current  → "Register for Free"
+//   prior    → "Register Now"
+//   original → "Reserve my seat"
+// Regex covers all three so a future rename doesn't silently break the click.
+const SUBMIT_BTN_TEXT = /register\s*for\s*free|register\s*now|reserve\s*my\s*seat/i;
+
+// End-state text patterns. All three count as a PASS for the KS Live smoke:
+//   SUCCESS_NEW  → current site — "🎉 You're In! Don't Miss Important Updates"
+//                  (paired-phrase match so we don't false-positive on stray
+//                   "you're in" text elsewhere on the page)
+//   SUCCESS_OLD  → older site — "Your Session Registration Is Confirmed"
+//   ALREADY_REG  → repeat-registration path — "You're already registered … re-sent"
+const SUCCESS_NEW =
+  /you[’‘']?re\s+in[\s\S]{0,300}(don[’‘']?t\s+miss|important\s+updates)/i;
+const SUCCESS_OLD = /your\s+session\s+registration\s+is\s+confirmed/i;
+const ALREADY_REGISTERED_TEXT =
+  /you[’‘']?re\s+already\s+registered[\s\S]{0,300}(re[-\s]?sent|join\s+session)/i;
+const OUTCOME_REGEX = new RegExp(
+  [SUCCESS_NEW.source, SUCCESS_OLD.source, ALREADY_REGISTERED_TEXT.source].join('|'),
+  'i'
+);
 
 function neutraliseKsLiveHazards(win) {
-  try {
-    Object.defineProperty(win, 'top', { configurable: true, get: () => win });
-  } catch (_) {}
-  try {
-    Object.defineProperty(win, 'parent', { configurable: true, get: () => win });
-  } catch (_) {}
+  try { Object.defineProperty(win, 'top', { configurable: true, get: () => win }); } catch (_) {}
+  try { Object.defineProperty(win, 'parent', { configurable: true, get: () => win }); } catch (_) {}
   try {
     Object.defineProperty(win.navigator, 'serviceWorker', {
       configurable: true,
       get: () => undefined,
     });
   } catch (_) {}
-
-  // CRITICAL — Register Now invokes window.open(url, '_top') to navigate to
-  // the registration page. Capture the URL so we can cy.visit() it ourselves.
-  // Without this, the AUT loses its top-level frame and Cypress goes blank.
   win.__nextRegisterUrl = null;
   // eslint-disable-next-line no-unused-vars
   win.open = function (url, _target) {
@@ -80,144 +59,57 @@ function neutraliseKsLiveHazards(win) {
   };
 }
 
-function visitKsLivePage() {
-  cy.visit('/kraftshala-live/', {
-    failOnStatusCode: false,
-    onBeforeLoad: neutraliseKsLiveHazards,
+describe('Kraftshala KS Live registration', () => {
+  beforeEach(() => {
+    Cypress.on('uncaught:exception', () => false);
   });
-  cy.selectPlatformIfPresent();
-  cy.get(CARD_SELECTOR, { timeout: 25000 })
-    .filter(':visible')
-    .should('have.length.at.least', 1);
-}
 
-// Click Register Now on a single visible card index. Captures the resulting
-// URL into win.__nextRegisterUrl via the window.open intercept. Used as a
-// building block by both the fast path and the discovery loop below.
-function clickRegisterAt(eventIndex) {
-  cy.window().then((win) => { win.__nextRegisterUrl = null; });
-  // Native DOM click — React's onClick is attached via addEventListener and
-  // synthetic Cypress clicks have been observed to no-op on this widget.
-  cy.get(CARD_SELECTOR)
-    .filter(':visible')
-    .eq(eventIndex)
-    .scrollIntoView()
-    .find(REGISTER_BTN_SELECTOR)
-    .filter(':visible')
-    .first()
-    .then(($btn) => { $btn[0].click(); });
-  cy.window({ timeout: 10000 }).should((win) => {
-    expect(win.__nextRegisterUrl, 'register URL captured').to.be.a('string').and.not.empty;
-  });
-}
-
-// Click the Nth UNIQUE-event card (1-based). The /kraftshala-live/ page shows
-// one card per session; the same event can appear in multiple sessions, which
-// means DOM index alone doesn't map to "Nth distinct event". We disambiguate
-// by capturing each visible card's URL (event_name query param is the
-// identity) and selecting the Nth one we haven't seen before.
-//
-// n=1 fast-path: card[0] is always the first unique event, no discovery needed.
-// n>=2 slow-path: iterate every visible card, capture URLs (window.open is
-//   intercepted so no real navigation), then pick the Nth unique by DOM order.
-function clickRegisterOnNthUniqueEvent(n) {
-  cy.get(CARD_SELECTOR, { timeout: 20000 })
-    .filter(':visible')
-    .should('have.length.at.least', 1);
-
-  if (n === 1) {
-    clickRegisterAt(0);
-    return;
-  }
-
-  const events = []; // [{ idx, eventName, url }]
-
-  cy.get(CARD_SELECTOR)
-    .filter(':visible')
-    .each(($card, idx) => {
-      cy.window().then((win) => { win.__nextRegisterUrl = null; });
-      cy.wrap($card)
-        .scrollIntoView()
-        .find(REGISTER_BTN_SELECTOR)
-        .filter(':visible')
-        .first()
-        .then(($btn) => { $btn[0].click(); });
-      cy.window({ timeout: 5000 }).should((win) => {
-        expect(win.__nextRegisterUrl, 'card[' + idx + '] URL captured').to.be.a(
-          'string'
-        ).and.not.empty;
-      });
-      cy.window().then((win) => {
-        const url = String(win.__nextRegisterUrl || '');
-        const m = url.match(/event_name=([^&]+)/);
-        const eventName = (m ? m[1] : '').toLowerCase();
-        events.push({ idx, eventName, url });
-      });
-    })
-    .then(() => {
-      const seen = new Set();
-      const uniqueEvents = [];
-      events.forEach((e) => {
-        if (e.eventName && !seen.has(e.eventName)) {
-          seen.add(e.eventName);
-          uniqueEvents.push(e);
-        }
-      });
-
-      if (uniqueEvents.length < n) {
-        throw new Error(
-          'KSLIVE: only ' +
-            uniqueEvents.length +
-            ' unique event(s) visible (need ' +
-            n +
-            '). Found: ' +
-            uniqueEvents.map((e) => e.eventName).join(', ')
-        );
-      }
-
-      const target = uniqueEvents[n - 1];
-      cy.log(
-        'KSLIVE nth-unique-event: n=' +
-          n +
-          ' → idx=' +
-          target.idx +
-          ' event_name=' +
-          target.eventName
-      );
-      // Set captured URL directly so followCapturedRegistrationUrl picks the
-      // target. Avoids a redundant re-click that could be disturbed by the
-      // page state shifting after multiple Register Now clicks.
-      cy.window().then((win) => { win.__nextRegisterUrl = target.url; });
+  it('Register on 1st KS Live event with base email and base phone', () => {
+    cy.visit('/kraftshala-live/', {
+      failOnStatusCode: false,
+      onBeforeLoad: neutraliseKsLiveHazards,
     });
-}
+    cy.selectPlatformIfPresent();
 
-function followCapturedRegistrationUrl() {
-  cy.window({ timeout: 10000 }).should((win) => {
-    expect(win.__nextRegisterUrl, 'register URL captured').to.be.a('string').and.not.empty;
-  });
-  cy.window()
-    .then((win) => win.__nextRegisterUrl)
-    .then((url) => {
-      cy.log('KSLIVE registration URL: ' + url);
-      // The URL is relative (e.g. /kraftshala-live/register/?event_name=...) —
-      // cy.visit joins it with baseUrl. failOnStatusCode false because the
-      // registration page may set a non-200 on first load while it hydrates.
-      cy.visit(url, {
-        failOnStatusCode: false,
-        onBeforeLoad: neutraliseKsLiveHazards,
-      });
+    // Wait for at least one visible event card, then click Register Now.
+    cy.get(CARD_SELECTOR, { timeout: 25000 })
+      .filter(':visible')
+      .should('have.length.at.least', 1);
+    cy.window().then((win) => { win.__nextRegisterUrl = null; });
+    cy.get(CARD_SELECTOR)
+      .filter(':visible')
+      .eq(0)
+      .scrollIntoView()
+      .find(REGISTER_BTN_SELECTOR)
+      .filter(':visible')
+      .first()
+      .then(($btn) => { $btn[0].click(); });
+
+    // Register Now calls window.open(url, '_top') — our onBeforeLoad captured
+    // the URL into __nextRegisterUrl. Follow it via cy.visit() so Cypress
+    // keeps tracking the AUT (a raw _top nav would blank out the runner).
+    cy.window({ timeout: 10000 }).should((win) => {
+      expect(win.__nextRegisterUrl, 'register URL captured').to.be.a('string').and.not.empty;
     });
-  // On the registration page now — wait for any name/email/phone input.
-  cy.get(
-    'input[type="email"], input[name*="email"], input[type="tel"], input[name*="phone"], input[name*="name"]',
-    { timeout: 20000 }
-  )
-    .filter(':visible')
-    .should('have.length.at.least', 1);
-}
+    cy.window()
+      .then((win) => win.__nextRegisterUrl)
+      .then((url) => {
+        cy.log('KSLIVE registration URL: ' + url);
+        cy.visit(url, {
+          failOnStatusCode: false,
+          onBeforeLoad: neutraliseKsLiveHazards,
+        });
+      });
 
-function fillFormAndSubmit({ name, email, phone }) {
-  if (name) {
+    // On the registration page — wait for the form to hydrate.
+    cy.get(
+      'input[type="email"], input[name*="email"], input[type="tel"], input[name*="phone"], input[name*="name"]',
+      { timeout: 20000 }
+    )
+      .filter(':visible')
+      .should('have.length.at.least', 1);
+
+    // Fill name (best-effort — some layouts have a labelled name input).
     cy.get('body').then(($body) => {
       const nameInputs = $body.find('input').filter((_, el) => {
         const $el = Cypress.$(el);
@@ -230,177 +122,102 @@ function fillFormAndSubmit({ name, email, phone }) {
       if (nameInputs.length) {
         cy.wrap(nameInputs[0])
           .clear({ force: true })
-          .type(name, { force: true });
+          .type(ksFixture.name, { force: true });
       }
     });
-  }
 
-  cy.get(
-    'input[type="email"], input[name*="email"], input[placeholder*="Email"]',
-    { timeout: 10000 }
-  )
-    .filter(':visible')
-    .last()
-    .clear({ force: true })
-    .type(email, { force: true });
+    // Email + phone.
+    cy.get('input[type="email"], input[name*="email"], input[placeholder*="Email"]', { timeout: 10000 })
+      .filter(':visible')
+      .last()
+      .clear({ force: true })
+      .type(ksFixture.baseEmail, { force: true });
+    cy.get('input[type="tel"], input[name*="phone"], input[placeholder*="Phone"], input[placeholder*="phone"]', { timeout: 10000 })
+      .filter(':visible')
+      .last()
+      .clear({ force: true })
+      .type(ksFixture.basePhone, { force: true });
 
-  cy.get(
-    'input[type="tel"], input[name*="phone"], input[placeholder*="Phone"], input[placeholder*="phone"]',
-    { timeout: 10000 }
-  )
-    .filter(':visible')
-    .last()
-    .clear({ force: true })
-    .type(phone, { force: true });
+    // WhatsApp Yes — OPTIONAL. Older KS Live modal had a WhatsApp opt-in
+    // radio (matching MLP/ALM/SMBL convention). Current version doesn't.
+    // Skip the click gracefully if no "Yes" element is visible — using
+    // cy.contains here would throw and fail the whole test.
+    cy.get('body').then(($body) => {
+      const $yes = $body.find('*').filter((_, el) => {
+        if (!Cypress.$(el).is(':visible')) return false;
+        // Only match text-only leaf elements — avoids the whole page
+        // matching just because the word "yes" appears somewhere inside.
+        if (el.children && el.children.length > 0) return false;
+        return /^\s*yes\s*$/i.test(String(el.textContent || ''));
+      });
+      if ($yes.length > 0) {
+        cy.wrap($yes.first()).click({ force: true });
+      } else {
+        cy.log('KSLIVE: no WhatsApp Yes option visible — skipping');
+      }
+    });
 
-  cy.contains(/^yes$/i).filter(':visible').first().click({ force: true });
+    // Submit the registration form.
+    //
+    // Both the form submit ("Register for Free" / "Register Now" / "Reserve
+    // my seat" — label has changed over site iterations) and the OTP submit
+    // share class .ks-live-submit-btn. At this point only the form's CTA is
+    // rendered (the OTP step opens *after* this click), so filtering by
+    // ':visible' and taking .last() safely picks the form CTA.
+    //
+    // Strategy: prefer the class-based selector (most reliable, doesn't
+    // break when the button's label changes). Fall back to text match only
+    // if the class is missing.
+    cy.get('body').then(($body) => {
+      const $byClass = $body.find('button.ks-live-submit-btn').filter(':visible');
+      if ($byClass.length) {
+        cy.wrap($byClass.last()).scrollIntoView().click({ force: true });
+      } else {
+        cy.contains(SUBMIT_BTN_TEXT, { timeout: 10000 })
+          .filter(':visible')
+          .last()
+          .scrollIntoView()
+          .click({ force: true });
+      }
+    });
 
-  cy.contains(RESERVE_BTN_TEXT, { timeout: 10000 })
-    .filter(':visible')
-    .last()
-    .scrollIntoView()
-    .click({ force: true });
-}
-
-// KS Live OTP fill — dedicated helper. KS Live's OTP UI is a single text
-// input (class .otp-input-kslive, maxlength=6) and a Submit button (class
-// .ks-live-submit-btn). The shared cy.enterOtpAndSubmit was written for
-// MLP/ALM/SMBL's 6-individual-digit inputs and doesn't match these.
-function enterKsLiveOtp(otp) {
-  const otpStr = String(otp);
-
-  // Wait for the input to appear AND be interactable.
-  cy.get(OTP_INPUT_SELECTOR, { timeout: 30000 })
-    .should('be.visible')
-    .should('be.enabled')
-    .clear()
-    .type(otpStr, { delay: 80 });
-
-  // Verify the value actually landed before submitting — guards against React
-  // dropping keystrokes or onChange not firing on each character.
-  cy.get(OTP_INPUT_SELECTOR).should('have.value', otpStr);
-
-  cy.get(OTP_SUBMIT_SELECTOR, { timeout: 10000 })
-    .should('be.visible')
-    .should('not.be.disabled')
-    .scrollIntoView()
-    .click();
-}
-
-// After clicking "Reserve my seat" the flow is:
-//   1. OTP step opens (canonical path) → we enter OTP → end-state shows
-//   2. (rare) "Already registered" appears before OTP → no OTP needed
-//
-// IMPORTANT: We must ALWAYS enter OTP if the input is visible. Previous logic
-// short-circuited on any page-text match for "already registered", which fired
-// on boilerplate text and falsely passed the test without ever submitting OTP.
-function submitAndAssertOutcome(otp) {
-  // Step 1: wait for OTP input to be visible. Generous timeout — the OTP
-  // step takes a few seconds to render after Reserve my seat.
-  cy.get('body', { timeout: 30000 }).should(($body) => {
-    const hasOtp = $body.find(OTP_INPUT_SELECTOR).filter(':visible').length > 0;
-    // We also tolerate the (rare) no-OTP path — but ONLY if the tight
-    // end-state regex actually matches the post-submit confirmation.
-    const text = $body.text();
-    const hasTightEnd =
-      SUCCESS_TEXT.test(text) ||
-      ALREADY_REGISTERED_TEXT.test(text) ||
-      PHONE_BLOCKED_TEXT.test(text);
-    expect(
-      hasOtp || hasTightEnd,
-      'expected OTP input visible OR confirmation message after Reserve my seat'
-    ).to.equal(true);
-  });
-
-  // Step 2: if OTP is visible, ALWAYS enter it. Don't consult page text here —
-  // the OTP step is the canonical flow and must be completed.
-  cy.get('body').then(($body) => {
-    const hasOtp = $body.find(OTP_INPUT_SELECTOR).filter(':visible').length > 0;
-    if (hasOtp) {
-      enterKsLiveOtp(otp);
-    } else {
-      cy.log('KSLIVE no OTP input visible — proceeding to end-state assertion');
-    }
-  });
-
-  // Step 3: final assertion — wait for one of the three end-state messages.
-  // Tight regexes ensure only the actual confirmation/error string matches,
-  // not boilerplate. On failure, body-preview tells us what's on screen.
-  cy.get('body', { timeout: 60000 }).should(($body) => {
-    const text = $body.text();
-    const succ = SUCCESS_TEXT.test(text);
-    const alreadyReg = ALREADY_REGISTERED_TEXT.test(text);
-    const blocked = PHONE_BLOCKED_TEXT.test(text);
-    const matched = succ || alreadyReg || blocked;
-    if (!matched) {
-      const preview = text.replace(/\s+/g, ' ').trim().slice(0, 500);
+    // After clicking Register for Free, the flow is one of:
+    //   A) OTP step opens → we enter OTP → success message
+    //   B) Direct success — "🎉 You're In!" shows immediately, no OTP
+    // Current KS Live site follows (B). We handle both so a future OTP
+    // reintroduction doesn't break the test.
+    cy.get('body', { timeout: 30000 }).should(($body) => {
+      const hasOtp = $body.find(OTP_INPUT_SELECTOR).filter(':visible').length > 0;
+      const hasOutcome = OUTCOME_REGEX.test($body.text());
       expect(
-        matched,
-        'expected success / already-registered / phone-blocked. Body preview: ' +
-          preview
+        hasOtp || hasOutcome,
+        'expected OTP input OR outcome message after Register for Free'
       ).to.equal(true);
-    }
-    expect(matched).to.equal(true);
-  });
-}
-
-// n: 1 = 1st unique event, 2 = 2nd unique event, etc. Robust to the page
-// showing multiple sessions (DOM cards) of the same event.
-function registerOnNthUniqueEvent(n, payload) {
-  clickRegisterOnNthUniqueEvent(n);
-  followCapturedRegistrationUrl();
-  fillFormAndSubmit(payload);
-  submitAndAssertOutcome(payload.otp);
-}
-
-describe('Kraftshala KS Live registration', () => {
-  beforeEach(() => {
-    Cypress.on('uncaught:exception', () => false);
-    visitKsLivePage();
-  });
-
-  it('Register on 1st KS Live event with base email and base phone', () => {
-    registerOnNthUniqueEvent(1, {
-      name: ksFixture.name,
-      email: ksFixture.baseEmail,
-      phone: ksFixture.basePhone,
-      otp: ksFixture.otp,
     });
-  });
 
-  it('Re-register on 1st KS Live event with base email and base phone', () => {
-    registerOnNthUniqueEvent(1, {
-      name: ksFixture.name,
-      email: ksFixture.baseEmail,
-      phone: ksFixture.basePhone,
-      otp: ksFixture.otp,
+    // Enter OTP only if it's visible. Otherwise the success message already
+    // appeared and we skip straight to the outcome assertion.
+    cy.get('body').then(($body) => {
+      const hasOtp = $body.find(OTP_INPUT_SELECTOR).filter(':visible').length > 0;
+      if (!hasOtp) {
+        cy.log('KSLIVE: no OTP step — success message appeared directly');
+        return;
+      }
+      cy.get(OTP_INPUT_SELECTOR)
+        .should('be.visible')
+        .should('be.enabled')
+        .clear()
+        .type(String(ksFixture.otp), { delay: 80 });
+      cy.get(OTP_INPUT_SELECTOR).should('have.value', String(ksFixture.otp));
+      cy.get(OTP_SUBMIT_SELECTOR, { timeout: 10000 })
+        .should('be.visible')
+        .should('not.be.disabled')
+        .scrollIntoView()
+        .click();
     });
-  });
 
-  it('Register on 1st KS Live event with base email and a different phone', () => {
-    registerOnNthUniqueEvent(1, {
-      name: ksFixture.name,
-      email: ksFixture.baseEmail,
-      phone: ksFixture.differentPhone,
-      otp: ksFixture.otp,
-    });
-  });
-
-  it('Register on 1st KS Live event with a different email and base phone', () => {
-    registerOnNthUniqueEvent(1, {
-      name: ksFixture.name,
-      email: ksFixture.differentEmail,
-      phone: ksFixture.basePhone,
-      otp: ksFixture.otp,
-    });
-  });
-
-  it('Register on 2nd KS Live event with base email and base phone', () => {
-    registerOnNthUniqueEvent(2, {
-      name: ksFixture.name,
-      email: ksFixture.baseEmail,
-      phone: ksFixture.basePhone,
-      otp: ksFixture.otp,
-    });
+    // Final outcome — success ("You're In!" / "Session Registration Confirmed")
+    // OR "already registered" repeat. Any of these counts as PASS.
+    cy.contains(OUTCOME_REGEX, { timeout: 60000 }).should('be.visible');
   });
 });

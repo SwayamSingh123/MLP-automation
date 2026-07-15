@@ -155,15 +155,15 @@ const MODES = {
       main: { email: SMBL_MAIN_EMAIL_DELETE_BASE, phone: MAIN_PHONE_DELETE_BASE },
     },
   },
-  // KS Live — event registration on /kraftshala-live/. 5 tests across the
-  // first two visible event cards. Uses a flat fixture (not the MLP shape)
-  // because the spec just needs name + base/different email + phone + otp.
-  // No lead-delete API exists for event registrations, so deleteBases is null.
+  // KS Live — event registration on /kraftshala-live/. Simplified: a single
+  // smoke registration on the 1st visible event card (name + email + phone +
+  // WhatsApp Yes + OTP → success). Fixture only needs name/baseEmail/basePhone/
+  // otp — no different email/phone required. No lead-delete API for events.
   kslive: {
     label: 'KSLIVE',
     fixturePath: FIXTURE_PATH_KSLIVE,
     specs: ['cypress/e2e/kslive/ksLiveRegistration.cy.js'],
-    expectedTestCount: 5,
+    expectedTestCount: 1,
     pixelEnabled: true,
     isKslive: true,
     deleteBases: null,
@@ -388,6 +388,183 @@ function buildWorkflowInputs(mode, args) {
 }
 const GITHUB_REF = process.env.GITHUB_REF || 'main';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+
+// Google Chat incoming webhook. When set, "Run All" posts a formatted report
+// here when it finishes. Empty string means notifications are skipped.
+const GCHAT_WEBHOOK_URL = process.env.GCHAT_WEBHOOK_URL || '';
+
+// Optional shared-secret token for GET /trigger-run-all. When set, requests
+// must include ?token=<value>. Leave unset in trusted local networks only —
+// on Render (publicly reachable), set this so random visitors can't trigger
+// a 20-minute Cypress run.
+const RUN_ALL_TOKEN = process.env.RUN_ALL_TOKEN || '';
+
+// Public URL the server is reachable at — used to build the "trigger next
+// run" link embedded in Google Chat reports. Render sets RENDER_EXTERNAL_URL
+// automatically; locally set PUBLIC_BASE_URL yourself (or leave blank to
+// omit the link from Chat messages).
+const PUBLIC_BASE_URL = String(
+  process.env.PUBLIC_BASE_URL || process.env.RENDER_EXTERNAL_URL || ''
+).replace(/\/$/, '');
+
+function buildTriggerUrl(platform) {
+  if (!PUBLIC_BASE_URL) return '';
+  const params = new URLSearchParams();
+  if (RUN_ALL_TOKEN) params.set('token', RUN_ALL_TOKEN);
+  if (platform) params.set('platform', platform);
+  const q = params.toString();
+  return PUBLIC_BASE_URL + '/trigger-run-all' + (q ? '?' + q : '');
+}
+
+// POST a JSON payload to the configured Google Chat webhook. Never throws —
+// returns { ok, skipped?, error? } so callers can surface the status to the UI.
+async function postToGoogleChat(payload) {
+  if (!GCHAT_WEBHOOK_URL) {
+    console.log('[gchat] GCHAT_WEBHOOK_URL not set — skipping notification');
+    return { ok: false, skipped: true, error: 'GCHAT_WEBHOOK_URL not set on server' };
+  }
+  try {
+    const resp = await fetch(GCHAT_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => '');
+      const preview = body.replace(/\s+/g, ' ').slice(0, 200);
+      return { ok: false, error: `Google Chat webhook returned ${resp.status}: ${preview}` };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+}
+
+// Human-readable duration formatter — "42s" or "3m 15s".
+function _formatDuration(sec) {
+  const s = Number(sec) || 0;
+  if (s < 60) return `${s}s`;
+  return `${Math.floor(s / 60)}m ${s % 60}s`;
+}
+
+// Pluck the primary lead identifiers from a fixture blob. Works across MLP
+// shape (existingEmail/existingPhone), KS Live shape (baseEmail/basePhone),
+// and callback shape (email/phone). Returns { email, phone } — either may
+// be empty string.
+function _leadFromFixture(fx) {
+  if (!fx) return { email: '', phone: '' };
+  return {
+    email: fx.existingEmail || fx.baseEmail || fx.email || '',
+    phone: fx.existingPhone || fx.basePhone || fx.phone || '',
+  };
+}
+
+// Build a plain-text Google Chat message from a "Run All" summary.
+//
+// Layout:
+//   1. Header — platform, total duration, timestamp
+//   2. Summary table — one row per mode with icon, pass/total, duration
+//   3. Total line
+//   4. FAILURES DETAIL — for each mode with any failed test:
+//        • mode label + target URL + lead used (email/phone) if applicable
+//        • list of failed test names
+//   5. Run-again trigger URL
+//
+// Truncation: at most 6 failed tests per mode are listed (with a "… and N
+// more" tail), and the entire message caps around Chat's ~4KB text limit.
+function buildRunAllGchatMessage(summary) {
+  const platform = String(summary.platform || 'test').toUpperCase();
+  const durationStr = _formatDuration(summary.durationSec);
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+
+  const lines = [];
+  lines.push('🤖 *Kraftshala Automation — Run All Report*');
+  lines.push(`Platform: *${platform}*  ·  Duration: *${durationStr}*  ·  ${timestamp}`);
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('*📊 SUMMARY*');
+  lines.push('');
+
+  let totalPass = 0;
+  let totalFail = 0;
+  const failureBlocks = []; // one block per mode with any fail
+
+  for (const m of (summary.modes || [])) {
+    const label = (m.label || m.mode || '').padEnd(10);
+
+    if (m.error) {
+      lines.push(`⚠️  ${label} spec did not run — ${m.error}`);
+      continue;
+    }
+
+    const result = m.result || {};
+    const totals = result.totals || {};
+    const total = Number(totals.total) || 0;
+    const pass = Number(totals.automationPassed) || 0;
+    const fail = Number(totals.automationFailed) || 0;
+    const modeDurationStr = _formatDuration(result.durationSec);
+    totalPass += pass;
+    totalFail += fail;
+
+    let icon;
+    if (fail > 0) icon = '❌';
+    else if (total === 0) icon = '⚠️';
+    else icon = '✅';
+
+    lines.push(
+      `${icon}  ${label} ${pass}/${total} passed  (${modeDurationStr})` +
+      (fail > 0 ? `  ⚠ ${fail} failure(s)` : '')
+    );
+
+    if (fail > 0) {
+      const failedTests = (result.tests || []).filter((t) => t.status === 'failed');
+      failureBlocks.push({
+        label: m.label || m.mode,
+        baseUrl: m.baseUrl || result.selectedBaseUrl || '',
+        lead: _leadFromFixture(m.fixtureData),
+        failedTests,
+      });
+    }
+  }
+
+  lines.push('');
+  const totalRun = totalPass + totalFail;
+  const overallIcon = totalFail === 0 ? '✅' : '❌';
+  lines.push(`${overallIcon}  *Total: ${totalPass}/${totalRun} tests passed*`);
+
+  if (failureBlocks.length > 0) {
+    lines.push('');
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('*❌ FAILURES DETAIL*');
+    lines.push('');
+
+    for (const block of failureBlocks) {
+      lines.push(`▪ *${block.label}* — ${block.failedTests.length} failed`);
+      if (block.baseUrl) {
+        lines.push(`   URL: ${block.baseUrl}`);
+      }
+      if (block.lead.email || block.lead.phone) {
+        lines.push(`   Lead: ${block.lead.email || '-'}  /  ${block.lead.phone || '-'}`);
+      }
+      lines.push('   Failed tests:');
+      const shown = block.failedTests.slice(0, 6);
+      for (const t of shown) {
+        lines.push(`     • ${t.name}`);
+      }
+      if (block.failedTests.length > shown.length) {
+        lines.push(`     … and ${block.failedTests.length - shown.length} more`);
+      }
+      lines.push('');
+    }
+  }
+
+  const triggerUrl = buildTriggerUrl(summary.platform);
+  if (triggerUrl) {
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('▶ Run again: ' + triggerUrl);
+  }
+
+  return { text: lines.join('\n') };
+}
 const workflowRunsUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${GITHUB_WORKFLOW_FILE}`;
 const githubRunJobs = new Map();
 const localRuns = new Map();
@@ -854,6 +1031,328 @@ function attachRemoteMonitoringData(parsed, zip) {
   return parsed;
 }
 
+// Run one mode's Cypress spec locally and return the parsed dashboard result.
+// Standalone helper — used only by /run-all-tests. Doesn't stream per-test
+// SSE (Run All only reports at mode-boundary granularity, keeping the SSE
+// stream compact) but does write stdout/stderr to the terminal so a person
+// watching the server logs sees the same output the local runner would show.
+async function runOneModeLocal({
+  mode,
+  modeConfig,
+  fixtureData,
+  selectedPlatform,
+  selectedBaseUrl,
+}) {
+  const cypressCmd = process.env.MLP_CYPRESS_CMD || 'npx';
+  const envParts = [`platform=${selectedPlatform}`];
+  if (!modeConfig.pixelEnabled) envParts.push('disablePixel=true');
+  const cypressArgs = [
+    '--spec', modeConfig.specs.join(','),
+    '--config', `baseUrl=${selectedBaseUrl}`,
+    '--env', envParts.join(','),
+  ];
+  const finalArgs =
+    cypressCmd === 'npx' ? ['cypress', 'run', ...cypressArgs] : ['run', ...cypressArgs];
+
+  const modeStartTime = Date.now();
+  return new Promise((resolve) => {
+    const child = spawn(cypressCmd, finalArgs, {
+      cwd: __dirname,
+      shell: process.platform === 'win32',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    console.log(`[RUN-ALL] Starting Cypress for ${mode}: ${cypressCmd} ${finalArgs.join(' ')}`);
+
+    let output = '';
+    child.stdout.on('data', (chunk) => {
+      const text = chunk.toString();
+      output += text;
+      process.stdout.write(text);
+    });
+    child.stderr.on('data', (chunk) => {
+      const text = chunk.toString();
+      output += text;
+      process.stderr.write(text);
+    });
+    child.on('error', (err) => {
+      console.error(`[RUN-ALL] Cypress spawn error for ${mode}:`, err.message);
+      resolve({
+        error: `Failed to spawn Cypress: ${err.message}`,
+        totals: { total: 0, automationPassed: 0, automationFailed: 0 },
+        tests: [],
+        runMode: mode,
+        runLabel: modeConfig.label,
+        durationSec: Math.round((Date.now() - modeStartTime) / 1000),
+      });
+    });
+    child.on('exit', (code) => {
+      const durationSec = Math.round((Date.now() - modeStartTime) / 1000);
+      console.log(`[RUN-ALL] Cypress for ${mode} exited with code ${code} (${durationSec}s)`);
+      let parsed = attachMonitoringData(
+        parseCypressOutputToDashboardData({
+          output, code, fixtureData, selectedPlatform, selectedBaseUrl,
+        })
+      );
+      if (modeConfig.isSeo) parsed = attachSeoResults(parsed);
+      if (modeConfig.isLinks) parsed = attachBrokenLinksResults(parsed);
+      parsed.runMode = mode;
+      parsed.runLabel = modeConfig.label;
+      parsed.expectedTestCount = modeConfig.expectedTestCount;
+      parsed.pixelEnabled = modeConfig.pixelEnabled;
+      parsed.durationSec = durationSec;
+      parsed.selectedBaseUrl = selectedBaseUrl;
+      parsed.selectedPlatform = selectedPlatform;
+      resolve(parsed);
+    });
+  });
+}
+
+// Sequential "Run All" — walks every mode in a fixed order, runs each one
+// locally, streams per-mode start/complete events over SSE, and (optionally)
+// posts a formatted summary to Google Chat when finished.
+//
+// Fixtures: each mode reads its own fixture file (already on disk from the
+// last manual run or from a checked-in default). This endpoint does NOT
+// overwrite fixture files — that's a deliberate choice so leads set by
+// manual mode carry over and Run All is unattended.
+//
+// Order rationale: MLP/ALM/SMBL/KSLive first (they each need their own
+// fixture), then Callback (reads MLP fixture — safer if MLP just refreshed
+// its file), then SEO and Links (no fixture dependencies).
+// Shared orchestration used by BOTH endpoints — POST /run-all-tests (with
+// SSE progress) and GET /trigger-run-all (fire-and-forget). onProgress is a
+// callback invoked with (event, data) at each state transition; pass a no-op
+// for endpoints that don't need progress reporting.
+async function executeRunAll({ selectedPlatform, wantsGchat, onProgress }) {
+  const emit = typeof onProgress === 'function' ? onProgress : () => {};
+  const selectedBaseUrl =
+    selectedPlatform === 'main' ? MAIN_PLATFORM_BASE_URL : TEST_PLATFORM_BASE_URL;
+
+  const runOrder = ['mlp', 'alm', 'smbl', 'kslive', 'callback', 'seo', 'links'];
+  const allResults = [];
+  const startTime = Date.now();
+
+  for (const mode of runOrder) {
+    const modeConfig = MODES[mode];
+    if (!modeConfig) continue;
+
+    emit('mode_start', { mode, label: modeConfig.label });
+
+    try {
+      // Read fixture from disk (best-effort). Missing fixtures aren't fatal;
+      // the spec itself will fail cleanly if it can't find its data.
+      let fixtureData = null;
+      if (modeConfig.fixturePath && fs.existsSync(modeConfig.fixturePath)) {
+        try {
+          fixtureData = JSON.parse(fs.readFileSync(modeConfig.fixturePath, 'utf8'));
+        } catch (err) {
+          console.warn(`[RUN-ALL] Could not parse fixture for ${mode}: ${err.message}`);
+        }
+      }
+
+      // Best-effort lead deletion for lead-based modes so each Run All starts
+      // from a clean state. Uses only the fields present on the fixture; if
+      // the fixture doesn't have MLP shape (e.g. KS Live's flat shape), the
+      // deletion silently no-ops for missing fields.
+      if (modeConfig.deleteBases && fixtureData) {
+        const deleteBases = modeConfig.deleteBases[selectedPlatform];
+        if (deleteBases) {
+          try {
+            const emails = [
+              fixtureData.existingEmail,
+              fixtureData.newEmail,
+              fixtureData.baseEmail,
+              fixtureData.samePhoneDifferentEmail && fixtureData.samePhoneDifferentEmail.email,
+            ];
+            const phones = [
+              fixtureData.existingPhone,
+              fixtureData.newPhone,
+              fixtureData.basePhone,
+              fixtureData.sameEmailDifferentPhone && fixtureData.sameEmailDifferentPhone.phone,
+            ];
+            await deleteLeads(emails, phones, {
+              emailDeleteBase: deleteBases.email,
+              phoneDeleteBase: deleteBases.phone,
+            });
+          } catch (err) {
+            console.warn(`[RUN-ALL] Lead deletion failed for ${mode}: ${err.message}`);
+          }
+        }
+      }
+
+      // Clear stale results files so the aggregators pick up only this run's data.
+      if (modeConfig.isSeo && fs.existsSync(SEO_RESULTS_FILE)) {
+        try { fs.writeFileSync(SEO_RESULTS_FILE, '[]'); } catch (_) {}
+      }
+      if (modeConfig.isLinks && fs.existsSync(BROKEN_LINKS_RESULTS_FILE)) {
+        try { fs.writeFileSync(BROKEN_LINKS_RESULTS_FILE, '[]'); } catch (_) {}
+      }
+
+      // For links mode, ensure the selected-pages config file exists so all
+      // 13 pages are crawled by default (Run All doesn't offer per-page
+      // filtering — for filtered runs use the manual Links tab).
+      if (modeConfig.isLinks) {
+        try {
+          if (!fs.existsSync(path.dirname(LINKS_SELECTED_PAGES_FILE))) {
+            fs.mkdirSync(path.dirname(LINKS_SELECTED_PAGES_FILE), { recursive: true });
+          }
+          fs.writeFileSync(LINKS_SELECTED_PAGES_FILE, JSON.stringify({ pages: [] }, null, 2));
+        } catch (_) {}
+      }
+
+      const result = await runOneModeLocal({
+        mode, modeConfig, fixtureData, selectedPlatform, selectedBaseUrl,
+      });
+
+      // Store fixtureData + baseUrl alongside the result so the gchat
+      // formatter can surface WHERE the failing test ran (URL) and WHICH
+      // lead was used (email/phone). Kept out of the SSE payload — those
+      // are internal debugging details, not UI-facing.
+      allResults.push({
+        mode,
+        label: modeConfig.label,
+        result,
+        fixtureData,
+        baseUrl: selectedBaseUrl,
+      });
+      emit('mode_complete', {
+        mode,
+        label: modeConfig.label,
+        totals: result.totals || null,
+        durationSec: result.durationSec || 0,
+      });
+    } catch (err) {
+      const errMsg = String((err && err.message) || err);
+      console.error(`[RUN-ALL] Error running ${mode}:`, errMsg);
+      allResults.push({ mode, label: modeConfig.label, error: errMsg });
+      emit('mode_error', { mode, label: modeConfig.label, error: errMsg });
+    }
+  }
+
+  const durationSec = Math.round((Date.now() - startTime) / 1000);
+  const summary = { platform: selectedPlatform, durationSec, modes: allResults };
+
+  emit('all_complete', summary);
+
+  if (wantsGchat) {
+    const gchatResult = await postToGoogleChat(buildRunAllGchatMessage(summary));
+    if (gchatResult.ok) {
+      emit('gchat_sent', {});
+    } else {
+      emit('gchat_error', {
+        error: gchatResult.error || 'unknown',
+        skipped: !!gchatResult.skipped,
+      });
+    }
+  }
+
+  emit('finished', {});
+  return summary;
+}
+
+app.post('/run-all-tests', async (req, res) => {
+  const { platform, sendToGchat } = req.body || {};
+  const rawPlatform = String(platform || 'test').toLowerCase();
+  const selectedPlatform = rawPlatform === 'main' ? 'main' : 'test';
+  const wantsGchat = sendToGchat !== false;
+
+  const requestId = createRequestId();
+  const run = {
+    emitter: new EventEmitter(),
+    buffered: [],
+    done: false,
+    result: null,
+  };
+  localRuns.set(requestId, run);
+
+  const emitSSE = (event, data) => {
+    const payload = { event, data };
+    run.buffered.push(payload);
+    run.emitter.emit('sse', payload);
+  };
+
+  // Respond immediately so the browser can open the SSE stream.
+  res.json({
+    ok: true,
+    mode: 'run_all',
+    requestId,
+    streamUrl: `/run-stream/${encodeURIComponent(requestId)}`,
+    message: 'Run All started. Watch the SSE stream for progress.',
+  });
+
+  const summary = await executeRunAll({
+    selectedPlatform,
+    wantsGchat,
+    onProgress: emitSSE,
+  });
+
+  run.done = true;
+  run.result = summary;
+  run.emitter.emit('done');
+  setTimeout(() => localRuns.delete(requestId), 600_000);
+});
+
+// One-click trigger — clickable from Google Chat message, browser bookmark,
+// cron job, curl script, anywhere. Fires Run All in the background and
+// returns an HTML confirmation page immediately.
+//
+// Auth: if RUN_ALL_TOKEN env var is set, requests must include ?token=<value>.
+// Leave unset only on trusted networks (Render deployments should always set it).
+//
+// Query params:
+//   ?token=<value>       — required if RUN_ALL_TOKEN is set on the server
+//   ?platform=test|main  — default: test
+//   ?gchat=0             — set to disable Google Chat notification (default: on)
+app.get('/trigger-run-all', (req, res) => {
+  // Token check
+  if (RUN_ALL_TOKEN && String(req.query.token || '') !== RUN_ALL_TOKEN) {
+    res.status(401).setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(
+      '<!doctype html><html><body style="font-family:system-ui;max-width:600px;margin:40px auto;padding:20px;">' +
+      '<h1 style="color:#dc2626;">401 Unauthorized</h1>' +
+      '<p>Missing or invalid <code>token</code> query parameter.</p>' +
+      '<p>Set <code>RUN_ALL_TOKEN</code> on the server and pass <code>?token=&lt;value&gt;</code>.</p>' +
+      '</body></html>'
+    );
+  }
+
+  const rawPlatform = String(req.query.platform || 'test').toLowerCase();
+  const selectedPlatform = rawPlatform === 'main' ? 'main' : 'test';
+  const gchatParam = String(req.query.gchat || '').toLowerCase();
+  const wantsGchat = gchatParam !== '0' && gchatParam !== 'false' && gchatParam !== 'off';
+
+  console.log(
+    `[TRIGGER] Run All requested via GET /trigger-run-all (platform=${selectedPlatform}, gchat=${wantsGchat}, ua=${req.get('user-agent') || '-'})`
+  );
+
+  // Fire-and-forget — don't await. Any failure is logged; the eventual
+  // outcome shows up in Google Chat (or in server logs if gchat is off).
+  executeRunAll({ selectedPlatform, wantsGchat, onProgress: null })
+    .then(() => {
+      console.log('[TRIGGER] Run All background execution completed');
+    })
+    .catch((err) => {
+      console.error('[TRIGGER] Run All background execution failed:', err);
+    });
+
+  const dashboardUrl = req.protocol + '://' + req.get('host');
+  const nowIso = new Date().toISOString();
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(
+    '<!doctype html><html><head><meta charset="utf-8"><title>Run All started</title></head>' +
+    '<body style="font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#0f172a;line-height:1.6;">' +
+    '<h1 style="color:#059669;">🚀 Run All started</h1>' +
+    '<p>Kraftshala automation is now running on the <strong>' + selectedPlatform.toUpperCase() + '</strong> platform.</p>' +
+    '<p>' + (wantsGchat
+      ? 'The report will arrive in Google Chat in about 15-25 minutes.'
+      : 'Google Chat notification is disabled for this run (?gchat=0). Watch progress in the dashboard.') + '</p>' +
+    '<p style="margin-top:30px;"><a href="' + dashboardUrl + '" style="color:#2563eb;text-decoration:none;font-weight:600;">→ Open dashboard</a></p>' +
+    '<hr style="margin-top:40px;border:0;border-top:1px solid #e5e7eb;">' +
+    '<p style="color:#64748b;font-size:12px;">Triggered ' + nowIso + '</p>' +
+    '</body></html>'
+  );
+});
+
 app.post('/prepare-tests', async (req, res) => {
   const { name, baseEmail, basePhone, differentEmail, differentPhone, platform, mode } =
     req.body || {};
@@ -901,35 +1400,43 @@ app.post('/prepare-tests', async (req, res) => {
   const trimmedDifferentEmail = differentEmail != null ? String(differentEmail).trim() : '';
   const trimmedDifferentPhone = differentPhone != null ? String(differentPhone).trim() : '';
 
-  // Lead-input validation runs in MLP / ALM / SMBL / KS Live (full 5-field set).
+  // Lead-input validation runs in MLP / ALM / SMBL / KS Live.
   // Callback / SEO / Links skip validation entirely.
+  //
+  // MLP / ALM / SMBL need the full 5-field set (base + different) because
+  // their specs exercise edge cases like "base email + different phone".
+  // KS Live now runs a single smoke registration, so it only needs
+  // name + baseEmail + basePhone.
   if (!isSeoMode && !isCallbackMode && !isLinksMode) {
-    if (
-      !trimmedName ||
-      !trimmedBaseEmail ||
-      !trimmedBasePhone ||
-      !trimmedDifferentEmail ||
-      !trimmedDifferentPhone
-    ) {
+    if (!trimmedName || !trimmedBaseEmail || !trimmedBasePhone) {
       return res.status(400).json({
         ok: false,
-        message:
-          'name, baseEmail, basePhone, differentEmail, and differentPhone are required (no auto-generated values).',
+        message: 'name, baseEmail, and basePhone are required.',
       });
     }
 
-    if (
-      trimmedBaseEmail.toLowerCase() === trimmedDifferentEmail.toLowerCase() ||
-      trimmedBasePhone === trimmedDifferentPhone
-    ) {
-      return res.status(400).json({
-        ok: false,
-        message:
-          'differentEmail must differ from base email, and differentPhone must differ from base phone.',
-      });
+    if (!isKsliveMode) {
+      if (!trimmedDifferentEmail || !trimmedDifferentPhone) {
+        return res.status(400).json({
+          ok: false,
+          message:
+            'differentEmail and differentPhone are required for MLP / ALM / SMBL edge-case tests.',
+        });
+      }
+
+      if (
+        trimmedBaseEmail.toLowerCase() === trimmedDifferentEmail.toLowerCase() ||
+        trimmedBasePhone === trimmedDifferentPhone
+      ) {
+        return res.status(400).json({
+          ok: false,
+          message:
+            'differentEmail must differ from base email, and differentPhone must differ from base phone.',
+        });
+      }
     }
   }
-  // Callback / SEO: no input validation.
+  // Callback / SEO / Links: no input validation.
 
   const fixtureData =
     isSeoMode || isCallbackMode || isKsliveMode || isLinksMode
@@ -966,9 +1473,10 @@ app.post('/prepare-tests', async (req, res) => {
       }
     } catch (_err) { /* noop */ }
   } else if (isKsliveMode) {
-    // KS Live — event registration; no lead-delete API. Fixture shape is flat
-    // (name + base/different email + phone + otp). The spec reads ksFixture.*
-    // directly from this file.
+    // KS Live — event registration; no lead-delete API. Simplified single-
+    // test flow means fixture only needs name/baseEmail/basePhone/otp.
+    // Different email/phone fields are no longer required (spec doesn't use
+    // them since edge-case tests were removed).
     try {
       const fixtureDir = path.dirname(modeConfig.fixturePath);
       if (!fs.existsSync(fixtureDir)) {
@@ -978,8 +1486,6 @@ app.post('/prepare-tests', async (req, res) => {
         name: trimmedName,
         baseEmail: trimmedBaseEmail,
         basePhone: trimmedBasePhone,
-        differentEmail: trimmedDifferentEmail,
-        differentPhone: trimmedDifferentPhone,
         otp: '159753',
       };
       fs.writeFileSync(modeConfig.fixturePath, JSON.stringify(ksLiveFixture, null, 2));

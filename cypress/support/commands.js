@@ -63,7 +63,10 @@ Cypress.Commands.add('submitLeadForm', () => {
           .find('button, [role="button"], a, input[type="submit"]')
           .filter((_, el) => {
             const text = ((el.innerText || el.value || '') + '').trim();
-            return /start your marketing journey|apply now|apply|submit|continue/i.test(text);
+            // MLP: "Start your marketing journey", ALM: "Apply Now",
+            // SMBL: "Get your candidature evaluated" — plus generic
+            // submit/continue as fallbacks.
+            return /start your marketing journey|apply now|apply|submit|continue|candidature|evaluate/i.test(text);
           });
         if (scopedButtons.length) {
           cy.wrap(scopedButtons[scopedButtons.length - 1])
@@ -86,7 +89,9 @@ Cypress.Commands.add('submitLeadForm', () => {
 
     const fallbackCta = Cypress.$(buttons).filter((_, el) => {
       const text = ((el.innerText || el.value || '') + '').trim();
-      return /apply now|apply|submit|continue/i.test(text);
+      // Includes SMBL's "Get your candidature evaluated" — additive only,
+      // MLP/ALM keep matching on their existing keywords.
+      return /apply now|apply|submit|continue|candidature|evaluate/i.test(text);
     });
     if (fallbackCta.length) {
       cy.wrap(fallbackCta[fallbackCta.length - 1]).scrollIntoView().click({
@@ -168,7 +173,8 @@ Cypress.Commands.add('fillLeadForm', (data) => {
           .find('button, [role="button"], a, input[type="submit"]')
           .filter((_, el) => {
             const text = ((el.innerText || el.value || '') + '').trim();
-            return /start your marketing journey|apply now|apply|submit|continue/i.test(text);
+            // MLP / ALM / SMBL CTAs — text list covers each page's actual label.
+            return /start your marketing journey|apply now|apply|submit|continue|candidature|evaluate/i.test(text);
           });
 
         if (scopedButtons.length) {

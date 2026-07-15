@@ -1,16 +1,16 @@
 {
-  "name": "test",
-  "existingEmail": "fatewav575@4nly.com",
-  "existingPhone": "4850025969",
-  "newEmail": "fatewav575@4nly.com",
-  "newPhone": "4850025969",
+  "name": "Test ALM",
+  "existingEmail": "yesep50258@acoxs.com",
+  "existingPhone": "7550996880",
+  "newEmail": "yesep50258@acoxs.com",
+  "newPhone": "7550996880",
   "sameEmailDifferentPhone": {
-    "email": "fatewav575@4nly.com",
-    "phone": "3798567800"
+    "email": "yesep50258@acoxs.com",
+    "phone": "6236956323"
   },
   "samePhoneDifferentEmail": {
-    "email": "hoyehar831@4nly.com",
-    "phone": "4850025969"
+    "email": "filih22969@bevriz.com",
+    "phone": "7550996880"
   },
   "extraValidEmails": [],
   "extraValidPhones": [],

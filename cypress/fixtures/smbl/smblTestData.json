@@ -1,16 +1,16 @@
 {
-  "name": "test",
-  "existingEmail": "refoke9944@ameady.com",
-  "existingPhone": "4580090601",
-  "newEmail": "refoke9944@ameady.com",
-  "newPhone": "4580090601",
+  "name": "Test SMBL",
+  "existingEmail": "vemiw28382@acoxs.com",
+  "existingPhone": "7008969710",
+  "newEmail": "vemiw28382@acoxs.com",
+  "newPhone": "7008969710",
   "sameEmailDifferentPhone": {
-    "email": "refoke9944@ameady.com",
-    "phone": "5956501290"
+    "email": "vemiw28382@acoxs.com",
+    "phone": "5896745895"
   },
   "samePhoneDifferentEmail": {
-    "email": "gatev86482@ameady.com",
-    "phone": "4580090601"
+    "email": "ligewir896@bevriz.com",
+    "phone": "7008969710"
   },
   "extraValidEmails": [],
   "extraValidPhones": [],

@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(node -c form-server.js)",
+      "Bash(node -c cypress/e2e/kslive/ksLiveRegistration.cy.js)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('cypress/fixtures/kslive/ksLiveTestData.json','utf8'\\)\\)\")",
+      "Bash(node -c cypress/e2e/mlp/mlpLeadForm.cy.js)"
     ]
   }
 }

@@ -41,9 +41,15 @@ describe('Kraftshala MLP lead form', () => {
     });
   });
 
-  // Real app: same email + different phone often does not validate OTP / no screening URL — pass if we stay off success URL.
+  // Real app: OTP renders, user enters it, THEN the block message shows —
+  // "The phone number associated with <email> is xxxxxxNNNN. Try using this
+  // phone number". requireOtp:true forces OTP entry (the default dual-path
+  // heuristic was skipping OTP because unrelated page copy — e.g. an
+  // "Already registered? Sign in" link — was matching the block-text regex
+  // before OTP even rendered). blockedMessagePattern replaces the default
+  // `.alreadyExists` selector check with a text-based match on the modern
+  // block message the site actually shows now.
   it('Base email with different phone number should be blocked', () => {
-    // Match validate/verify only (not send-otp or removeNumber under otp-validation).
     cy.intercept('POST', /otp-validation[^?]*(?:validate|verify)/i).as(
       'otpValidateBlocked'
     );
@@ -55,7 +61,11 @@ describe('Kraftshala MLP lead form', () => {
       whatsappOptIn: true,
     });
 
-    cy.assertSameEmailDifferentPhoneBlockedFlow(testData.otp);
+    cy.assertSameEmailDifferentPhoneBlockedFlow(testData.otp, {
+      requireOtp: true,
+      blockedMessagePattern:
+        /phone number associated with[\s\S]*?try using this phone number/i,
+    });
     cy.contains(/thank you|we have received|registration successful/i).should('not.exist');
   });
 
