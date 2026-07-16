@@ -57,18 +57,23 @@ function specToMode(specPath) {
 
 function parseSpecRows(logText) {
   const cleaned = stripAnsi(logText);
+  // Cypress prints the failing/pending/skipped columns as either a digit or
+  // a "-" when zero. We accept both; a bare "-" is treated as 0. The regex
+  // needs to be tolerant of the box-drawing "│" (U+2502) as well as ASCII
+  // fallback "|" that some runners emit.
   const rowRegex =
-    /[│|]\s+([✔✖✓✗√X])\s+([^\s│|]+\.cy\.js)\s+(\d+:\d+)\s+(\d+)\s+(\d+)\s+(\d+)/g;
+    /[│|]\s+([✔✖✓✗√X])\s+([^\s│|]+\.cy\.js)\s+(\d+:\d+)\s+(\d+|-)\s+(\d+|-)\s+(\d+|-)/g;
   const rows = [];
+  const toNum = (v) => (v === '-' ? 0 : Number(v) || 0);
   let m;
   while ((m = rowRegex.exec(cleaned)) !== null) {
     const [, icon, spec, duration, total, passing, failing] = m;
     rows.push({
       spec,
       durationSec: mmssToSec(duration),
-      total: Number(total) || 0,
-      passing: Number(passing) || 0,
-      failing: Number(failing) || 0,
+      total: toNum(total),
+      passing: toNum(passing),
+      failing: toNum(failing),
       ok: /[✔✓√]/.test(icon),
     });
   }
@@ -80,15 +85,39 @@ function parseFailures(logText) {
   const lines = cleaned.split(/\r?\n/);
   const failures = [];
   let currentSpec = '';
+  // Cypress emits each failure TWICE — first in the running section as
+  // "\d) <test name>", then again in a detailed failure block after the
+  // "\d failing" summary line. The detail block re-lists the failure as
+  // "\d) <top-level describe>" followed by indented nested describes and
+  // finally the test name — which our regex would incorrectly pick up as
+  // separate additional failures. So we ignore lines inside the detail
+  // block, bracketed by "X failing" (start) and "(Results)" (end).
+  let inFailureDetail = false;
   for (const line of lines) {
     const specMatch = line.match(/^\s*Running:\s+(\S+\.cy\.js)/);
     if (specMatch) {
       currentSpec = specMatch[1];
+      inFailureDetail = false;
       continue;
     }
+    if (/^\s*\d+\s+failing\b/i.test(line)) {
+      inFailureDetail = true;
+      continue;
+    }
+    if (/^\s*\(Results\)/.test(line) || /^\s*\(Run Finished\)/.test(line)) {
+      inFailureDetail = false;
+      continue;
+    }
+    if (inFailureDetail) continue;
+    // Only match failures in the running section (i.e., lines like
+    // "  1) Run all SEO checks for Blog"). Deduplicate defensively too.
     const failMatch = line.match(/^\s*\d+\)\s+(.+)$/);
     if (failMatch) {
-      failures.push({ spec: currentSpec, name: failMatch[1].trim() });
+      const name = failMatch[1].trim();
+      const key = currentSpec + '|' + name;
+      if (!failures.some((f) => f.spec + '|' + f.name === key)) {
+        failures.push({ spec: currentSpec, name });
+      }
     }
   }
   return failures;
