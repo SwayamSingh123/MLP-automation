@@ -573,6 +573,33 @@ const localRuns = new Map();
 
 app.use(express.json());
 
+// Diagnostic endpoint — reports what form-server can see (whether GH Actions
+// dispatch is available, whether gchat webhook is set). Never reveals actual
+// secret values — only lengths and set/unset booleans. Safe to expose.
+app.get('/debug-env', (req, res) => {
+  const status = {
+    githubTokenSet: !!GITHUB_TOKEN,
+    githubTokenLength: GITHUB_TOKEN ? GITHUB_TOKEN.length : 0,
+    githubOwnerSet: !!GITHUB_OWNER,
+    githubOwner: GITHUB_OWNER || '(unset)',
+    githubRepoSet: !!GITHUB_REPO,
+    githubRepo: GITHUB_REPO || '(unset)',
+    githubRefSet: !!GITHUB_REF,
+    githubRef: GITHUB_REF || '(unset)',
+    gchatWebhookSet: !!GCHAT_WEBHOOK_URL,
+    gchatWebhookLength: GCHAT_WEBHOOK_URL ? GCHAT_WEBHOOK_URL.length : 0,
+    runAllTokenSet: !!RUN_ALL_TOKEN,
+    publicBaseUrl: PUBLIC_BASE_URL || '(unset)',
+    shouldUseGitHubActionsRunner: shouldUseGitHubActionsRunner(),
+    runAllWorkflowFile: WORKFLOW_FILE_BY_MODE.run_all || '(unset)',
+    // Which endpoints exist
+    endpoints: ['/', '/prepare-tests', '/run-all-tests', '/trigger-run-all', '/debug-env'],
+    nodeVersion: process.version,
+    uptimeSec: Math.round(process.uptime()),
+  };
+  res.json(status);
+});
+
 app.get('/', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(__dirname, 'form.html'));
