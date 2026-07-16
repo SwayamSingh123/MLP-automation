@@ -1,0 +1,112 @@
+name: Run All Automation
+run-name: "Run All ${{ inputs.requestId }} (${{ inputs.platform }})"
+
+# What this does:
+#   Runs every mode's Cypress spec sequentially in ONE GitHub-hosted Ubuntu
+#   runner (7GB RAM — plenty for Cypress). When all specs finish, a Node
+#   post-processing step parses the output and POSTs a formatted report to
+#   Google Chat. Total wall-clock: ~20-30 min.
+#
+# Why one workflow instead of dispatching all per-mode workflows:
+#   - One "install deps + Cypress binary" instead of 7 (saves ~5 min total)
+#   - Sequential specs share state (Callback needs MLP fixture written first)
+#   - Single artifact zip with all results (easier debugging)
+#   - Single gchat message at the end (not 7 separate messages)
+#
+# Prereqs (repository secrets — Settings → Secrets and variables → Actions):
+#   GCHAT_WEBHOOK_URL    — required; the workflow POSTs the final report here
+#   RUN_ALL_TRIGGER_URL  — optional; embedded in the Chat message as a
+#                          "Run again" link so recipients can re-trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "test or main"
+        required: true
+        default: "test"
+        type: choice
+        options: [test, main]
+      requestId:
+        description: "Request correlation id (from form-server or manual)"
+        required: true
+        type: string
+
+jobs:
+  run-all:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache node_modules and Cypress binary
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-
+
+      - name: Install deps
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Select base URL
+        id: platform
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.platform }}" = "main" ]; then
+            echo "baseUrl=https://program.kraftshala.com/" >> $GITHUB_OUTPUT
+          else
+            echo "baseUrl=https://testprogram.kraftshala.com/" >> $GITHUB_OUTPUT
+          fi
+
+      # Runs every spec in one Cypress process. Spec order chosen so MLP
+      # fixture is written before Callback reads it (Callback reads MLP
+      # fixture at test-time). `continue-on-error: true` lets us proceed to
+      # the gchat-report step even if some specs fail — the report itself
+      # summarises pass/fail per mode.
+      - name: Run all specs
+        id: cypress
+        continue-on-error: true
+        run: |
+          mkdir -p cypress/reports
+          set -o pipefail
+          npx cypress run \
+            --spec "cypress/e2e/mlp/mlpLeadForm.cy.js,cypress/e2e/mlp/downloadBrochure.cy.js,cypress/e2e/mlp/downloadSyllabus.cy.js,cypress/e2e/alm/almLeadForm.cy.js,cypress/e2e/alm/almDownloadProspectus.cy.js,cypress/e2e/smbl/smblLeadForm.cy.js,cypress/e2e/kslive/ksLiveRegistration.cy.js,cypress/e2e/callback/requestCallback.cy.js,cypress/e2e/seo/seoChecklist.cy.js,cypress/e2e/links/brokenLinkChecker.cy.js" \
+            --config baseUrl=${{ steps.platform.outputs.baseUrl }} \
+            --env platform=${{ github.event.inputs.platform }} \
+            2>&1 | tee cypress/reports/run-all-output.log
+          echo "cypress_exit=$?" >> $GITHUB_OUTPUT
+
+      - name: Build and post Google Chat report
+        if: always()
+        env:
+          GCHAT_WEBHOOK_URL: ${{ secrets.GCHAT_WEBHOOK_URL }}
+          RUN_ALL_PLATFORM: ${{ github.event.inputs.platform }}
+          RUN_ALL_REQUEST_ID: ${{ github.event.inputs.requestId }}
+          RUN_ALL_TRIGGER_URL: ${{ secrets.RUN_ALL_TRIGGER_URL }}
+          RUN_ALL_WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/post-run-all-report.js
+
+      - name: Upload artifacts (screenshots, videos, logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-all-artifacts-${{ github.event.inputs.requestId }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/reports
+          if-no-files-found: ignore
+          retention-days: 7

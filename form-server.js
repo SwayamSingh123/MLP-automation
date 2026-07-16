@@ -362,6 +362,7 @@ const WORKFLOW_FILE_BY_MODE = {
   seo:      'seo-run.yml',
   kslive:   'kslive-run.yml',
   links:    'links-run.yml',
+  run_all:  'run-all.yml',
 };
 
 function resolveWorkflowFile(mode) {
@@ -384,6 +385,7 @@ function buildWorkflowInputs(mode, args) {
   if (mode === 'seo') return { platform, requestId };
   if (mode === 'callback') return { platform, name, baseEmail, basePhone, requestId };
   if (mode === 'links') return { platform, pages: linksPages || '', requestId };
+  if (mode === 'run_all') return { platform, requestId };
   return { platform, name, baseEmail, basePhone, differentEmail, differentPhone, requestId };
 }
 const GITHUB_REF = process.env.GITHUB_REF || 'main';
@@ -1256,6 +1258,43 @@ app.post('/run-all-tests', async (req, res) => {
   const selectedPlatform = rawPlatform === 'main' ? 'main' : 'test';
   const wantsGchat = sendToGchat !== false;
 
+  // Prefer GitHub Actions dispatch when creds are configured — same
+  // rationale as GET /trigger-run-all (Render's 512MB tier can't spawn
+  // Cypress locally). The workflow itself posts the gchat report; this
+  // endpoint just fires the trigger, returns immediately, and the dashboard
+  // shows a "Dispatched to GitHub Actions" status instead of live per-mode SSE.
+  if (shouldUseGitHubActionsRunner()) {
+    try {
+      const requestId = createRequestId();
+      console.log(
+        `[RUN-ALL] Dispatching run-all.yml on GitHub Actions (platform=${selectedPlatform}, requestId=${requestId})`
+      );
+      const dispatchResult = await dispatchGitHubWorkflow({
+        mode: 'run_all',
+        platform: selectedPlatform,
+        requestId,
+      });
+      const workflowRunsUrl = buildWorkflowRunsUrl(
+        (dispatchResult && dispatchResult.workflowFile) || 'run-all.yml'
+      );
+      return res.json({
+        ok: true,
+        mode: 'run_all_github_actions',
+        requestId,
+        workflowRunsUrl,
+        message:
+          'Run All dispatched to GitHub Actions. Report will arrive in Google Chat in ~20-30 min.',
+      });
+    } catch (err) {
+      console.error('[RUN-ALL] GitHub Actions dispatch failed:', err.message);
+      return res.status(500).json({
+        ok: false,
+        message: 'Failed to dispatch to GitHub Actions: ' + err.message,
+      });
+    }
+  }
+
+  // Local fallback — Cypress spawn. Only works on machines with >1GB RAM.
   const requestId = createRequestId();
   const run = {
     emitter: new EventEmitter(),
@@ -1277,7 +1316,7 @@ app.post('/run-all-tests', async (req, res) => {
     mode: 'run_all',
     requestId,
     streamUrl: `/run-stream/${encodeURIComponent(requestId)}`,
-    message: 'Run All started. Watch the SSE stream for progress.',
+    message: 'Run All started locally. Watch the SSE stream for progress.',
   });
 
   const summary = await executeRunAll({
@@ -1303,7 +1342,7 @@ app.post('/run-all-tests', async (req, res) => {
 //   ?token=<value>       — required if RUN_ALL_TOKEN is set on the server
 //   ?platform=test|main  — default: test
 //   ?gchat=0             — set to disable Google Chat notification (default: on)
-app.get('/trigger-run-all', (req, res) => {
+app.get('/trigger-run-all', async (req, res) => {
   // Token check
   if (RUN_ALL_TOKEN && String(req.query.token || '') !== RUN_ALL_TOKEN) {
     res.status(401).setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -1321,31 +1360,77 @@ app.get('/trigger-run-all', (req, res) => {
   const gchatParam = String(req.query.gchat || '').toLowerCase();
   const wantsGchat = gchatParam !== '0' && gchatParam !== 'false' && gchatParam !== 'off';
 
-  console.log(
-    `[TRIGGER] Run All requested via GET /trigger-run-all (platform=${selectedPlatform}, gchat=${wantsGchat}, ua=${req.get('user-agent') || '-'})`
-  );
-
-  // Fire-and-forget — don't await. Any failure is logged; the eventual
-  // outcome shows up in Google Chat (or in server logs if gchat is off).
-  executeRunAll({ selectedPlatform, wantsGchat, onProgress: null })
-    .then(() => {
-      console.log('[TRIGGER] Run All background execution completed');
-    })
-    .catch((err) => {
-      console.error('[TRIGGER] Run All background execution failed:', err);
-    });
-
   const dashboardUrl = req.protocol + '://' + req.get('host');
   const nowIso = new Date().toISOString();
+
+  // Prefer GitHub Actions dispatch when credentials are configured — this is
+  // the Render-friendly path (Render's 512MB tier can't run Cypress locally,
+  // but GitHub Actions runners have 7GB RAM and 4 cores). The workflow itself
+  // posts the report to Google Chat, so this endpoint just fires the trigger
+  // and returns immediately. Local spawn is used only when GH creds are absent
+  // (e.g., running the form-server on your laptop for development).
+  if (shouldUseGitHubActionsRunner()) {
+    try {
+      const requestId = createRequestId();
+      console.log(
+        `[TRIGGER] Dispatching run-all.yml on GitHub Actions (platform=${selectedPlatform}, requestId=${requestId})`
+      );
+      const dispatchResult = await dispatchGitHubWorkflow({
+        mode: 'run_all',
+        platform: selectedPlatform,
+        requestId,
+      });
+      const workflowRunsUrl = buildWorkflowRunsUrl(
+        (dispatchResult && dispatchResult.workflowFile) || 'run-all.yml'
+      );
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(
+        '<!doctype html><html><head><meta charset="utf-8"><title>Run All dispatched</title></head>' +
+        '<body style="font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:20px;color:#0f172a;line-height:1.6;">' +
+        '<h1 style="color:#059669;">🚀 Run All dispatched to GitHub Actions</h1>' +
+        '<p>Automation is now running on the <strong>' + selectedPlatform.toUpperCase() + '</strong> platform in a GitHub Actions runner.</p>' +
+        '<p>The report will arrive in Google Chat in about 20-30 minutes.</p>' +
+        '<p style="margin-top:24px;">' +
+        '<a href="' + workflowRunsUrl + '" target="_blank" style="color:#2563eb;text-decoration:none;font-weight:600;">→ Watch workflow progress on GitHub Actions</a>' +
+        '</p>' +
+        '<p><a href="' + dashboardUrl + '" style="color:#2563eb;text-decoration:none;font-weight:600;">→ Open dashboard</a></p>' +
+        '<hr style="margin-top:40px;border:0;border-top:1px solid #e5e7eb;">' +
+        '<p style="color:#64748b;font-size:12px;">Triggered ' + nowIso + '  ·  Request id: <code>' + requestId + '</code></p>' +
+        '</body></html>'
+      );
+      return;
+    } catch (err) {
+      console.error('[TRIGGER] GitHub Actions dispatch failed:', err.message);
+      res.status(500).setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.send(
+        '<!doctype html><html><body style="font-family:system-ui;max-width:600px;margin:40px auto;padding:20px;">' +
+        '<h1 style="color:#dc2626;">Dispatch failed</h1>' +
+        '<p>' + String(err.message || err).replace(/</g, '&lt;') + '</p>' +
+        '<p style="color:#64748b;font-size:12px;">Check GITHUB_TOKEN / GITHUB_OWNER / GITHUB_REPO env vars.</p>' +
+        '</body></html>'
+      );
+    }
+  }
+
+  // Local fallback — only when GH creds are NOT set. Runs Cypress on this
+  // machine (won't work on Render Starter tier — 512MB RAM is not enough).
+  console.log(
+    `[TRIGGER] GH creds not set — running Run All locally (platform=${selectedPlatform}, gchat=${wantsGchat})`
+  );
+
+  executeRunAll({ selectedPlatform, wantsGchat, onProgress: null })
+    .then(() => console.log('[TRIGGER] Local Run All completed'))
+    .catch((err) => console.error('[TRIGGER] Local Run All failed:', err));
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(
     '<!doctype html><html><head><meta charset="utf-8"><title>Run All started</title></head>' +
     '<body style="font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#0f172a;line-height:1.6;">' +
-    '<h1 style="color:#059669;">🚀 Run All started</h1>' +
-    '<p>Kraftshala automation is now running on the <strong>' + selectedPlatform.toUpperCase() + '</strong> platform.</p>' +
+    '<h1 style="color:#059669;">🚀 Run All started (local)</h1>' +
+    '<p>Running on the <strong>' + selectedPlatform.toUpperCase() + '</strong> platform.</p>' +
     '<p>' + (wantsGchat
       ? 'The report will arrive in Google Chat in about 15-25 minutes.'
-      : 'Google Chat notification is disabled for this run (?gchat=0). Watch progress in the dashboard.') + '</p>' +
+      : 'Google Chat notification is disabled for this run (?gchat=0).') + '</p>' +
     '<p style="margin-top:30px;"><a href="' + dashboardUrl + '" style="color:#2563eb;text-decoration:none;font-weight:600;">→ Open dashboard</a></p>' +
     '<hr style="margin-top:40px;border:0;border-top:1px solid #e5e7eb;">' +
     '<p style="color:#64748b;font-size:12px;">Triggered ' + nowIso + '</p>' +

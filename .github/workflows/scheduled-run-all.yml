@@ -1,0 +1,51 @@
+name: Scheduled Run All
+run-name: "Scheduled Run All — ${{ github.event.schedule || 'manual' }}"
+
+# What this does:
+#   On a cron schedule, hits the form-server's /trigger-run-all endpoint on
+#   Render. That kicks off Cypress locally on Render (all 7 modes sequentially)
+#   and posts the aggregated report to Google Chat when done. This workflow
+#   itself does NOT run Cypress — it just fires one HTTP request and exits.
+#   Total workflow runtime: < 10 seconds.
+#
+# Prereqs:
+#   Two GitHub repository secrets must be set (Settings → Secrets and
+#   variables → Actions):
+#     RUN_ALL_URL   — full trigger URL including the token, e.g.
+#                     https://mlp-form.onrender.com/trigger-run-all?token=<token>
+#     RUN_ALL_URL_MAIN (optional) — same but with &platform=main appended,
+#                     if you want to schedule a main-platform run too
+#
+# Schedule syntax (cron in UTC):
+#   '30 20 * * *' = daily at 20:30 UTC = 02:00 IST (India)
+#   '0  4  * * *' = daily at 04:00 UTC = 09:30 IST
+#   '0  0  * * 1' = every Monday at 00:00 UTC
+#   Adjust to your timezone: GitHub cron docs at
+#   https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+
+on:
+  schedule:
+    - cron: '30 20 * * *'   # 20:30 UTC daily = 02:00 IST — change to whenever you want
+  workflow_dispatch:         # also allows manual trigger from GitHub Actions UI
+
+jobs:
+  trigger-run-all:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Hit /trigger-run-all endpoint (test platform)
+        run: |
+          echo "Triggering Run All at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          RESPONSE=$(curl -sS -w "\n---STATUS---\n%{http_code}\n" \
+            --max-time 30 \
+            "${{ secrets.RUN_ALL_URL }}")
+          STATUS=$(echo "$RESPONSE" | grep -A1 "STATUS" | tail -1)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Trigger failed with status $STATUS"
+            echo "Response body:"
+            echo "$RESPONSE"
+            exit 1
+          fi
+          echo "Run All triggered successfully — report will arrive in Google Chat in ~15-25 minutes"

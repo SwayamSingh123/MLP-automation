@@ -2616,8 +2616,32 @@
           const data = await resp.json();
           if (!data.ok) throw new Error(data.message || 'Failed to start Run All');
 
+          // Server routed to GitHub Actions (production path on Render).
+          // No SSE stream — the workflow itself will post the report to
+          // Google Chat when it finishes. Show a link to the workflow so
+          // the user can watch progress on GitHub.
+          if (data.mode === 'run_all_github_actions') {
+            runAllStatusEl.innerHTML =
+              'Dispatched to GitHub Actions. Report will arrive in Google Chat in ~20-30 min.' +
+              (data.workflowRunsUrl
+                ? ' <a href="' + data.workflowRunsUrl + '" target="_blank" style="color:#2563eb;">Watch on GitHub Actions →</a>'
+                : '');
+            runAllStatusEl.className = 'form-status running';
+            // Mark all mode rows as "delegated" — actual per-mode progress
+            // isn't streamed from GH Actions (would require the server to
+            // poll and relay, which we don't do in this path).
+            for (const m of RUN_ALL_ORDER) {
+              if (modeRows[m.id]) {
+                modeRows[m.id].querySelector('.mode-status').innerHTML =
+                  '🕒 waiting for GitHub Actions…';
+              }
+            }
+            finishRunAll();
+            return;
+          }
+
           runAllStatusEl.textContent =
-            'Running… this typically takes 15-25 min. Watch per-mode progress below.';
+            'Running locally… this typically takes 15-25 min. Watch per-mode progress below.';
 
           const es = new EventSource(data.streamUrl);
 
