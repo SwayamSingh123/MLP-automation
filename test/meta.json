@@ -1,17 +1,17 @@
 {
   "platform": "test",
   "scope": {
-    "all": false,
-    "label": "MLP — Marketing Launchpad"
+    "all": true,
+    "label": "All suites"
   },
   "totals": {
-    "tests": 9,
-    "passed": 9,
-    "failed": 0,
+    "tests": 46,
+    "passed": 37,
+    "failed": 9,
     "skipped": 0
   },
-  "durationMs": 77089,
-  "lastRun": "2026-10-19T12:09:55.283Z",
+  "durationMs": 340903,
+  "lastRun": "2026-10-19T12:18:07.913Z",
   "suites": [
     {
       "id": "mlp",
@@ -21,6 +21,72 @@
         "tests": 9,
         "passed": 9,
         "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "alm",
+      "name": "ALM — AI-Led Marketing",
+      "status": "passed",
+      "totals": {
+        "tests": 8,
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "basl",
+      "name": "BASL — Sales & Marketing",
+      "status": "passed",
+      "totals": {
+        "tests": 7,
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "kslive",
+      "name": "KS Live — Event registration",
+      "status": "passed",
+      "totals": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "callback",
+      "name": "Request a Callback",
+      "status": "passed",
+      "totals": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "seo",
+      "name": "SEO checklist",
+      "status": "failed",
+      "totals": {
+        "tests": 7,
+        "passed": 0,
+        "failed": 7,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "links",
+      "name": "Broken link checker",
+      "status": "failed",
+      "totals": {
+        "tests": 13,
+        "passed": 11,
+        "failed": 2,
         "skipped": 0
       }
     }
