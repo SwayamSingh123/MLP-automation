@@ -6,21 +6,21 @@
   },
   "totals": {
     "tests": 9,
-    "passed": 8,
-    "failed": 1,
+    "passed": 9,
+    "failed": 0,
     "skipped": 0
   },
-  "durationMs": 134836,
-  "lastRun": "2026-10-19T11:44:13.931Z",
+  "durationMs": 77089,
+  "lastRun": "2026-10-19T12:09:55.283Z",
   "suites": [
     {
       "id": "mlp",
       "name": "MLP — Marketing Launchpad",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 9,
-        "passed": 8,
-        "failed": 1,
+        "passed": 9,
+        "failed": 0,
         "skipped": 0
       }
     }
