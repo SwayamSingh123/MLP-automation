@@ -98,7 +98,6 @@ function collectResults({ runResults, details, platformId, platform, startedAt, 
     }
     for (const k of Object.keys(totals)) totals[k] += suite.totals[k];
     suite.status = suite.totals.failed > 0 ? 'failed' : suite.totals.passed > 0 ? 'passed' : 'skipped';
-    suite.ranAt = endedAt.toISOString();
   }
 
   return {

@@ -33,7 +33,7 @@ function card(id, platform, meta) {
       <div class="kpi skip"><b>${t.skipped}</b><span>Skipped</span></div>
     </div>
     <ul class="checks" style="margin-top:14px">${suites}</ul>
-    <p class="muted" style="margin:12px 0 0">Last run ${esc(fmtTime(meta.lastRun))} · ${fmtDuration(meta.durationMs)} total</p>
+    <p class="muted" style="margin:12px 0 0">Latest run: ${esc(meta.scope ? meta.scope.label : '')} · ${esc(fmtTime(meta.lastRun))} · ${fmtDuration(meta.durationMs)}</p>
   </a>`;
 }
 

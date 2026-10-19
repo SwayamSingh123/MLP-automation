@@ -47,7 +47,7 @@ npm run open:main                 # interactive Cypress app (main platform)
 
 Each run writes `cypress/reports/results-<platform>.json` and the dashboard at
 `cypress/reports/site/<platform>/index.html`. To re-render the dashboard without re-running the
-tests, use `npm run report`.
+tests (for example after a reporter change), use `npm run report`.
 
 > Running from the VS Code terminal? The runner script clears `ELECTRON_RUN_AS_NODE`, which VS
 > Code sets and which stops the Cypress binary from starting ("bad option: --smoke-test").
@@ -96,7 +96,7 @@ masked in Node before anything is written to disk. Unmasked values never reach t
 the published site or the CI artifact. Screenshots are taken from the real page, so they can show
 the typed values.
 
-Each suite keeps its own latest result: running one suite refreshes that suite only.
+Each run replaces the report for its platform. Running only MLP shows only MLP, and running every suite shows every suite. Results from earlier runs aren't kept on the page; past runs stay downloadable as artifacts on their GitHub Actions run. The header shows the run's scope.
 
 ## CI: GitHub Actions + Pages
 

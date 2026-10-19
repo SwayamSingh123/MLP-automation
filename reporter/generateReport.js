@@ -45,13 +45,12 @@ function suiteTable(suites) {
         <td class="num">${s.totals.failed}</td>
         <td class="num">${s.totals.skipped}</td>
         <td class="num">${fmtDuration(s.durationMs)}</td>
-        <td>${esc(fmtTime(s.ranAt))}</td>
       </tr>`
     )
     .join('');
   return `<section class="card"><h2 style="margin-bottom:12px">Test suites</h2><div class="scroll"><table>
     <thead><tr><th>Suite</th><th>Status</th><th class="num">Tests</th><th class="num">Passed</th>
-    <th class="num">Failed</th><th class="num">Skipped</th><th class="num">Duration</th><th>Last run</th></tr></thead>
+    <th class="num">Failed</th><th class="num">Skipped</th><th class="num">Duration</th></tr></thead>
     <tbody>${rows}</tbody></table></div></section>`;
 }
 
@@ -166,19 +165,20 @@ function suiteSection(s) {
     <div class="suite-head"><h2>${esc(s.name)}</h2>
       <span>${badge(s.status)} <small>${s.totals.passed} passed · ${s.totals.failed} failed · ${s.totals.skipped} skipped · ${fmtDuration(
         s.durationMs
-      )} · ${esc(fmtTime(s.ranAt))}</small></span></div>
+      )}</small></span></div>
     ${s.tests.map(testRow).join('')}
   </section>`;
 }
 
-function generateReport({ platformId, platform, suites, totals, durationMs, lastRun }) {
+function generateReport({ platformId, platform, suites, totals, durationMs, lastRun, scope }) {
   const other = platformId === 'test' ? 'main' : 'test';
   return shell(
     `QA Report — ${platform.label}`,
     `<header><div class="wrap">
       <a class="brandmark" href="../"><i></i>KRAFTSHALA</a>
       <h1>QA Automation — ${esc(platform.label)}</h1>
-      <p>${esc(platform.site.replace(/^https?:\/\//, ''))} · Last run ${esc(fmtTime(lastRun))}</p>
+      <p>${esc(platform.site.replace(/^https?:\/\//, ''))} · Run ${esc(fmtTime(lastRun))}</p>
+      <p style="margin-top:6px">Scope: <b style="color:#fff">${esc(scope ? scope.label : '')}</b></p>
       <nav><a href="../">All reports</a><a href="../${other}/">${other === 'main' ? 'Main' : 'Test'} platform report</a></nav>
     </div></header>
     <main>
@@ -188,7 +188,7 @@ function generateReport({ platformId, platform, suites, totals, durationMs, last
       ${suites.map(suiteSection).join('')}
     </main>
     <footer>Statuses come directly from Cypress — passed, failed, or skipped (not run).
-    Each suite shows its most recent run.</footer>`
+    This page shows only the latest run on this platform; earlier runs are replaced.</footer>`
   );
 }
 

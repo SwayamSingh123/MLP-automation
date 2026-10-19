@@ -1,16 +1,17 @@
 /**
  * Builds the published site from a run's results.
  *
- *   <site>/index.html                       landing page (both platforms)
- *   <site>/<platform>/index.html            dashboard
- *   <site>/<platform>/meta.json             headline numbers
- *   <site>/<platform>/suites/<suite>.json   latest result per suite
- *   <site>/<platform>/screenshots/<suite>/  failure screenshots
+ *   <site>/index.html                 landing page (both platforms)
+ *   <site>/<platform>/index.html      dashboard for the latest run
+ *   <site>/<platform>/results.json    that run's results (screenshot paths relative)
+ *   <site>/<platform>/meta.json       headline numbers for the landing page
+ *   <site>/<platform>/screenshots/    that run's failure screenshots
  *
- * Each suite keeps its own latest result, so running one suite refreshes that
- * suite only and the dashboard still shows the others from their last run.
+ * Every run REPLACES its platform's report: running only MLP shows only MLP;
+ * running every suite shows every suite. Nothing from an earlier run is kept.
  *
  * CLI: node reporter/buildSite.js <siteDir> <platform> [resultsJson]
+ *      (without resultsJson it re-renders the platform's saved results.json)
  */
 const fs = require('fs');
 const path = require('path');
@@ -26,101 +27,84 @@ function readJson(file) {
   }
 }
 
-function specOrder(suiteId, spec) {
-  const def = SUITES.find((s) => s.id === suiteId);
-  const i = def ? def.specs.indexOf(spec) : -1;
-  return i === -1 ? 99 : i;
-}
-
-function writeSuite(platformDir, suite, run) {
-  // Screenshots are named per run so files referenced by kept tests survive.
-  const shotDir = path.join(platformDir, 'screenshots', suite.id);
-  const stamp = run.endedAt.replace(/\D/g, '').slice(0, 14);
+/** Copies the run's failure screenshots next to the report; returns results with relative paths. */
+function publishScreenshots(platformDir, results) {
+  const shotRoot = path.join(platformDir, 'screenshots');
   let n = 0;
-  const tests = suite.tests.map((test) => {
-    const screenshots = [];
-    for (const src of test.screenshots || []) {
-      if (!fs.existsSync(src)) continue;
-      fs.mkdirSync(shotDir, { recursive: true });
-      const file = `${stamp}-${++n}-${path.basename(src).replace(/[^\w.-]+/g, '_')}`;
-      fs.copyFileSync(src, path.join(shotDir, file));
-      screenshots.push(`screenshots/${suite.id}/${file}`);
-    }
-    return { ...test, screenshots };
-  });
-  // A run of some of a suite's specs (e.g. only downloadSyllabus) replaces those
-  // specs' tests and keeps the latest results of the suite's other specs.
-  const previous = readJson(path.join(platformDir, 'suites', `${suite.id}.json`));
-  const ranSpecs = new Set(tests.map((t) => t.spec));
-  const kept = previous ? previous.tests.filter((t) => !ranSpecs.has(t.spec)) : [];
-  const merged = [...kept, ...tests].sort(
-    (a, b) => specOrder(suite.id, a.spec) - specOrder(suite.id, b.spec)
-  );
-  const totals = { tests: 0, passed: 0, failed: 0, skipped: 0 };
-  for (const t of merged) {
-    totals.tests += 1;
-    totals[t.state] += 1;
-  }
-  const stored = {
-    ...suite,
-    tests: merged,
-    totals,
-    status: totals.failed ? 'failed' : totals.passed ? 'passed' : 'skipped',
-    durationMs: merged.reduce((ms, t) => ms + (t.durationMs || 0), 0),
-    run,
+  return {
+    ...results,
+    suites: results.suites.map((suite) => ({
+      ...suite,
+      tests: suite.tests.map((test) => {
+        const screenshots = [];
+        for (const src of test.screenshots || []) {
+          if (/^screenshots\//.test(src)) {
+            screenshots.push(src); // already published (re-render)
+            continue;
+          }
+          if (!fs.existsSync(src)) continue;
+          const dir = path.join(shotRoot, suite.id);
+          fs.mkdirSync(dir, { recursive: true });
+          const file = `${++n}-${path.basename(src).replace(/[^\w.-]+/g, '_')}`;
+          fs.copyFileSync(src, path.join(dir, file));
+          screenshots.push(`screenshots/${suite.id}/${file}`);
+        }
+        return { ...test, screenshots };
+      }),
+    })),
   };
-  // Drop screenshot files no test refers to any more.
-  const referenced = new Set(merged.flatMap((t) => t.screenshots || []).map((s) => path.basename(s)));
-  if (fs.existsSync(shotDir)) {
-    for (const f of fs.readdirSync(shotDir)) if (!referenced.has(f)) fs.rmSync(path.join(shotDir, f));
-  }
-  fs.mkdirSync(path.join(platformDir, 'suites'), { recursive: true });
-  fs.writeFileSync(path.join(platformDir, 'suites', `${suite.id}.json`), JSON.stringify(stored, null, 2));
 }
 
-function loadSuites(platformDir) {
-  const order = SUITES.map((s) => s.id);
-  const dir = path.join(platformDir, 'suites');
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => readJson(path.join(dir, f)))
-    .filter(Boolean)
-    .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+/** "All suites", or the names of the suites this run covered. */
+function runScope(results) {
+  const ran = new Set(results.suites.map((s) => s.id));
+  const all = SUITES.every((s) => ran.has(s.id));
+  return {
+    all,
+    label: all ? 'All suites' : results.suites.map((s) => s.name).join(' · ') || 'No tests',
+  };
 }
 
 function buildSite({ siteDir, platformId, results }) {
   const platformDir = path.join(siteDir, platformId);
-  fs.mkdirSync(platformDir, { recursive: true });
 
+  let run;
   if (results) {
-    const run = { startedAt: results.startedAt, endedAt: results.endedAt };
-    for (const suite of results.suites) writeSuite(platformDir, suite, run);
+    // A new run replaces everything this platform showed before.
+    fs.rmSync(platformDir, { recursive: true, force: true });
+    fs.mkdirSync(platformDir, { recursive: true });
+    run = publishScreenshots(platformDir, results);
+    fs.writeFileSync(path.join(platformDir, 'results.json'), JSON.stringify(run, null, 2));
+  } else {
+    run = readJson(path.join(platformDir, 'results.json'));
+    if (!run) throw new Error(`No saved results in ${platformDir} — run the tests first.`);
   }
 
-  const suites = loadSuites(platformDir);
-  const totals = { tests: 0, passed: 0, failed: 0, skipped: 0 };
-  let durationMs = 0;
-  let lastRun = '';
-  for (const s of suites) {
-    for (const k of Object.keys(totals)) totals[k] += s.totals[k];
-    durationMs += s.durationMs || 0;
-    if (s.ranAt > lastRun) lastRun = s.ranAt;
-  }
-
+  const scope = runScope(run);
   const platform = PLATFORMS[platformId];
-  const model = { platformId, platform, suites, totals, durationMs, lastRun, latestRun: results || null };
-  fs.writeFileSync(path.join(platformDir, 'index.html'), generateReport(model), 'utf8');
+  fs.writeFileSync(
+    path.join(platformDir, 'index.html'),
+    generateReport({
+      platformId,
+      platform,
+      suites: run.suites,
+      totals: run.totals,
+      durationMs: run.durationMs,
+      lastRun: run.endedAt,
+      scope,
+    }),
+    'utf8'
+  );
   fs.writeFileSync(
     path.join(platformDir, 'meta.json'),
     JSON.stringify(
       {
         platform: platformId,
-        totals,
-        durationMs,
-        lastRun,
-        suites: suites.map((s) => ({ id: s.id, name: s.name, status: s.status, totals: s.totals, ranAt: s.ranAt })),
+        scope,
+        totals: run.totals,
+        durationMs: run.durationMs,
+        lastRun: run.endedAt,
+        suites: run.suites.map((s) => ({ id: s.id, name: s.name, status: s.status, totals: s.totals })),
       },
       null,
       2
