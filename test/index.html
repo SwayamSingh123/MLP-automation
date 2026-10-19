@@ -82,7 +82,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
 <body><header><div class="wrap">
       <a class="brandmark" href="../"><i></i>KRAFTSHALA</a>
       <h1>QA Automation — Test platform</h1>
-      <p>testprogram.kraftshala.com · Last run 19 Oct 2026, 04:52 pm IST</p>
+      <p>testprogram.kraftshala.com · Last run 19 Oct 2026, 05:09 pm IST</p>
       <nav><a href="../">All reports</a><a href="../main/">Main platform report</a></nav>
     </div></header>
     <main>
@@ -92,7 +92,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
     <div class="kpi bad"><b>11</b><span>Failed</span></div>
     <div class="kpi skip"><b>0</b><span>Skipped</span></div>
     <div class="kpi "><b>76%</b><span>Pass rate</span></div>
-    <div class="kpi "><b>15m 20s</b><span>Execution time</span></div>
+    <div class="kpi "><b>16m 8s</b><span>Execution time</span></div>
   </section>
       <div class="verdict bad">11 tests failed — details below.</div>
       <section class="card"><h2 style="margin-bottom:12px">Test suites</h2><div class="scroll"><table>
@@ -105,8 +105,8 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
         <td class="num">8</td>
         <td class="num">1</td>
         <td class="num">0</td>
-        <td class="num">2m 11s</td>
-        <td>19 Oct 2026, 04:52 pm IST</td>
+        <td class="num">2m 59s</td>
+        <td>19 Oct 2026, 05:09 pm IST</td>
       </tr><tr>
         <td><a href="#suite-alm"><b>ALM — AI-Led Marketing</b></a></td>
         <td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td>
@@ -164,9 +164,9 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
       </tr></tbody></table></div></section>
       <section class="card" id="suite-mlp">
     <div class="suite-head"><h2>MLP — Marketing Launchpad</h2>
-      <span><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span> <small>8 passed · 1 failed · 0 skipped · 2m 11s · 19 Oct 2026, 04:52 pm IST</small></span></div>
+      <span><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span> <small>8 passed · 1 failed · 0 skipped · 2m 59s · 19 Oct 2026, 05:09 pm IST</small></span></div>
     <details class="test">
-    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">New registration with base email and base phone<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">20s</span></summary>
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">New registration with base email and base phone<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">52s</span></summary>
     <div class="t-body"><dl class="kv">
     <dt>Form</dt><dd>MLP lead form</dd>
     <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
@@ -177,24 +177,24 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
             — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">6984756410</span>
             — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">8899770012</span>
             — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
-    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/c78dfd86-d371-4615-a657-624c73113ce4/ — new lead created</dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/a40fdfa6-f2c0-465e-8cc8-a6a3086922c0/ — new lead created</dd>
     <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>Lead created (lead/create)</b> — HTTP 200</span></li></ul></dd>
-    
+    <dt>Notes</dt><dd>Backend never answered POST /otp-validation/ (waited 40s)</dd>
   </dl></div>
-  </details><details class="test">
-    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Existing registration with base email and base phone<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">13s</span></summary>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Existing registration with base email and base phone<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">51s</span></summary>
     <div class="t-body"><dl class="kv">
     <dt>Form</dt><dd>MLP lead form</dd>
     <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
     <dt>Lead</dt><dd>Test MLP · <span class="mono">nixerot564@bevriz.com</span> · <span class="mono">6984756410</span></dd>
     <dt>Expected outcome</dt><dd>Re-submitting an existing lead still opens the success page</dd>
     <dt>Cleanup</dt><dd><span class="muted">Intentionally not run — this case re-submits the lead created by the previous case.</span></dd>
-    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/c78dfd86-d371-4615-a657-624c73113ce4/ — existing lead reused (no lead/create)</dd>
-    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
-    
-  </dl></div>
-  </details><details class="test" open>
-    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Base email with different phone number should be blocked<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">50s</span></summary>
+    <dt>Submission result</dt><dd><span class="mark bad" aria-hidden="true">✕</span> Did not complete — see the failure reason below.</dd>
+    <dt>API verification</dt><dd><span class="muted">No API verification for this test.</span></dd>
+    <dt>Notes</dt><dd>Backend error: POST /otp-validation/ -&gt; HTTP 409 Invalid Email ID.</dd>
+  </dl><div><h3>Failure reason</h3><pre class="err">AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/mlp/20261019113900-1-Kraftshala_MLP_lead_form_--_Existing_registration_with_base_email_and_base_phone_failed_.png" target="_blank" rel="noopener"><img src="screenshots/mlp/20261019113900-1-Kraftshala_MLP_lead_form_--_Existing_registration_with_base_email_and_base_phone_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base email with different phone number should be blocked<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">6s</span></summary>
     <div class="t-body"><dl class="kv">
     <dt>Form</dt><dd>MLP lead form</dd>
     <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
@@ -202,12 +202,12 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
     <dt>Expected outcome</dt><dd>Registration is blocked with &quot;phone number associated with …&quot; and no success page</dd>
     <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">8899770012</span>
             — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
-    <dt>Submission result</dt><dd><span class="mark bad" aria-hidden="true">✕</span> Did not complete — see the failure reason below.</dd>
-    <dt>API verification</dt><dd><span class="muted">No API verification for this test.</span></dd>
-    <dt>Notes</dt><dd>Backend error: POST /otp-validation/ -&gt; HTTP 409 Invalid Email ID.</dd>
-  </dl><div><h3>Failure reason</h3><pre class="err">AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/mlp/20261019112209-1-Kraftshala_MLP_lead_form_--_Base_email_with_different_phone_number_should_be_blocked_failed_.png" target="_blank" rel="noopener"><img src="screenshots/mlp/20261019112209-1-Kraftshala_MLP_lead_form_--_Base_email_with_different_phone_number_should_be_blocked_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Blocked: &quot;phone number associated with … try using this phone number&quot;</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation rejects the mismatched phone</b> — HTTP 400 · The phone number associated with nixerot564@bevriz.com is xxxxxx6410. Try using this phone number</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
   </details><details class="test">
-    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base phone number with different email<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">10s</span></summary>
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base phone number with different email<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">8s</span></summary>
     <div class="t-body"><dl class="kv">
     <dt>Form</dt><dd>MLP lead form</dd>
     <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
@@ -215,7 +215,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
     <dt>Expected outcome</dt><dd>OTP verifies and the success page opens (new lead or existing lead for this phone)</dd>
     <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">locarok574@acoxs.com</span>
             — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li></ul></dd>
-    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/c78dfd86-d371-4615-a657-624c73113ce4/ — existing lead reused (no lead/create)</dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/a40fdfa6-f2c0-465e-8cc8-a6a3086922c0/ — existing lead reused (no lead/create)</dd>
     <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
     <dt>Notes</dt><dd>Backend never answered POST /lead_tracking (waited 0s)</dd>
   </dl></div>
@@ -256,7 +256,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
     
   </dl></div>
   </details><details class="test">
-    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download brochure with base email and base phone<span class="t-group">Kraftshala MLP — Download brochure</span></span><span class="t-dur">15s</span></summary>
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download brochure with base email and base phone<span class="t-group">Kraftshala MLP — Download brochure</span></span><span class="t-dur">43s</span></summary>
     <div class="t-body"><dl class="kv">
     <dt>Form</dt><dd>MLP download brochure</dd>
     <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
@@ -267,10 +267,10 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);fon
             — HTTP 200 · SUCCESS</span></li></ul></dd>
     <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success message shown: document sent</dd>
     <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li></ul></dd>
-    
+    <dt>Notes</dt><dd>Backend never answered POST /otp-validation (waited 36s)</dd>
   </dl></div>
   </details><details class="test">
-    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download syllabus with base email and base phone<span class="t-group">Kraftshala MLP — Download syllabus</span></span><span class="t-dur">14s</span></summary>
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download syllabus with base email and base phone<span class="t-group">Kraftshala MLP — Download syllabus</span></span><span class="t-dur">10s</span></summary>
     <div class="t-body"><dl class="kv">
     <dt>Form</dt><dd>MLP download syllabus</dd>
     <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>

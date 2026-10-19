@@ -6,8 +6,8 @@
     "failed": 11,
     "skipped": 0
   },
-  "durationMs": 920101,
-  "lastRun": "2026-10-19T11:22:09.008Z",
+  "durationMs": 967941,
+  "lastRun": "2026-10-19T11:39:00.537Z",
   "suites": [
     {
       "id": "mlp",
@@ -19,7 +19,7 @@
         "failed": 1,
         "skipped": 0
       },
-      "ranAt": "2026-10-19T11:22:09.008Z"
+      "ranAt": "2026-10-19T11:39:00.537Z"
     },
     {
       "id": "alm",

@@ -1,7 +1,7 @@
 {
   "id": "mlp",
   "name": "MLP — Marketing Launchpad",
-  "durationMs": 131423,
+  "durationMs": 179263,
   "totals": {
     "tests": 9,
     "passed": 8,
@@ -14,7 +14,7 @@
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
       "state": "passed",
-      "durationMs": 20219,
+      "durationMs": 51622,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -73,113 +73,122 @@
         ],
         "submission": {
           "ok": true,
-          "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/c78dfd86-d371-4615-a657-624c73113ce4/ — new lead created"
+          "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/a40fdfa6-f2c0-465e-8cc8-a6a3086922c0/ — new lead created"
         },
         "apiTrace": [
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408803551,
-            "durationMs": 1346,
+            "startedAt": 1792409766567,
+            "durationMs": 1156,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408803554,
-            "durationMs": 1315,
+            "startedAt": 1792409766652,
+            "durationMs": 1196,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408803718,
-            "durationMs": 1114,
+            "startedAt": 1792409766703,
+            "durationMs": 949,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408804931,
-            "durationMs": 265,
+            "startedAt": 1792409767745,
+            "durationMs": 234,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408805226,
-            "durationMs": 266,
+            "startedAt": 1792409767995,
+            "durationMs": 486,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408805506,
-            "durationMs": 260,
+            "startedAt": 1792409768518,
+            "durationMs": 262,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408805785,
-            "durationMs": 247,
+            "startedAt": 1792409768804,
+            "durationMs": 240,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/otp-validation/",
+            "status": null,
+            "startedAt": 1792409770423
+          },
+          {
+            "method": "POST",
+            "path": "/otp-validation/",
             "status": 200,
-            "startedAt": 1792408808223,
-            "durationMs": 2018,
+            "startedAt": 1792409800442,
+            "durationMs": 4407,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/otp-validation/validate",
             "status": 200,
-            "startedAt": 1792408810689,
-            "durationMs": 288,
+            "startedAt": 1792409805370,
+            "durationMs": 250,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/lead/create",
             "status": 200,
-            "startedAt": 1792408811189,
-            "durationMs": 258,
+            "startedAt": 1792409806822,
+            "durationMs": 227,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408813518,
-            "durationMs": 340,
+            "startedAt": 1792409808931,
+            "durationMs": 326,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408814083,
-            "durationMs": 304,
+            "startedAt": 1792409809460,
+            "durationMs": 327,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408814221,
-            "durationMs": 255,
+            "startedAt": 1792409809545,
+            "durationMs": 282,
             "message": ""
           }
+        ],
+        "notes": [
+          "Backend never answered POST /otp-validation/ (waited 40s)"
         ]
       }
     },
@@ -187,10 +196,12 @@
       "title": "Existing registration with base email and base phone",
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
-      "state": "passed",
-      "durationMs": 12678,
-      "error": null,
-      "screenshots": [],
+      "state": "failed",
+      "durationMs": 51319,
+      "error": "AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0",
+      "screenshots": [
+        "screenshots/mlp/20261019113900-1-Kraftshala_MLP_lead_form_--_Existing_registration_with_base_email_and_base_phone_failed_.png"
+      ],
       "detail": {
         "kind": "lead",
         "form": "MLP lead form",
@@ -202,107 +213,74 @@
           "phone": "6984756410"
         },
         "cleanupNote": "Intentionally not run — this case re-submits the lead created by the previous case.",
-        "api": [
-          {
-            "label": "OTP validation",
-            "status": 200,
-            "message": "",
-            "ok": true
-          }
-        ],
-        "submission": {
-          "ok": true,
-          "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/c78dfd86-d371-4615-a657-624c73113ce4/ — existing lead reused (no lead/create)"
-        },
         "apiTrace": [
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408816377,
-            "durationMs": 293,
+            "startedAt": 1792409812294,
+            "durationMs": 310,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408816385,
-            "durationMs": 286,
+            "startedAt": 1792409812334,
+            "durationMs": 261,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408816386,
-            "durationMs": 291,
+            "startedAt": 1792409812334,
+            "durationMs": 263,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408816706,
-            "durationMs": 402,
+            "startedAt": 1792409812700,
+            "durationMs": 274,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408817148,
+            "startedAt": 1792409812993,
+            "durationMs": 281,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/mlp/campaign/active",
+            "status": 200,
+            "startedAt": 1792409813283,
+            "durationMs": 274,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/mlp/campaign/active",
+            "status": 200,
+            "startedAt": 1792409813571,
             "durationMs": 265,
-            "message": ""
-          },
-          {
-            "method": "GET",
-            "path": "/program/mlp/campaign/active",
-            "status": 200,
-            "startedAt": 1792408817441,
-            "durationMs": 258,
-            "message": ""
-          },
-          {
-            "method": "GET",
-            "path": "/program/mlp/campaign/active",
-            "status": 200,
-            "startedAt": 1792408817715,
-            "durationMs": 247,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/otp-validation/",
-            "status": 200,
-            "startedAt": 1792408821042,
-            "durationMs": 3990,
-            "message": "SUCCESS"
-          },
-          {
-            "method": "POST",
-            "path": "/otp-validation/validate",
-            "status": 200,
-            "startedAt": 1792408825530,
-            "durationMs": 270,
-            "message": ""
-          },
-          {
-            "method": "POST",
-            "path": "/lead_tracking",
-            "status": 200,
-            "startedAt": 1792408826812,
-            "durationMs": 269,
-            "message": ""
-          },
-          {
-            "method": "POST",
-            "path": "/lead_tracking",
-            "status": 200,
-            "startedAt": 1792408826933,
-            "durationMs": 257,
-            "message": ""
+            "status": 409,
+            "startedAt": 1792409816207,
+            "durationMs": 5392,
+            "message": "Invalid Email ID."
           }
+        ],
+        "notes": [
+          "Backend error: POST /otp-validation/ -> HTTP 409 Invalid Email ID."
         ]
       }
     },
@@ -310,12 +288,10 @@
       "title": "Base email with different phone number should be blocked",
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
-      "state": "failed",
-      "durationMs": 49869,
-      "error": "AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0",
-      "screenshots": [
-        "screenshots/mlp/20261019112209-1-Kraftshala_MLP_lead_form_--_Base_email_with_different_phone_number_should_be_blocked_failed_.png"
-      ],
+      "state": "passed",
+      "durationMs": 5933,
+      "error": null,
+      "screenshots": [],
       "detail": {
         "kind": "lead",
         "form": "MLP lead form",
@@ -335,74 +311,97 @@
             "ok": true
           }
         ],
+        "api": [
+          {
+            "label": "OTP validation rejects the mismatched phone",
+            "status": 400,
+            "message": "The phone number associated with nixerot564@bevriz.com is xxxxxx6410. Try using this phone number",
+            "ok": true
+          },
+          {
+            "label": "No lead created (lead/create)",
+            "status": 0,
+            "message": "Not sent (as expected)",
+            "ok": true
+          }
+        ],
+        "submission": {
+          "ok": true,
+          "outcome": "Blocked: \"phone number associated with … try using this phone number\""
+        },
         "apiTrace": [
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408828839,
-            "durationMs": 299,
+            "startedAt": 1792409862919,
+            "durationMs": 282,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408828849,
-            "durationMs": 287,
+            "startedAt": 1792409862926,
+            "durationMs": 227,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408828850,
-            "durationMs": 285,
+            "startedAt": 1792409862926,
+            "durationMs": 233,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408829178,
-            "durationMs": 341,
+            "startedAt": 1792409863213,
+            "durationMs": 439,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408829545,
-            "durationMs": 370,
+            "startedAt": 1792409863675,
+            "durationMs": 267,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408829957,
-            "durationMs": 256,
+            "startedAt": 1792409863949,
+            "durationMs": 268,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408830238,
-            "durationMs": 255,
+            "startedAt": 1792409864239,
+            "durationMs": 280,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/otp-validation/",
-            "status": 409,
-            "startedAt": 1792408831897,
-            "durationMs": 5371,
-            "message": "Invalid Email ID."
+            "status": 200,
+            "startedAt": 1792409865264,
+            "durationMs": 1445,
+            "message": "SUCCESS"
+          },
+          {
+            "method": "POST",
+            "path": "/otp-validation/validate",
+            "status": 400,
+            "startedAt": 1792409867000,
+            "durationMs": 283,
+            "message": "The phone number associated with nixerot564@bevriz.com is xxxxxx6410. Try using this phone number"
           }
-        ],
-        "notes": [
-          "Backend error: POST /otp-validation/ -> HTTP 409 Invalid Email ID."
         ]
       }
     },
@@ -411,7 +410,7 @@
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
       "state": "passed",
-      "durationMs": 10329,
+      "durationMs": 7542,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -443,62 +442,62 @@
         ],
         "submission": {
           "ok": true,
-          "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/c78dfd86-d371-4615-a657-624c73113ce4/ — existing lead reused (no lead/create)"
+          "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/a40fdfa6-f2c0-465e-8cc8-a6a3086922c0/ — existing lead reused (no lead/create)"
         },
         "apiTrace": [
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408878638,
-            "durationMs": 295,
+            "startedAt": 1792409868940,
+            "durationMs": 271,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408878650,
-            "durationMs": 281,
+            "startedAt": 1792409868957,
+            "durationMs": 213,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408878656,
-            "durationMs": 274,
+            "startedAt": 1792409868958,
+            "durationMs": 237,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408878998,
-            "durationMs": 273,
+            "startedAt": 1792409869226,
+            "durationMs": 462,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408879295,
-            "durationMs": 400,
+            "startedAt": 1792409869711,
+            "durationMs": 264,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408879717,
-            "durationMs": 247,
+            "startedAt": 1792409869982,
+            "durationMs": 269,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408879972,
+            "startedAt": 1792409870261,
             "durationMs": 265,
             "message": ""
           },
@@ -506,23 +505,23 @@
             "method": "POST",
             "path": "/otp-validation/",
             "status": 200,
-            "startedAt": 1792408881355,
-            "durationMs": 4615,
+            "startedAt": 1792409871320,
+            "durationMs": 2441,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/otp-validation/validate",
             "status": 200,
-            "startedAt": 1792408886267,
-            "durationMs": 272,
+            "startedAt": 1792409874052,
+            "durationMs": 287,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": null,
-            "startedAt": 1792408887415
+            "startedAt": 1792409874774
           }
         ],
         "notes": [
@@ -535,7 +534,7 @@
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
       "state": "passed",
-      "durationMs": 3798,
+      "durationMs": 3801,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -566,56 +565,56 @@
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408889027,
-            "durationMs": 279,
+            "startedAt": 1792409876755,
+            "durationMs": 221,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408889034,
-            "durationMs": 265,
+            "startedAt": 1792409876766,
+            "durationMs": 215,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408889039,
-            "durationMs": 690,
+            "startedAt": 1792409876766,
+            "durationMs": 749,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408889335,
-            "durationMs": 293,
+            "startedAt": 1792409876998,
+            "durationMs": 235,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408889653,
-            "durationMs": 254,
+            "startedAt": 1792409877280,
+            "durationMs": 221,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408889924,
-            "durationMs": 257,
+            "startedAt": 1792409877510,
+            "durationMs": 221,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408890189,
-            "durationMs": 261,
+            "startedAt": 1792409877743,
+            "durationMs": 217,
             "message": ""
           }
         ]
@@ -626,7 +625,7 @@
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
       "state": "passed",
-      "durationMs": 3468,
+      "durationMs": 3407,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -657,56 +656,56 @@
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408892392,
-            "durationMs": 371,
+            "startedAt": 1792409879845,
+            "durationMs": 302,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408892400,
-            "durationMs": 362,
+            "startedAt": 1792409879852,
+            "durationMs": 296,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408892424,
-            "durationMs": 338,
+            "startedAt": 1792409879852,
+            "durationMs": 295,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408892815,
-            "durationMs": 255,
+            "startedAt": 1792409880178,
+            "durationMs": 330,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408893081,
-            "durationMs": 264,
+            "startedAt": 1792409880530,
+            "durationMs": 273,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408893353,
-            "durationMs": 246,
+            "startedAt": 1792409880822,
+            "durationMs": 259,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408893607,
-            "durationMs": 245,
+            "startedAt": 1792409881087,
+            "durationMs": 262,
             "message": ""
           }
         ]
@@ -717,7 +716,7 @@
       "group": "Kraftshala MLP lead form",
       "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
       "state": "passed",
-      "durationMs": 2426,
+      "durationMs": 2433,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -744,39 +743,47 @@
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408896264,
-            "durationMs": 289,
+            "startedAt": 1792409883559,
+            "durationMs": 290,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408896276,
-            "durationMs": 272,
+            "startedAt": 1792409883581,
+            "durationMs": 216,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408896280,
-            "durationMs": 272,
+            "startedAt": 1792409883582,
+            "durationMs": 223,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408896582,
-            "durationMs": 345,
+            "startedAt": 1792409883880,
+            "durationMs": 260,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/mlp/campaign/active",
+            "status": 200,
+            "startedAt": 1792409884150,
+            "durationMs": 299,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": null,
-            "startedAt": 1792408897022
+            "startedAt": 1792409884492
           }
         ]
       }
@@ -786,7 +793,7 @@
       "group": "Kraftshala MLP — Download brochure",
       "spec": "cypress/e2e/mlp/downloadBrochure.cy.js",
       "state": "passed",
-      "durationMs": 14961,
+      "durationMs": 43140,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -832,82 +839,91 @@
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408901744,
-            "durationMs": 411,
+            "startedAt": 1792409888238,
+            "durationMs": 257,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408901755,
-            "durationMs": 396,
+            "startedAt": 1792409888244,
+            "durationMs": 253,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408901756,
-            "durationMs": 397,
+            "startedAt": 1792409888246,
+            "durationMs": 784,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408902197,
-            "durationMs": 565,
+            "startedAt": 1792409888518,
+            "durationMs": 398,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408902817,
-            "durationMs": 315,
+            "startedAt": 1792409888961,
+            "durationMs": 312,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408903179,
-            "durationMs": 262,
+            "startedAt": 1792409889312,
+            "durationMs": 223,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408903450,
-            "durationMs": 250,
+            "startedAt": 1792409889573,
+            "durationMs": 228,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/otp-validation",
+            "status": null,
+            "startedAt": 1792409893443
+          },
+          {
+            "method": "POST",
+            "path": "/otp-validation",
             "status": 200,
-            "startedAt": 1792408908073,
-            "durationMs": 4344,
+            "startedAt": 1792409923462,
+            "durationMs": 4381,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/otp-validation/validate",
             "status": 200,
-            "startedAt": 1792408912733,
-            "durationMs": 271,
+            "startedAt": 1792409928153,
+            "durationMs": 280,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/lead/create",
             "status": 200,
-            "startedAt": 1792408913037,
-            "durationMs": 262,
+            "startedAt": 1792409928451,
+            "durationMs": 264,
             "message": ""
           }
+        ],
+        "notes": [
+          "Backend never answered POST /otp-validation (waited 36s)"
         ]
       }
     },
@@ -916,7 +932,7 @@
       "group": "Kraftshala MLP — Download syllabus",
       "spec": "cypress/e2e/mlp/downloadSyllabus.cy.js",
       "state": "passed",
-      "durationMs": 13675,
+      "durationMs": 10066,
       "error": null,
       "screenshots": [],
       "detail": {
@@ -962,80 +978,80 @@
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408917771,
-            "durationMs": 553,
+            "startedAt": 1792409933015,
+            "durationMs": 282,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/null/campaign/null/events/popup-session",
             "status": 200,
-            "startedAt": 1792408917779,
-            "durationMs": 542,
+            "startedAt": 1792409933022,
+            "durationMs": 254,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/lead_tracking",
             "status": 200,
-            "startedAt": 1792408917780,
-            "durationMs": 543,
+            "startedAt": 1792409933023,
+            "durationMs": 794,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408918534,
-            "durationMs": 452,
+            "startedAt": 1792409933317,
+            "durationMs": 394,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408919030,
-            "durationMs": 257,
+            "startedAt": 1792409933753,
+            "durationMs": 262,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408919302,
-            "durationMs": 257,
+            "startedAt": 1792409934039,
+            "durationMs": 261,
             "message": ""
           },
           {
             "method": "GET",
             "path": "/program/mlp/campaign/active",
             "status": 200,
-            "startedAt": 1792408919598,
-            "durationMs": 248,
+            "startedAt": 1792409934311,
+            "durationMs": 266,
             "message": ""
           },
           {
             "method": "POST",
             "path": "/otp-validation",
             "status": 200,
-            "startedAt": 1792408923129,
-            "durationMs": 4381,
+            "startedAt": 1792409937650,
+            "durationMs": 1395,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/otp-validation/validate",
             "status": 200,
-            "startedAt": 1792408927803,
-            "durationMs": 269,
+            "startedAt": 1792409939354,
+            "durationMs": 277,
             "message": "SUCCESS"
           },
           {
             "method": "POST",
             "path": "/lead/create",
             "status": 200,
-            "startedAt": 1792408928096,
-            "durationMs": 253,
+            "startedAt": 1792409939657,
+            "durationMs": 267,
             "message": ""
           }
         ]
@@ -1043,9 +1059,9 @@
     }
   ],
   "status": "failed",
-  "ranAt": "2026-10-19T11:22:09.008Z",
+  "ranAt": "2026-10-19T11:39:00.537Z",
   "run": {
-    "startedAt": "2026-10-19T11:19:50.879Z",
-    "endedAt": "2026-10-19T11:22:09.008Z"
+    "startedAt": "2026-10-19T11:35:54.139Z",
+    "endedAt": "2026-10-19T11:39:00.537Z"
   }
 }
