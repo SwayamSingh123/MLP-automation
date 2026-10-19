@@ -3,7 +3,17 @@
   "page": "/marketing-launchpad/digital-marketing-course/",
   "programSlug": "mlp",
   "otp": "159753",
-  "lead": { "name": "Test MLP", "email": "nixerot564@bevriz.com", "phone": "6984756410" },
-  "alternate": { "email": "locarok574@acoxs.com", "phone": "8899770012" },
-  "invalid": { "email": "plainaddress", "phone": "12345" }
+  "lead": {
+    "name": "MLP Test",
+    "email": "xineyin126@juicehour.com",
+    "phone": "4980369071"
+  },
+  "alternate": {
+    "email": "pimihir658@iconcubic.com",
+    "phone": "4509986709"
+  },
+  "invalid": {
+    "email": "plainaddress",
+    "phone": "12345"
+  }
 }

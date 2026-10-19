@@ -3,7 +3,17 @@
   "page": "/pgp/learn-sales-and-marketing/",
   "programSlug": "basl",
   "otp": "159753",
-  "lead": { "name": "Test SMBL", "email": "vemiw28382@acoxs.com", "phone": "7008969710" },
-  "alternate": { "email": "ligewir896@bevriz.com", "phone": "5896745895" },
-  "invalid": { "email": "plainaddress", "phone": "12345" }
+  "lead": {
+    "name": "BASL Test",
+    "email": "wekewiy222@juicehour.com",
+    "phone": "5789000977"
+  },
+  "alternate": {
+    "email": "bihidor449@iconcubic.com",
+    "phone": "3997009910"
+  },
+  "invalid": {
+    "email": "plainaddress",
+    "phone": "12345"
+  }
 }
