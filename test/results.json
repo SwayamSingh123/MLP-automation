@@ -1,0 +1,1075 @@
+{
+  "platform": "test",
+  "platformLabel": "Test platform",
+  "site": "https://testprogram.kraftshala.com",
+  "startedAt": "2026-10-19T11:41:51.638Z",
+  "endedAt": "2026-10-19T11:44:13.931Z",
+  "durationMs": 134836,
+  "maskLeads": false,
+  "totals": {
+    "tests": 9,
+    "passed": 8,
+    "failed": 1,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "id": "mlp",
+      "name": "MLP — Marketing Launchpad",
+      "durationMs": 134836,
+      "totals": {
+        "tests": 9,
+        "passed": 8,
+        "failed": 1,
+        "skipped": 0
+      },
+      "tests": [
+        {
+          "title": "New registration with base email and base phone",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "passed",
+          "durationMs": 19765,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "A new lead is created and the success page opens",
+            "lead": {
+              "name": "Test MLP",
+              "email": "nixerot564@bevriz.com",
+              "phone": "6984756410"
+            },
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "nixerot564@bevriz.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "locarok574@acoxs.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "6984756410",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "8899770012",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "label": "Lead created (lead/create)",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/2f039868-c5dd-47a3-9a10-afd1034d2c5f/ — new lead created"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410121287,
+                "durationMs": 1593,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410121336,
+                "durationMs": 1367,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410121685,
+                "durationMs": 1194,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410123508,
+                "durationMs": 283,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410123827,
+                "durationMs": 305,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410124174,
+                "durationMs": 275,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410124462,
+                "durationMs": 264,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1792410127712,
+                "durationMs": 4041,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1792410132229,
+                "durationMs": 290,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1792410132747,
+                "durationMs": 266,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410134057,
+                "durationMs": 438,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410134535,
+                "durationMs": 352,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410134612,
+                "durationMs": 294,
+                "message": ""
+              }
+            ]
+          }
+        },
+        {
+          "title": "Existing registration with base email and base phone",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "passed",
+          "durationMs": 12500,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "Re-submitting an existing lead still opens the success page",
+            "lead": {
+              "name": "Test MLP",
+              "email": "nixerot564@bevriz.com",
+              "phone": "6984756410"
+            },
+            "cleanupNote": "Intentionally not run — this case re-submits the lead created by the previous case.",
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/2f039868-c5dd-47a3-9a10-afd1034d2c5f/ — existing lead reused (no lead/create)"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410137315,
+                "durationMs": 574,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410137349,
+                "durationMs": 533,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410137350,
+                "durationMs": 516,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410138000,
+                "durationMs": 279,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410138293,
+                "durationMs": 269,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410138631,
+                "durationMs": 264,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410138911,
+                "durationMs": 264,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1792410141844,
+                "durationMs": 4025,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1792410146318,
+                "durationMs": 285,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410147072,
+                "durationMs": 431,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410147338,
+                "durationMs": 288,
+                "message": ""
+              }
+            ]
+          }
+        },
+        {
+          "title": "Base email with different phone number should be blocked",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "passed",
+          "durationMs": 10006,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "Registration is blocked with \"phone number associated with …\" and no success page",
+            "lead": {
+              "name": "Test MLP",
+              "email": "nixerot564@bevriz.com",
+              "phone": "8899770012"
+            },
+            "cleanup": [
+              {
+                "target": "removeNumber",
+                "identifier": "8899770012",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation rejects the mismatched phone",
+                "status": 400,
+                "message": "The phone number associated with nixerot564@bevriz.com is xxxxxx6410. Try using this phone number",
+                "ok": true
+              },
+              {
+                "label": "No lead created (lead/create)",
+                "status": 0,
+                "message": "Not sent (as expected)",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Blocked: \"phone number associated with … try using this phone number\""
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410149507,
+                "durationMs": 321,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410149590,
+                "durationMs": 459,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410149595,
+                "durationMs": 273,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410149873,
+                "durationMs": 441,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410150335,
+                "durationMs": 354,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410150756,
+                "durationMs": 283,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410151062,
+                "durationMs": 275,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1792410152833,
+                "durationMs": 4004,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 400,
+                "startedAt": 1792410157266,
+                "durationMs": 285,
+                "message": "The phone number associated with nixerot564@bevriz.com is xxxxxx6410. Try using this phone number"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Base phone number with different email",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "failed",
+          "durationMs": 50126,
+          "error": "AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0",
+          "screenshots": [
+            "screenshots/mlp/1-Kraftshala_MLP_lead_form_--_Base_phone_number_with_different_email_failed_.png"
+          ],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "OTP verifies and the success page opens (new lead or existing lead for this phone)",
+            "lead": {
+              "name": "Test MLP",
+              "email": "locarok574@acoxs.com",
+              "phone": "6984756410"
+            },
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "locarok574@acoxs.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              }
+            ],
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410159520,
+                "durationMs": 305,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410159608,
+                "durationMs": 264,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410159609,
+                "durationMs": 344,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410159857,
+                "durationMs": 245,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410160150,
+                "durationMs": 351,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410160546,
+                "durationMs": 255,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410160825,
+                "durationMs": 248,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": null,
+                "startedAt": 1792410162708
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 409,
+                "startedAt": 1792410192725,
+                "durationMs": 5389,
+                "message": "Invalid Email ID."
+              }
+            ],
+            "notes": [
+              "Backend never answered POST /otp-validation/ (waited 45s)",
+              "Backend error: POST /otp-validation/ -> HTTP 409 Invalid Email ID."
+            ]
+          }
+        },
+        {
+          "title": "Invalid email should show error and not open OTP",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "passed",
+          "durationMs": 4288,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "Email validation error; no OTP, no lead",
+            "lead": {
+              "name": "Test MLP",
+              "email": "plainaddress",
+              "phone": "6984756410"
+            },
+            "cleanupNote": "Not needed — this submission must not create a lead.",
+            "api": [
+              {
+                "label": "No lead created (lead/create)",
+                "status": 0,
+                "message": "Not sent (as expected)",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Validation error shown; OTP step did not open"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410209587,
+                "durationMs": 285,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410209598,
+                "durationMs": 273,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410209604,
+                "durationMs": 854,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410210084,
+                "durationMs": 376,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410210493,
+                "durationMs": 263,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410210781,
+                "durationMs": 269,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410211087,
+                "durationMs": 267,
+                "message": ""
+              }
+            ]
+          }
+        },
+        {
+          "title": "Invalid phone should show error and not open OTP",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "passed",
+          "durationMs": 4180,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "Phone validation error; no OTP, no lead",
+            "lead": {
+              "name": "Test MLP",
+              "email": "nixerot564@bevriz.com",
+              "phone": "12345"
+            },
+            "cleanupNote": "Not needed — this submission must not create a lead.",
+            "api": [
+              {
+                "label": "No lead created (lead/create)",
+                "status": 0,
+                "message": "Not sent (as expected)",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Validation error shown; OTP step did not open"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410213885,
+                "durationMs": 305,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410213897,
+                "durationMs": 292,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410213903,
+                "durationMs": 288,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410214251,
+                "durationMs": 369,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410214651,
+                "durationMs": 264,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410214923,
+                "durationMs": 266,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410215201,
+                "durationMs": 261,
+                "message": ""
+              }
+            ]
+          }
+        },
+        {
+          "title": "Submitting empty form should show required field errors",
+          "group": "Kraftshala MLP lead form",
+          "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
+          "state": "passed",
+          "durationMs": 2929,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP lead form",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "Required-field errors; no OTP, no lead",
+            "lead": {},
+            "cleanupNote": "Not needed — this submission must not create a lead.",
+            "api": [
+              {
+                "label": "No lead created (lead/create)",
+                "status": 0,
+                "message": "Not sent (as expected)",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Required-field errors shown; OTP step did not open"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410218080,
+                "durationMs": 330,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410218099,
+                "durationMs": 313,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410218100,
+                "durationMs": 308,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410218450,
+                "durationMs": 493,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410218972,
+                "durationMs": 359,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": null,
+                "startedAt": 1792410219391
+              }
+            ]
+          }
+        },
+        {
+          "title": "Download brochure with base email and base phone",
+          "group": "Kraftshala MLP — Download brochure",
+          "spec": "cypress/e2e/mlp/downloadBrochure.cy.js",
+          "state": "passed",
+          "durationMs": 14672,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP download brochure",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "\"You're all set. We've sent the document to your email and WhatsApp.\"",
+            "lead": {
+              "name": "Test Brochure",
+              "email": "hiveve8144@cadinr.com",
+              "phone": "2577598891"
+            },
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "hiveve8144@cadinr.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "2577598891",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success message shown: document sent"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410224392,
+                "durationMs": 469,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410224406,
+                "durationMs": 453,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410224408,
+                "durationMs": 863,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410225039,
+                "durationMs": 282,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410225359,
+                "durationMs": 469,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410225915,
+                "durationMs": 386,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410226438,
+                "durationMs": 313,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation",
+                "status": 200,
+                "startedAt": 1792410231772,
+                "durationMs": 2464,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1792410234626,
+                "durationMs": 282,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1792410234947,
+                "durationMs": 289,
+                "message": ""
+              }
+            ]
+          }
+        },
+        {
+          "title": "Download syllabus with base email and base phone",
+          "group": "Kraftshala MLP — Download syllabus",
+          "spec": "cypress/e2e/mlp/downloadSyllabus.cy.js",
+          "state": "passed",
+          "durationMs": 16153,
+          "error": null,
+          "screenshots": [],
+          "detail": {
+            "kind": "lead",
+            "form": "MLP download syllabus",
+            "page": "/marketing-launchpad/digital-marketing-course/",
+            "expectation": "\"You're all set. We've sent the syllabus to your email and WhatsApp.\"",
+            "lead": {
+              "name": "Test Syllabus",
+              "email": "kssyllabusqa@cadinr.com",
+              "phone": "3999631499"
+            },
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "kssyllabusqa@cadinr.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "3999631499",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success message shown: syllabus sent"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410240584,
+                "durationMs": 607,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1792410240596,
+                "durationMs": 593,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1792410240600,
+                "durationMs": 590,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410241513,
+                "durationMs": 271,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410241816,
+                "durationMs": 495,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410242385,
+                "durationMs": 292,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1792410242690,
+                "durationMs": 268,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation",
+                "status": 200,
+                "startedAt": 1792410246911,
+                "durationMs": 5152,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1792410252455,
+                "durationMs": 312,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1792410252916,
+                "durationMs": 289,
+                "message": ""
+              }
+            ]
+          }
+        }
+      ],
+      "status": "failed"
+    }
+  ]
+}

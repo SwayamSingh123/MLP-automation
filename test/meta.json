@@ -1,13 +1,17 @@
 {
   "platform": "test",
+  "scope": {
+    "all": false,
+    "label": "MLP — Marketing Launchpad"
+  },
   "totals": {
-    "tests": 46,
-    "passed": 35,
-    "failed": 11,
+    "tests": 9,
+    "passed": 8,
+    "failed": 1,
     "skipped": 0
   },
-  "durationMs": 967941,
-  "lastRun": "2026-10-19T11:39:00.537Z",
+  "durationMs": 134836,
+  "lastRun": "2026-10-19T11:44:13.931Z",
   "suites": [
     {
       "id": "mlp",
@@ -18,80 +22,7 @@
         "passed": 8,
         "failed": 1,
         "skipped": 0
-      },
-      "ranAt": "2026-10-19T11:39:00.537Z"
-    },
-    {
-      "id": "alm",
-      "name": "ALM — AI-Led Marketing",
-      "status": "failed",
-      "totals": {
-        "tests": 8,
-        "passed": 7,
-        "failed": 1,
-        "skipped": 0
-      },
-      "ranAt": "2026-10-19T10:34:36.811Z"
-    },
-    {
-      "id": "basl",
-      "name": "BASL — Sales & Marketing",
-      "status": "passed",
-      "totals": {
-        "tests": 7,
-        "passed": 7,
-        "failed": 0,
-        "skipped": 0
-      },
-      "ranAt": "2026-10-19T10:34:36.811Z"
-    },
-    {
-      "id": "kslive",
-      "name": "KS Live — Event registration",
-      "status": "passed",
-      "totals": {
-        "tests": 1,
-        "passed": 1,
-        "failed": 0,
-        "skipped": 0
-      },
-      "ranAt": "2026-10-19T10:34:36.811Z"
-    },
-    {
-      "id": "callback",
-      "name": "Request a Callback",
-      "status": "passed",
-      "totals": {
-        "tests": 1,
-        "passed": 1,
-        "failed": 0,
-        "skipped": 0
-      },
-      "ranAt": "2026-10-19T10:34:36.811Z"
-    },
-    {
-      "id": "seo",
-      "name": "SEO checklist",
-      "status": "failed",
-      "totals": {
-        "tests": 7,
-        "passed": 0,
-        "failed": 7,
-        "skipped": 0
-      },
-      "ranAt": "2026-10-19T10:34:36.811Z"
-    },
-    {
-      "id": "links",
-      "name": "Broken link checker",
-      "status": "failed",
-      "totals": {
-        "tests": 13,
-        "passed": 11,
-        "failed": 2,
-        "skipped": 0
-      },
-      "ranAt": "2026-10-19T10:34:36.811Z"
+      }
     }
   ]
 }
