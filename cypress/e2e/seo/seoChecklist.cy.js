@@ -2,16 +2,10 @@
 //
 // Kraftshala SEO Checklist — 17 checks across 4 sections (Head / Body / Footer / FAQ).
 //
-// Data-driven from fixtures/seo/seo-page-data.json. Each page gets its own
-// describe block; one `it` block per page runs every applicable check and
-// pushes a structured result row to an in-memory array. After the run, the
-// whole array is flushed to cypress/reports/seo-results.json via cy.writeFile,
-// where form-server.js picks it up and renders it in the dashboard's new
-// "SEO Checklist" section.
-//
-// Failures within a check do NOT throw — they're captured as per-check rows
-// with status="fail" and shown in the UI. This keeps the Cypress test result
-// noise-free and lets the UI show "MLP Core: 12 pass / 3 fail / 1 warning" etc.
+// Data-driven from fixtures/seo/seo-page-data.json. One test per page runs every
+// applicable check and records a row per check (pass / fail / warning / skipped)
+// in the report. The page's test FAILS if any check fails; warnings (manual
+// verification needed) and skipped (not applicable) checks do not fail it.
 
 const pageData = require('../../fixtures/seo/seo-page-data.json');
 
@@ -20,24 +14,9 @@ const pageData = require('../../fixtures/seo/seo-page-data.json');
 const PROD_ORIGIN = 'https://www.kraftshala.com';
 const INTERNAL_DOMAIN_RE = /^https?:\/\/(?:www\.)?kraftshala\.com\b/i;
 
-// Module-level accumulator — Cypress loads the spec file once per run, so all
-// tests share this array. Flushed to disk in the after() hook.
-const allResults = [];
-
-// Add a single check result row for the active page.
-function recordCheck(pageContext, row) {
-  // Find or create the page's bucket.
-  let bucket = allResults.find((b) => b.path === pageContext.path);
-  if (!bucket) {
-    bucket = {
-      page: pageContext.name,
-      path: pageContext.path,
-      key: pageContext.key,
-      checks: [],
-    };
-    allResults.push(bucket);
-  }
-  bucket.checks.push(row);
+// Add a single check result row to the current page's report entry.
+function recordCheck(_page, row) {
+  globalThis.testDetail().checks.push(row);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -53,11 +32,6 @@ function buildAbsoluteUrl(path) {
   const base = Cypress.config('baseUrl').replace(/\/+$/, '');
   const rel = String(path || '').replace(/^\/?/, '/');
   return base + rel;
-}
-
-// Trim quoted attribute values from raw HTML when we only care about presence.
-function htmlContains(raw, needle) {
-  return new RegExp(needle, 'i').test(raw);
 }
 
 // Normalizes text for substring comparison — handles HTML entities AND common
@@ -180,27 +154,25 @@ function jsonLdTypeKey(node) {
 // ── The spec ───────────────────────────────────────────────────────────────
 
 describe('SEO Checklist', () => {
-  before(() => {
-    // Reset accumulator at the very start of the run.
-    allResults.length = 0;
-  });
-
-  after(() => {
-    // Flush the structured results to the reports folder so form-server.js
-    // can read them and surface them in the dashboard.
-    cy.writeFile('cypress/reports/seo-results.json', allResults, { log: false });
-  });
-
   for (const page of pageData.pages) {
     describe(page.name, () => {
       it(`Run all SEO checks for ${page.name}`, () => {
-        // ── HEAD section ─────────────────────────────────────────────────
+        Object.assign(globalThis.testDetail(), { kind: 'seo', page: page.name, path: page.path, checks: [] });
         runHeadChecks(page);
-        // After cy.request the page hasn't been visited yet — cy.visit it for the body/dom checks.
+        // Head checks read raw server HTML; the rest need the rendered DOM.
         cy.visit(page.path);
         runBodyChecks(page);
         runFooterChecks(page);
         runFaqChecks(page);
+        cy.then(() => {
+          const failed = globalThis.testDetail().checks.filter((c) => c.status === 'fail');
+          if (failed.length) {
+            throw new Error(
+              `${failed.length} SEO check(s) failed on ${page.path}:\n` +
+                failed.map((c) => `- ${c.name}: ${c.details}`).join('\n')
+            );
+          }
+        });
       });
     });
   }
@@ -384,12 +356,6 @@ function runHeadChecks(page) {
     // Pass full rawHtml — Gatsby/React templates often place JSON-LD inside
     // the page body (e.g. `<div class="main-homepage"><script type="application/ld+json">…`).
     runJsonLdCheck(page, rawHtml);
-  });
-
-  // Network-side half of Check 1 — intercept any request after page load that
-  // might inject head tags. Recorded as a secondary row.
-  cy.intercept({ resourceType: 'xhr' }, (req) => {
-    req.alias = 'seoHeadXhr';
   });
 }
 
@@ -893,8 +859,4 @@ function faqCheckName(id) {
     case 'faq-17': return 'Collapsed FAQ panels use crawlable hiding';
     default: return id;
   }
-}
-
-function escapeForRegex(s) {
-  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

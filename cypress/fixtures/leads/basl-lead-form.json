@@ -1,0 +1,9 @@
+{
+  "form": "BASL lead form",
+  "page": "/pgp/learn-sales-and-marketing/",
+  "programSlug": "basl",
+  "otp": "159753",
+  "lead": { "name": "Test SMBL", "email": "vemiw28382@acoxs.com", "phone": "7008969710" },
+  "alternate": { "email": "ligewir896@bevriz.com", "phone": "5896745895" },
+  "invalid": { "email": "plainaddress", "phone": "12345" }
+}

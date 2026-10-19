@@ -1,26 +1,19 @@
 {
-  "name": "mlp-page-automation",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "kraftshala-qa-automation",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Cypress automation for Kraftshala lead forms, downloads, KS Live, callback, SEO and broken links, published as an HTML dashboard.",
   "scripts": {
-    "cy:open": "cypress open --e2e",
-    "cy:run": "cypress run --e2e",
-    "mlp:form": "node form-server.js",
-    "docker:up": "docker compose up --build",
-    "docker:build": "docker compose build",
-    "docker:logs": "docker compose logs -f mlp-automation"
+    "test": "node scripts/run.js --platform test",
+    "test:main": "node scripts/run.js --platform main",
+    "test:suite": "node scripts/run.js --platform test --suite",
+    "open": "node scripts/run.js --open --platform test",
+    "report": "node reporter/buildSite.js cypress/reports/site test cypress/reports/results-test.json",
+    "serve": "node scripts/serve.js",
+    "open:main": "node scripts/run.js --open --platform main"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
     "cypress": "^15.12.0"
-  },
-  "dependencies": {
-    "adm-zip": "^0.5.17",
-    "express": "^5.2.1",
-    "node-fetch": "^2.7.0"
   }
 }
