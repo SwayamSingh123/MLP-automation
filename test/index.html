@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA Report — Test platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#f1ae13;--navy:#243e60;--navy-deep:#1b2f4a;--ink:#303030;--body:#505050;
+  --muted:#7e7e7e;--line:#e5e5e5;--bg:#f8f8f8;--card:#fff;--ok:#157a4f;--ok-soft:#eaf6f0;
+  --bad:#c0392b;--bad-soft:#fdecea;--skip:#5d6b80;--skip-soft:#eef1f6;--code:#f4f5f7;
+  --font:"Plus Jakarta Sans","Segoe UI",-apple-system,Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root{--ink:#eceff4;--body:#c9d1dc;--muted:#97a3b4;--line:#2c3746;
+  --bg:#121821;--card:#1a2230;--ok:#4cc38a;--ok-soft:#173528;--bad:#f07a6c;--bad-soft:#3b1f1c;
+  --skip:#a9b4c4;--skip-soft:#252f3e;--code:#111722}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--body);font-family:var(--font);line-height:1.55;font-size:14px}
+a{color:inherit}
+header{background:linear-gradient(135deg,var(--navy),var(--navy-deep));color:#fff;padding:40px 24px 36px;
+  position:relative;overflow:hidden}
+header:after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;
+  background:var(--gold);opacity:.13}
+.wrap{max-width:1080px;margin:0 auto;position:relative}
+.brandmark{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:13px;color:#fff;text-decoration:none}
+.brandmark i{width:10px;height:10px;border-radius:2px;background:var(--gold);transform:rotate(45deg)}
+h1{margin:14px 0 6px;font-size:28px;font-weight:800;letter-spacing:-.5px;color:#fff}
+header p{margin:0;color:#b9c4d4;font-size:13.5px}
+header nav{margin-top:14px;display:flex;gap:16px;flex-wrap:wrap;font-size:13px;font-weight:700}
+header nav a{color:#fff;text-decoration:none;border-bottom:2px solid var(--gold)}
+main{max-width:1080px;margin:0 auto;padding:24px 24px 60px;display:grid;gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+  box-shadow:0 1px 3px rgba(36,62,96,.05)}
+h2{margin:0;font-size:18px;font-weight:800;color:var(--ink)}
+h3{margin:0 0 8px;font-size:13px;font-weight:800;color:var(--ink);text-transform:uppercase;letter-spacing:.05em}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;border-top:3px solid var(--line)}
+.kpi b{display:block;font-size:28px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.kpi.ok{border-top-color:var(--ok)}.kpi.bad{border-top-color:var(--bad)}.kpi.skip{border-top-color:var(--skip)}
+.kpi.gold{border-top-color:var(--gold)}
+.verdict{padding:13px 16px;border-radius:10px;font-weight:700}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}.verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.verdict.skip{background:var(--skip-soft);color:var(--skip)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:.04em;
+  border-radius:999px;padding:3px 10px;white-space:nowrap}
+.badge b{font-weight:900}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.skip{background:var(--skip-soft);color:var(--skip)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.suite-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.suite-head small{color:var(--muted);font-size:12px}
+details.test{border:1px solid var(--line);border-radius:10px;margin-top:8px;background:var(--card)}
+details.test>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px}
+details.test>summary::-webkit-details-marker{display:none}
+details.test>summary:before{content:"▸";color:var(--muted);font-size:12px}
+details.test[open]>summary:before{content:"▾"}
+.t-title{flex:1;font-weight:600;color:var(--ink)}
+.t-group{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
+.t-dur{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.t-body{padding:4px 16px 16px;display:grid;gap:14px;border-top:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;font-size:13px;margin-top:12px}
+.kv dt{color:var(--muted);font-weight:600}.kv dd{margin:0;color:var(--ink)}
+ul.checks{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+ul.checks li{display:flex;gap:8px;align-items:baseline}
+.mark{font-weight:900;width:14px;flex:none}.mark.ok{color:var(--ok)}.mark.bad{color:var(--bad)}.mark.skip{color:var(--skip)}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+pre.err{margin:0;white-space:pre-wrap;word-break:break-word;background:var(--bad-soft);color:var(--ink);
+  border-left:3px solid var(--bad);padding:10px 12px;border-radius:6px;font-size:12px;max-height:280px;overflow:auto}
+.shots{display:flex;gap:10px;flex-wrap:wrap}
+.shots img{width:260px;max-width:100%;border:1px solid var(--line);border-radius:8px;display:block}
+.muted{color:var(--muted)}
+footer{max-width:1080px;margin:0 auto;padding:0 24px 40px;color:var(--muted);font-size:12px}
+@media(max-width:640px){header,main,footer{padding-left:16px;padding-right:16px}h1{font-size:23px}
+  .kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+</style></head>
+<body><header><div class="wrap">
+      <a class="brandmark" href="../"><i></i>KRAFTSHALA</a>
+      <h1>QA Automation — Test platform</h1>
+      <p>testprogram.kraftshala.com · Last run 19 Oct 2026, 04:04 pm IST</p>
+      <nav><a href="../">All reports</a><a href="../main/">Main platform report</a></nav>
+    </div></header>
+    <main>
+      <section class="kpis" aria-label="Totals">
+    <div class="kpi gold"><b>46</b><span>Total tests</span></div>
+    <div class="kpi ok"><b>36</b><span>Passed</span></div>
+    <div class="kpi bad"><b>10</b><span>Failed</span></div>
+    <div class="kpi skip"><b>0</b><span>Skipped</span></div>
+    <div class="kpi "><b>78%</b><span>Pass rate</span></div>
+    <div class="kpi "><b>15m 46s</b><span>Execution time</span></div>
+  </section>
+      <div class="verdict bad">10 tests failed — details below.</div>
+      <section class="card"><h2 style="margin-bottom:12px">Test suites</h2><div class="scroll"><table>
+    <thead><tr><th>Suite</th><th>Status</th><th class="num">Tests</th><th class="num">Passed</th>
+    <th class="num">Failed</th><th class="num">Skipped</th><th class="num">Duration</th><th>Last run</th></tr></thead>
+    <tbody><tr>
+        <td><a href="#suite-mlp"><b>MLP — Marketing Launchpad</b></a></td>
+        <td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td>
+        <td class="num">9</td>
+        <td class="num">9</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">2m 37s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr><tr>
+        <td><a href="#suite-alm"><b>ALM — AI-Led Marketing</b></a></td>
+        <td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td>
+        <td class="num">8</td>
+        <td class="num">7</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td class="num">5m 30s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr><tr>
+        <td><a href="#suite-basl"><b>BASL — Sales &amp; Marketing</b></a></td>
+        <td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td>
+        <td class="num">7</td>
+        <td class="num">7</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">2m 18s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr><tr>
+        <td><a href="#suite-kslive"><b>KS Live — Event registration</b></a></td>
+        <td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td>
+        <td class="num">1</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">16s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr><tr>
+        <td><a href="#suite-callback"><b>Request a Callback</b></a></td>
+        <td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td>
+        <td class="num">1</td>
+        <td class="num">1</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">27s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr><tr>
+        <td><a href="#suite-seo"><b>SEO checklist</b></a></td>
+        <td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td>
+        <td class="num">7</td>
+        <td class="num">0</td>
+        <td class="num">7</td>
+        <td class="num">0</td>
+        <td class="num">2m 58s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr><tr>
+        <td><a href="#suite-links"><b>Broken link checker</b></a></td>
+        <td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td>
+        <td class="num">13</td>
+        <td class="num">11</td>
+        <td class="num">2</td>
+        <td class="num">0</td>
+        <td class="num">1m 39s</td>
+        <td>19 Oct 2026, 04:04 pm IST</td>
+      </tr></tbody></table></div></section>
+      <section class="card" id="suite-mlp">
+    <div class="suite-head"><h2>MLP — Marketing Launchpad</h2>
+      <span><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span> <small>9 passed · 0 failed · 0 skipped · 2m 37s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">New registration with base email and base phone<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">30s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">nixerot564@bevriz.com</span> · <span class="mono">6984756410</span></dd>
+    <dt>Expected outcome</dt><dd>A new lead is created and the success page opens</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">nixerot564@bevriz.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">locarok574@acoxs.com</span>
+            — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">6984756410</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">8899770012</span>
+            — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/1dc988c6-42fa-43f7-8bf5-e65c8871eb44/ — new lead created</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>Lead created (lead/create)</b> — HTTP 200</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Existing registration with base email and base phone<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">16s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">nixerot564@bevriz.com</span> · <span class="mono">6984756410</span></dd>
+    <dt>Expected outcome</dt><dd>Re-submitting an existing lead still opens the success page</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Intentionally not run — this case re-submits the lead created by the previous case.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/1dc988c6-42fa-43f7-8bf5-e65c8871eb44/ — existing lead reused (no lead/create)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base email with different phone number should be blocked<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">43s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">nixerot564@bevriz.com</span> · <span class="mono">8899770012</span></dd>
+    <dt>Expected outcome</dt><dd>Registration is blocked with &quot;phone number associated with …&quot; and no success page</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">8899770012</span>
+            — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Blocked: &quot;phone number associated with … try using this phone number&quot;</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation rejects the mismatched phone</b> — HTTP 400 · The phone number associated with nixerot564@bevriz.com is xxxxxx6410. Try using this phone number</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    <dt>Notes</dt><dd>Backend never answered POST /otp-validation/ (waited 35s)</dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base phone number with different email<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">12s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">locarok574@acoxs.com</span> · <span class="mono">6984756410</span></dd>
+    <dt>Expected outcome</dt><dd>OTP verifies and the success page opens (new lead or existing lead for this phone)</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">locarok574@acoxs.com</span>
+            — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/1dc988c6-42fa-43f7-8bf5-e65c8871eb44/ — existing lead reused (no lead/create)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Invalid email should show error and not open OTP<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">7s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">plainaddress</span> · <span class="mono">6984756410</span></dd>
+    <dt>Expected outcome</dt><dd>Email validation error; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Validation error shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Invalid phone should show error and not open OTP<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">7s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">nixerot564@bevriz.com</span> · <span class="mono">12345</span></dd>
+    <dt>Expected outcome</dt><dd>Phone validation error; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Validation error shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Submitting empty form should show required field errors<span class="t-group">Kraftshala MLP lead form</span></span><span class="t-dur">5s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP lead form</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>— · <span class="mono">—</span> · <span class="mono">—</span></dd>
+    <dt>Expected outcome</dt><dd>Required-field errors; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Required-field errors shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download brochure with base email and base phone<span class="t-group">Kraftshala MLP — Download brochure</span></span><span class="t-dur">20s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP download brochure</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test Brochure · <span class="mono">hiveve8144@cadinr.com</span> · <span class="mono">2577598891</span></dd>
+    <dt>Expected outcome</dt><dd>&quot;You're all set. We've sent the document to your email and WhatsApp.&quot;</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">hiveve8144@cadinr.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">2577598891</span>
+            — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success message shown: document sent</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download syllabus with base email and base phone<span class="t-group">Kraftshala MLP — Download syllabus</span></span><span class="t-dur">19s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>MLP download syllabus</dd>
+    <dt>Page</dt><dd class="mono">/marketing-launchpad/digital-marketing-course/</dd>
+    <dt>Lead</dt><dd>Test Syllabus · <span class="mono">kssyllabusqa@cadinr.com</span> · <span class="mono">3999631499</span></dd>
+    <dt>Expected outcome</dt><dd>&quot;You're all set. We've sent the syllabus to your email and WhatsApp.&quot;</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">kssyllabusqa@cadinr.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">3999631499</span>
+            — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success message shown: syllabus sent</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li></ul></dd>
+    
+  </dl></div>
+  </details>
+  </section><section class="card" id="suite-alm">
+    <div class="suite-head"><h2>ALM — AI-Led Marketing</h2>
+      <span><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span> <small>7 passed · 1 failed · 0 skipped · 5m 30s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">New registration with base email and base phone<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">26s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">yesep50258@acoxs.com</span> · <span class="mono">7550996880</span></dd>
+    <dt>Expected outcome</dt><dd>A new lead is created and the success page opens</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (alm)</b> <span class="mono">yesep50258@acoxs.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (alm)</b> <span class="mono">filih22969@bevriz.com</span>
+            — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">7550996880</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">6236956323</span>
+            — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /pgp-in-marketing/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/10bc4339-1a90-4a0b-87bb-cb4df9ed95e1/ — new lead created</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>Lead created (lead/create)</b> — HTTP 200</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Existing registration with base email and base phone<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">44s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">yesep50258@acoxs.com</span> · <span class="mono">7550996880</span></dd>
+    <dt>Expected outcome</dt><dd>Re-submitting an existing lead still opens the success page</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Intentionally not run — this case re-submits the lead created by the previous case.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /pgp-in-marketing/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/10bc4339-1a90-4a0b-87bb-cb4df9ed95e1/ — existing lead reused (no lead/create)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
+    <dt>Notes</dt><dd>Backend never answered POST /otp-validation/ (waited 37s)</dd>
+  </dl></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Base email with different phone number should be blocked<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">52s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">yesep50258@acoxs.com</span> · <span class="mono">6236956323</span></dd>
+    <dt>Expected outcome</dt><dd>Registration is blocked with &quot;phone number associated with …&quot; and no success page</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">6236956323</span>
+            — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark bad" aria-hidden="true">✕</span> Did not complete — see the failure reason below.</dd>
+    <dt>API verification</dt><dd><span class="muted">No API verification for this test.</span></dd>
+    <dt>Notes</dt><dd>Backend error: POST /otp-validation/ -&gt; HTTP 409 Invalid Email ID.</dd>
+  </dl><div><h3>Failure reason</h3><pre class="err">AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/alm/20261019103436-1-Kraftshala_ALM_lead_form_--_Base_email_with_different_phone_number_should_be_blocked_failed_.png" target="_blank" rel="noopener"><img src="screenshots/alm/20261019103436-1-Kraftshala_ALM_lead_form_--_Base_email_with_different_phone_number_should_be_blocked_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base phone number with different email<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">11s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">filih22969@bevriz.com</span> · <span class="mono">7550996880</span></dd>
+    <dt>Expected outcome</dt><dd>OTP verifies and the success page opens (new lead or existing lead for this phone)</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (alm)</b> <span class="mono">filih22969@bevriz.com</span>
+            — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /pgp-in-marketing/screening-test/f1f7f2a9-48ab-44f8-bf48-d571ac9bb696/10bc4339-1a90-4a0b-87bb-cb4df9ed95e1/ — existing lead reused (no lead/create)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
+    <dt>Notes</dt><dd>Backend never answered POST /lead_tracking (waited 0s)</dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Invalid email should show error and not open OTP<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">56s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">plainaddress</span> · <span class="mono">7550996880</span></dd>
+    <dt>Expected outcome</dt><dd>Email validation error; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Validation error shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Invalid phone should show error and not open OTP<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">1m 10s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">yesep50258@acoxs.com</span> · <span class="mono">12345</span></dd>
+    <dt>Expected outcome</dt><dd>Phone validation error; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Validation error shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Submitting empty form should show required field errors<span class="t-group">Kraftshala ALM lead form</span></span><span class="t-dur">21s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>— · <span class="mono">—</span> · <span class="mono">—</span></dd>
+    <dt>Expected outcome</dt><dd>Required-field errors; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Required-field errors shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Download prospectus with base email and base phone<span class="t-group">Kraftshala ALM — Download prospectus</span></span><span class="t-dur">50s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>ALM download prospectus</dd>
+    <dt>Page</dt><dd class="mono">/pgp-in-marketing/</dd>
+    <dt>Lead</dt><dd>Test ALM · <span class="mono">yesep50258@acoxs.com</span> · <span class="mono">7550996880</span></dd>
+    <dt>Expected outcome</dt><dd>&quot;You're all set. We've sent the document to your email and WhatsApp.&quot;</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (alm)</b> <span class="mono">yesep50258@acoxs.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">7550996880</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">6236956323</span>
+            — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success message shown: document sent</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Notes</dt><dd>Backend never answered POST /otp-validation (waited 38s)</dd>
+  </dl></div>
+  </details>
+  </section><section class="card" id="suite-basl">
+    <div class="suite-head"><h2>BASL — Sales &amp; Marketing</h2>
+      <span><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span> <small>7 passed · 0 failed · 0 skipped · 2m 18s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">New registration with base email and base phone<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">23s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>Test SMBL · <span class="mono">vemiw28382@acoxs.com</span> · <span class="mono">7008969710</span></dd>
+    <dt>Expected outcome</dt><dd>A new lead is created and the success page opens</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (basl)</b> <span class="mono">vemiw28382@acoxs.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (basl)</b> <span class="mono">ligewir896@bevriz.com</span>
+            — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">7008969710</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">5896745895</span>
+            — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /pgp/learn-sales-and-marketing/thank-you/ — new lead created</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>Lead created (lead/create)</b> — HTTP 200</span></li></ul></dd>
+    <dt>Notes</dt><dd>Ignored cross-origin/benign browser error: Script error.</dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Existing registration with base email and base phone<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">17s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>Test SMBL · <span class="mono">vemiw28382@acoxs.com</span> · <span class="mono">7008969710</span></dd>
+    <dt>Expected outcome</dt><dd>Re-submitting an existing lead still opens the success page</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Intentionally not run — this case re-submits the lead created by the previous case.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /pgp/learn-sales-and-marketing/thank-you/ — existing lead reused (no lead/create)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
+    <dt>Notes</dt><dd>Ignored cross-origin/benign browser error: Script error.</dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base email with different phone number should be blocked<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">13s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>Test SMBL · <span class="mono">vemiw28382@acoxs.com</span> · <span class="mono">5896745895</span></dd>
+    <dt>Expected outcome</dt><dd>Registration is blocked with &quot;phone number associated with …&quot; and no success page</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">5896745895</span>
+            — HTTP 400 · Already absent (OTP Validation Details not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Blocked: &quot;phone number associated with … try using this phone number&quot;</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation rejects the mismatched phone</b> — HTTP 400 · The phone number associated with vemiw28382@acoxs.com is xxxxxx9710. Try using this phone number</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Base phone number with different email<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">49s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>Test SMBL · <span class="mono">ligewir896@bevriz.com</span> · <span class="mono">7008969710</span></dd>
+    <dt>Expected outcome</dt><dd>OTP verifies and the success page opens (new lead or existing lead for this phone)</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (basl)</b> <span class="mono">ligewir896@bevriz.com</span>
+            — HTTP 200 · Already absent (FAILURE , Lead not found)</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Success page opened: /pgp/learn-sales-and-marketing/thank-you/ — existing lead reused (no lead/create)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200</span></li></ul></dd>
+    <dt>Notes</dt><dd>Ignored cross-origin/benign browser error: Script error.<br>Backend never answered POST /otp-validation/ (waited 37s)</dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Invalid email should show error and not open OTP<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">10s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>Test SMBL · <span class="mono">plainaddress</span> · <span class="mono">7008969710</span></dd>
+    <dt>Expected outcome</dt><dd>Email validation error; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Validation error shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Invalid phone should show error and not open OTP<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">13s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>Test SMBL · <span class="mono">vemiw28382@acoxs.com</span> · <span class="mono">12345</span></dd>
+    <dt>Expected outcome</dt><dd>Phone validation error; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Validation error shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Submitting empty form should show required field errors<span class="t-group">Kraftshala BASL lead form</span></span><span class="t-dur">12s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>BASL lead form</dd>
+    <dt>Page</dt><dd class="mono">/pgp/learn-sales-and-marketing/</dd>
+    <dt>Lead</dt><dd>— · <span class="mono">—</span> · <span class="mono">—</span></dd>
+    <dt>Expected outcome</dt><dd>Required-field errors; no OTP, no lead</dd>
+    <dt>Cleanup</dt><dd><span class="muted">Not needed — this submission must not create a lead.</span></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Required-field errors shown; OTP step did not open</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>No lead created (lead/create)</b> — not called · Not sent (as expected)</span></li></ul></dd>
+    
+  </dl></div>
+  </details>
+  </section><section class="card" id="suite-kslive">
+    <div class="suite-head"><h2>KS Live — Event registration</h2>
+      <span><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span> <small>1 passed · 0 failed · 0 skipped · 16s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Register on 1st KS Live event with base email and base phone<span class="t-group">Kraftshala KS Live registration</span></span><span class="t-dur">16s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>KS Live event registration</dd>
+    <dt>Page</dt><dd class="mono">/kraftshala-live/</dd>
+    <dt>Lead</dt><dd>Test KS live · <span class="mono">focefo3320@acoxs.com</span> · <span class="mono">5997863541</span></dd>
+    <dt>Expected outcome</dt><dd>&quot;You're In!&quot; confirmation (or &quot;already registered&quot; for a repeat registration)</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">5997863541</span>
+            — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Already registered for this event (repeat registration — KS Live has no delete API to reset it)</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>POST /otp-validation</b> — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>POST /otp-validation/validate</b> — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>POST /program/null/campaign/null/events/a302e98d-faa2-45d6-933a-e643cf50252c/lead</b> — HTTP 409 · Lead already exists.</span></li></ul></dd>
+    <dt>Notes</dt><dd>Registration page: /kraftshala-live/register/</dd>
+  </dl></div>
+  </details>
+  </section><section class="card" id="suite-callback">
+    <div class="suite-head"><h2>Request a Callback</h2>
+      <span><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span> <small>1 passed · 0 failed · 0 skipped · 27s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Submit callback request and verify success message<span class="t-group">Kraftshala — Request a CallBack</span></span><span class="t-dur">27s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Form</dt><dd>Request a callback</dd>
+    <dt>Page</dt><dd class="mono">/</dd>
+    <dt>Lead</dt><dd>Test MLP · <span class="mono">nixerot564@bevriz.com</span> · <span class="mono">6984756410</span></dd>
+    <dt>Expected outcome</dt><dd>&quot;Thanks for sharing your details…&quot; confirmation is shown</dd>
+    <dt>Cleanup</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>remove-lead (mlp)</b> <span class="mono">nixerot564@bevriz.com</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">6984756410</span>
+            — HTTP 200 · SUCCESS</span></li><li><span class="mark ok" aria-hidden="true">✓</span><span><b>removeNumber</b> <span class="mono">8899770012</span>
+            — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Submission result</dt><dd><span class="mark ok" aria-hidden="true">✓</span> Callback confirmation shown</dd>
+    <dt>API verification</dt><dd><ul class="checks"><li><span class="mark ok" aria-hidden="true">✓</span><span><b>OTP validation</b> — HTTP 200 · SUCCESS</span></li></ul></dd>
+    <dt>Notes</dt><dd>Ignored cross-origin/benign browser error: ResizeObserver loop completed with undelivered notifications.</dd>
+  </dl></div>
+  </details>
+  </section><section class="card" id="suite-seo">
+    <div class="suite-head"><h2>SEO checklist</h2>
+      <span><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span> <small>0 passed · 7 failed · 0 skipped · 2m 58s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for Home<span class="t-group">SEO Checklist › Home</span></span><span class="t-dur">16s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location footer links present</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location anchor text + URL pattern</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">Page is not flagged hasFaq — FAQ checks do not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">Page is not flagged hasFaq — FAQ checks do not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Collapsed FAQ panels use crawlable hiding</b><br><span class="muted">Page is not flagged hasFaq — FAQ checks do not apply.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;Kraftshala School of Business - Best Job-linked Course Platform in India&quot;. Got: &quot;Best Job-Linked Sales &amp; Marketing Programs in India - Kraftshala School of Business (formerly Kraftshala)&quot;. First diff at pos 0: U+004B ('K') vs U+0042 ('B') — context: &quot;...Kraftshala S...&quot;</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description mismatch. Expected: &quot;Kraftshala School of Business makes India’s most loved courses for students &amp; professionals that are 100% industry-driven. Be a part of India’s most promising talent today.&quot;. Got: &quot;Kraftshala School of Business, formerly Kraftshala, is India’s top B school for sales and marketing, with job-linked online and PG programs. 3,300+ students placed, 22 LPA highest CTC.&quot;. First diff at pos 29: U+0020 (' ') vs U+002C (',') — context: &quot;... of Business makes India...&quot;</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">2 difference(s) across 2 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Exactly one &lt;h1&gt; on the page</b><br><span class="muted">Exactly one h1 element found.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Image / canvas text (warning — manual verification needed)</b><br><span class="muted">280 &lt;img&gt; tag(s) without alt text.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>No hidden text via display:none (excluding intentional UI)</b><br><span class="muted">5 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Internal links must NOT have rel=&quot;nofollow&quot;</b><br><span class="muted">All internal links are dofollow.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>External links must be nofollow</b><br><span class="muted">26 external link(s) missing rel=&quot;nofollow&quot;.</span></td></tr></tbody></table></div><div><h3>Notes</h3>Ignored cross-origin/benign browser error: ResizeObserver loop completed with undelivered notifications.</div><div><h3>Failure reason</h3><pre class="err">Error: 6 SEO check(s) failed on /:
+- Robots meta tag (test expected): Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.
+- Meta title matches expected: Title mismatch. Expected: &quot;Kraftshala School of Business - Best Job-linked Course Platform in India&quot;. Got: &quot;Best Job-Linked Sales &amp; Marketing Programs in India - Kraftshala School of Business (formerly Kraftshala)&quot;. First diff at pos 0: U+004B ('K') vs U+0042 ('B') — context: &quot;...Kraftshala S...&quot;
+- Meta description matches expected + has data-react-helmet: Description mismatch. Expected: &quot;Kraftshala School of Business makes India’s most loved courses for students &amp; professionals that are 100% industry-driven. Be a part of India’s most promising talent today.&quot;. Got: &quot;Kraftshala School of Business, formerly Kraftshala, is India’s top B school for sales and marketing, with job-linked online and PG programs. 3,300+ students placed, 22 LPA highest CTC.&quot;. First diff at pos 29: U+0020 (' ') vs U+002C (',') — context: &quot;... of Business makes India...&quot;
+- JSON-LD matches fixture (deep diff): 2 difference(s) across 2 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).
+- No hidden text via display:none (excluding intentional UI): 5 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.
+- External links must be nofollow: 26 external link(s) missing rel=&quot;nofollow&quot;.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-1-SEO_Checklist_--_Home_--_Run_all_SEO_checks_for_Home_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-1-SEO_Checklist_--_Home_--_Run_all_SEO_checks_for_Home_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for MLP Core<span class="t-group">SEO Checklist › MLP Core</span></span><span class="t-dur">5s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;#1 AI-Integrated Digital Marketing Course with Placements&quot;. Got: &quot;Best AI-Integrated Digital Marketing Course with Placements&quot;. First diff at pos 0: U+0023 ('#') vs U+0042 ('B') — context: &quot;...#1 AI-Integr...&quot;</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description mismatch. Expected: &quot;Join the best AI-Integrated digital marketing course in India with placement. This 22-week live digital marketing course helps you get jobs from ₹4.5-10.05 LPA. Enroll now!&quot;. Got: &quot;Join the best AI-Integrated digital marketing course in India with placement. This 6-months live digital marketing certification course helps you get jobs from ₹4.5-10.40 LPA. Enroll now!&quot;. First diff at pos 83: U+0032 ('2') vs U+0036 ('6') — context: &quot;...ement. This 22-week live...&quot;</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">3 difference(s) across 3 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Exactly one &lt;h1&gt; on the page</b><br><span class="muted">Exactly one h1 element found.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Image / canvas text (warning — manual verification needed)</b><br><span class="muted">367 &lt;img&gt; tag(s) without alt text.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>No hidden text via display:none (excluding intentional UI)</b><br><span class="muted">112 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Internal links must NOT have rel=&quot;nofollow&quot;</b><br><span class="muted">All internal links are dofollow.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>External links must be nofollow</b><br><span class="muted">112 external link(s) missing rel=&quot;nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Location footer links present</b><br><span class="muted">All 9 location links present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Location anchor text + URL pattern</b><br><span class="muted">All 20 location anchors match the URL pattern.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">3 FAQ answer(s) not found in raw HTML — likely injected by JS.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none)</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">Error: 9 SEO check(s) failed on /marketing-launchpad/digital-marketing-course/:
+- Robots meta tag (test expected): Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.
+- Meta title matches expected: Title mismatch. Expected: &quot;#1 AI-Integrated Digital Marketing Course with Placements&quot;. Got: &quot;Best AI-Integrated Digital Marketing Course with Placements&quot;. First diff at pos 0: U+0023 ('#') vs U+0042 ('B') — context: &quot;...#1 AI-Integr...&quot;
+- Meta description matches expected + has data-react-helmet: Description mismatch. Expected: &quot;Join the best AI-Integrated digital marketing course in India with placement. This 22-week live digital marketing course helps you get jobs from ₹4.5-10.05 LPA. Enroll now!&quot;. Got: &quot;Join the best AI-Integrated digital marketing course in India with placement. This 6-months live digital marketing certification course helps you get jobs from ₹4.5-10.40 LPA. Enroll now!&quot;. First diff at pos 83: U+0032 ('2') vs U+0036 ('6') — context: &quot;...ement. This 22-week live...&quot;
+- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).
+- No hidden text via display:none (excluding intentional UI): 112 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.
+- External links must be nofollow: 112 external link(s) missing rel=&quot;nofollow&quot;.
+- FAQ ARIA attributes: FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.
+- FAQ answers present in server-rendered HTML: 3 FAQ answer(s) not found in raw HTML — likely injected by JS.
+- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-2-SEO_Checklist_--_MLP_Core_--_Run_all_SEO_checks_for_MLP_Core_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-2-SEO_Checklist_--_MLP_Core_--_Run_all_SEO_checks_for_MLP_Core_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for MLP Part-Time<span class="t-group">SEO Checklist › MLP Part-Time</span></span><span class="t-dur">7s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;Best Part-time Digital Marketing Weekend Course With Placement [&amp; AI Tools Training]&quot;. Got: &quot;Best Part-time Digital Marketing Weekend Course With Placement [&amp; AI Tools Training] - Kraftshala&quot;. Lengths differ after normalize — expected 84, got 97.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description matches and helmet attribute present.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">3 difference(s) across 3 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Exactly one &lt;h1&gt; on the page</b><br><span class="muted">Exactly one h1 element found.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Image / canvas text (warning — manual verification needed)</b><br><span class="muted">287 &lt;img&gt; tag(s) without alt text.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>No hidden text via display:none (excluding intentional UI)</b><br><span class="muted">104 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Internal links must NOT have rel=&quot;nofollow&quot;</b><br><span class="muted">All internal links are dofollow.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>External links must be nofollow</b><br><span class="muted">136 external link(s) missing rel=&quot;nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Location footer links present</b><br><span class="muted">All 9 location links present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Location anchor text + URL pattern</b><br><span class="muted">All 20 location anchors match the URL pattern.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">2 FAQ answer(s) not found in raw HTML — likely injected by JS.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none)</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">Error: 8 SEO check(s) failed on /marketing-launchpad/part-time-digital-marketing-course/:
+- Robots meta tag (test expected): Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.
+- Meta title matches expected: Title mismatch. Expected: &quot;Best Part-time Digital Marketing Weekend Course With Placement [&amp; AI Tools Training]&quot;. Got: &quot;Best Part-time Digital Marketing Weekend Course With Placement [&amp; AI Tools Training] - Kraftshala&quot;. Lengths differ after normalize — expected 84, got 97.
+- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).
+- No hidden text via display:none (excluding intentional UI): 104 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.
+- External links must be nofollow: 136 external link(s) missing rel=&quot;nofollow&quot;.
+- FAQ ARIA attributes: FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.
+- FAQ answers present in server-rendered HTML: 2 FAQ answer(s) not found in raw HTML — likely injected by JS.
+- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-3-SEO_Checklist_--_MLP_Part-Time_--_Run_all_SEO_checks_for_MLP_Part-Time_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-3-SEO_Checklist_--_MLP_Part-Time_--_Run_all_SEO_checks_for_MLP_Part-Time_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for MLP Hindi<span class="t-group">SEO Checklist › MLP Hindi</span></span><span class="t-dur">6s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location footer links present</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location anchor text + URL pattern</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">No faqAnswerSnippets configured (or all still &quot;FILL IN...&quot;). Update seo-page-data.json with real answer snippets.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent&quot;. Got: &quot;Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent - Kraftshala&quot;. Lengths differ after normalize — expected 71, got 84.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description mismatch. Expected: &quot;Join India’s first digital marketing course in Hindi with placement. This 23-week live Hindi digital marketing course helps you get jobs upto ₹6 LPA. Enroll now!&quot;. Got: &quot;Join India’s first digital marketing course in Hindi with placement. This 6-month live Hindi digital marketing course helps you get jobs upto ₹6 LPA. Enroll now!&quot;. First diff at pos 74: U+0032 ('2') vs U+0036 ('6') — context: &quot;...ement. This 23-week live...&quot;</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">2 difference(s) across 2 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Exactly one &lt;h1&gt; on the page</b><br><span class="muted">Exactly one h1 element found.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Image / canvas text (warning — manual verification needed)</b><br><span class="muted">171 &lt;img&gt; tag(s) without alt text.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>No hidden text via display:none (excluding intentional UI)</b><br><span class="muted">59 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Internal links must NOT have rel=&quot;nofollow&quot;</b><br><span class="muted">All internal links are dofollow.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>External links must be nofollow</b><br><span class="muted">39 external link(s) missing rel=&quot;nofollow&quot;.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none)</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">Error: 8 SEO check(s) failed on /marketing-launchpad/digital-marketing-course-in-hindi/:
+- Robots meta tag (test expected): Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.
+- Meta title matches expected: Title mismatch. Expected: &quot;Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent&quot;. Got: &quot;Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent - Kraftshala&quot;. Lengths differ after normalize — expected 71, got 84.
+- Meta description matches expected + has data-react-helmet: Description mismatch. Expected: &quot;Join India’s first digital marketing course in Hindi with placement. This 23-week live Hindi digital marketing course helps you get jobs upto ₹6 LPA. Enroll now!&quot;. Got: &quot;Join India’s first digital marketing course in Hindi with placement. This 6-month live Hindi digital marketing course helps you get jobs upto ₹6 LPA. Enroll now!&quot;. First diff at pos 74: U+0032 ('2') vs U+0036 ('6') — context: &quot;...ement. This 23-week live...&quot;
+- JSON-LD matches fixture (deep diff): 2 difference(s) across 2 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).
+- No hidden text via display:none (excluding intentional UI): 59 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.
+- External links must be nofollow: 39 external link(s) missing rel=&quot;nofollow&quot;.
+- FAQ ARIA attributes: FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.
+- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-4-SEO_Checklist_--_MLP_Hindi_--_Run_all_SEO_checks_for_MLP_Hindi_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-4-SEO_Checklist_--_MLP_Hindi_--_Run_all_SEO_checks_for_MLP_Hindi_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for ALM (AI-Led Marketing)<span class="t-group">SEO Checklist › ALM (AI-Led Marketing)</span></span><span class="t-dur">5s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location footer links present</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location anchor text + URL pattern</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;PGP in Marketing (AI Led) by Kraftshala School of Business&quot;. Got: &quot;PGP in Marketing (AI Led) by Kraftshala School of Business (formerly Kraftshala)&quot;. Lengths differ after normalize — expected 58, got 80.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description matches and helmet attribute present.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">3 difference(s) across 3 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Exactly one &lt;h1&gt; on the page</b><br><span class="muted">Found 2 h1 element(s). Expected exactly 1.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Image / canvas text (warning — manual verification needed)</b><br><span class="muted">12 &lt;img&gt; tag(s) without alt text.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>No hidden text via display:none (excluding intentional UI)</b><br><span class="muted">55 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Internal links must NOT have rel=&quot;nofollow&quot;</b><br><span class="muted">All internal links are dofollow.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>External links must be nofollow</b><br><span class="muted">12 external link(s) missing rel=&quot;nofollow&quot;.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">All 2 FAQ answer snippet(s) found in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none)</b><br><span class="muted">FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</span></td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">Error: 8 SEO check(s) failed on /pgp-in-marketing/:
+- Robots meta tag (test expected): Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.
+- Meta title matches expected: Title mismatch. Expected: &quot;PGP in Marketing (AI Led) by Kraftshala School of Business&quot;. Got: &quot;PGP in Marketing (AI Led) by Kraftshala School of Business (formerly Kraftshala)&quot;. Lengths differ after normalize — expected 58, got 80.
+- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 1 parsed successfully. @types on page: (no @type).
+- Exactly one &lt;h1&gt; on the page: Found 2 h1 element(s). Expected exactly 1.
+- No hidden text via display:none (excluding intentional UI): 55 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.
+- External links must be nofollow: 12 external link(s) missing rel=&quot;nofollow&quot;.
+- FAQ ARIA attributes: FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.
+- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector &quot;.faq, [data-section='faq'], section.faq&quot;. Update faqSelectors in fixture.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-5-SEO_Checklist_--_ALM_AI-Led_Marketing_--_Run_all_SEO_checks_for_ALM_AI-Led_Marketing_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-5-SEO_Checklist_--_ALM_AI-Led_Marketing_--_Run_all_SEO_checks_for_ALM_AI-Led_Marketing_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for PGP Sales &amp; Marketing<span class="t-group">SEO Checklist › PGP Sales &amp; Marketing</span></span><span class="t-dur">17s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location footer links present</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Location anchor text + URL pattern</b><br><span class="muted">Page is not flagged hasLocationFooter — check does not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">No faqAnswerSnippets configured (or all still &quot;FILL IN...&quot;). Update seo-page-data.json with real answer snippets.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;Learn Sales &amp; Marketing With Placements from ₹9- 22 LPA&quot;. Got: &quot;Learn Sales &amp; Marketing With Placements from ₹9- 22 LPA - Kraftshala&quot;. Lengths differ after normalize — expected 55, got 68.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description matches and helmet attribute present.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">1 difference(s) across 1 block(s). Found 2 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 2 parsed successfully. @types on page: (no @type), Course.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Exactly one &lt;h1&gt; on the page</b><br><span class="muted">Exactly one h1 element found.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Image / canvas text (warning — manual verification needed)</b><br><span class="muted">202 &lt;img&gt; tag(s) without alt text.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>No hidden text via display:none (excluding intentional UI)</b><br><span class="muted">51 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Internal links must NOT have rel=&quot;nofollow&quot;</b><br><span class="muted">All internal links are dofollow.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>External links must be nofollow</b><br><span class="muted">71 external link(s) missing rel=&quot;nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">0 toggle(s) all have valid ARIA. No aria-hidden=&quot;true&quot; inside FAQ.</span></td></tr><tr><td><span class="badge skip"><b>!</b>WARNING</span></td><td><b>Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none)</b><br><span class="muted">No FAQ answer panels matched selector &quot;.faq-answer, .accordion-panel, [aria-labelledby]&quot;. Update faqSelectors in fixture.</span></td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">Error: 5 SEO check(s) failed on /pgp/learn-sales-and-marketing/:
+- Robots meta tag (test expected): Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.
+- Meta title matches expected: Title mismatch. Expected: &quot;Learn Sales &amp; Marketing With Placements from ₹9- 22 LPA&quot;. Got: &quot;Learn Sales &amp; Marketing With Placements from ₹9- 22 LPA - Kraftshala&quot;. Lengths differ after normalize — expected 55, got 68.
+- JSON-LD matches fixture (deep diff): 1 difference(s) across 1 block(s). Found 2 &lt;script type=&quot;application/ld+json&quot;&gt; tag(s); 2 parsed successfully. @types on page: (no @type), Course.
+- No hidden text via display:none (excluding intentional UI): 51 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.
+- External links must be nofollow: 71 external link(s) missing rel=&quot;nofollow&quot;.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-6-SEO_Checklist_--_PGP_Sales_Marketing_--_Run_all_SEO_checks_for_PGP_Sales_Marketing_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-6-SEO_Checklist_--_PGP_Sales_Marketing_--_Run_all_SEO_checks_for_PGP_Sales_Marketing_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Run all SEO checks for Blog<span class="t-group">SEO Checklist › Blog</span></span><span class="t-dur">2m 2s</span></summary>
+    <div class="t-body"><div class="scroll"><table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>FAQ ARIA attributes</b><br><span class="muted">Page is not flagged hasFaq — FAQ checks do not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>FAQ answers present in server-rendered HTML</b><br><span class="muted">Page is not flagged hasFaq — FAQ checks do not apply.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>Collapsed FAQ panels use crawlable hiding</b><br><span class="muted">Page is not flagged hasFaq — FAQ checks do not apply.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Head content in server-rendered HTML (no client-side injection)</b><br><span class="muted">All required tags (robots / canonical / title / description / json-ld) present in raw HTML.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Robots meta tag (test expected)</b><br><span class="muted">Robots content mismatch. Expected: &quot;noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1&quot;. Got: &quot;noindex, nofollow&quot;.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>No &quot;nosnippet&quot; / &quot;no-snippet&quot; anywhere in head</b><br><span class="muted">No nosnippet directives present.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Canonical link tag (production URL + trailing slash + helmet attr)</b><br><span class="muted">Canonical link tag valid.</span></td></tr><tr><td><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span></td><td><b>Meta title matches expected</b><br><span class="muted">Title mismatch. Expected: &quot;Latest Articles on Sales and Marketing Careers | Kraftshala School of Business&quot;. Got: &quot;Latest Articles on Sales and Marketing Careers | Kraftshala School of Business (formerly Kraftshala)&quot;. Lengths differ after normalize — expected 78, got 100.</span></td></tr><tr><td><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span></td><td><b>Meta description matches expected + has data-react-helmet</b><br><span class="muted">Description matches and helmet attribute present.</span></td></tr><tr><td><span class="badge skip"><b aria-hidden="true">–</b>SKIPPED</span></td><td><b>JSON-LD matches fixture (deep diff)</b><br><span class="muted">Page is flagged jsonLdType: &quot;none&quot; — JSON-LD comparison does not apply.</span></td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">CypressError: Timed out after waiting `120000ms` for your remote page to load.
+
+Your page did not fire its `load` event within `120000ms`.
+
+You can try increasing the `pageLoadTimeout` value in `home/runner/work/MLP-automation/MLP-automation/cypress.config.js` to wait longer.
+
+Browsers will not fire the `load` event until all stylesheets and scripts are done downloading.
+
+When this `load` event occurs, Cypress will continue running commands.</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/seo/20261019103436-7-SEO_Checklist_--_Blog_--_Run_all_SEO_checks_for_Blog_failed_.png" target="_blank" rel="noopener"><img src="screenshots/seo/20261019103436-7-SEO_Checklist_--_Blog_--_Run_all_SEO_checks_for_Blog_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details>
+  </section><section class="card" id="suite-links">
+    <div class="suite-head"><h2>Broken link checker</h2>
+      <span><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span> <small>11 passed · 2 failed · 0 skipped · 1m 39s · 19 Oct 2026, 04:04 pm IST</small></span></div>
+    <details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check Homepage<span class="t-group">Broken Link Checker</span></span><span class="t-dur">12s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>333 (links 39, images 284, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>328 working · 2 redirects · 3 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check About Us<span class="t-group">Broken Link Checker</span></span><span class="t-dur">1s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/about/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>45 (links 20, images 15, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>41 working · 3 redirects · 1 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check Blog<span class="t-group">Broken Link Checker</span></span><span class="t-dur">33s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/blog/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>627 (links 328, images 289, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>625 working · 1 redirects · 1 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Check MLP Digital Marketing Course<span class="t-group">Broken Link Checker</span></span><span class="t-dur">21s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/marketing-launchpad/digital-marketing-course/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>280 (links 92, images 178, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>253 working · 7 redirects · 19 blocked for bots (not counted as broken) · <b>1 broken</b></dd>
+  </dl><div class="scroll"><table><thead><tr><th class="num">HTTP</th><th>Type</th><th>URL</th><th>Text / error</th></tr></thead>
+    <tbody><tr><td class="num">—</td><td>a</td>
+        <td class="mono" style="word-break:break-all">https://archive.adgully.com/kraftshala-partners-with-nestle-to-inspire-people-to-pursue-sales-careers-145028.html</td><td>...Read More</td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">AssertionError: broken links on MLP Digital Marketing Course: expected [ Array(1) ] to deeply equal []</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/links/20261019103436-1-Broken_Link_Checker_--_Check_MLP_Digital_Marketing_Course_failed_.png" target="_blank" rel="noopener"><img src="screenshots/links/20261019103436-1-Broken_Link_Checker_--_Check_MLP_Digital_Marketing_Course_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check MLP Part-Time Digital Marketing<span class="t-group">Broken Link Checker</span></span><span class="t-dur">5s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/marketing-launchpad/part-time-digital-marketing-course/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>235 (links 93, images 132, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>208 working · 5 redirects · 22 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check MLP Digital Marketing in Hindi<span class="t-group">Broken Link Checker</span></span><span class="t-dur">4s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/marketing-launchpad/digital-marketing-course-in-hindi/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>228 (links 54, images 164, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>219 working · 3 redirects · 6 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check ALM (AI-Led Marketing)<span class="t-group">Broken Link Checker</span></span><span class="t-dur">4s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/pgp-in-marketing/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>213 (links 25, images 178, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>209 working · 2 redirects · 2 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check BASL Sales and Marketing<span class="t-group">Broken Link Checker</span></span><span class="t-dur">3s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/pgp/learn-sales-and-marketing/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>197 (links 19, images 168, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>194 working · 2 redirects · 1 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check Marketing Glossary<span class="t-group">Broken Link Checker</span></span><span class="t-dur">1s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/marketing-glossary/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>48 (links 32, images 6, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>46 working · 1 redirects · 1 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check Press Releases<span class="t-group">Broken Link Checker</span></span><span class="t-dur">3s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/press-releases/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>43 (links 23, images 10, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>39 working · 2 redirects · 2 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test" open>
+    <summary><span class="badge bad"><b aria-hidden="true">✕</b>FAIL</span><span class="t-title">Check Hire Digital Marketers<span class="t-group">Broken Link Checker</span></span><span class="t-dur">5s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://testprogram.kraftshala.com/hire-digital-marketers/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>107 (links 22, images 75, css/link 4, scripts 6, media 0)</dd>
+    <dt>Results</dt><dd>104 working · 1 redirects · 1 blocked for bots (not counted as broken) · <b>1 broken</b></dd>
+  </dl><div class="scroll"><table><thead><tr><th class="num">HTTP</th><th>Type</th><th>URL</th><th>Text / error</th></tr></thead>
+    <tbody><tr><td class="num">502</td><td>a</td>
+        <td class="mono" style="word-break:break-all">https://archive.adgully.com/kraftshala-partners-with-nestle-to-inspire-people-to-pursue-sales-careers-145028.html</td><td>...Read More</td></tr></tbody></table></div><div><h3>Failure reason</h3><pre class="err">AssertionError: broken links on Hire Digital Marketers: expected [ Array(1) ] to deeply equal []</pre></div><div><h3>Screenshots</h3><div class="shots"><a href="screenshots/links/20261019103436-2-Broken_Link_Checker_--_Check_Hire_Digital_Marketers_failed_.png" target="_blank" rel="noopener"><img src="screenshots/links/20261019103436-2-Broken_Link_Checker_--_Check_Hire_Digital_Marketers_failed_.png" alt="Screenshot at failure" loading="lazy"></a></div></div></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check Placement Reports<span class="t-group">Broken Link Checker</span></span><span class="t-dur">3s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://placement-reports.kraftshala.com/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>58 (links 51, images 3, css/link 2, scripts 2, media 0)</dd>
+    <dt>Results</dt><dd>56 working · 1 redirects · 1 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details><details class="test">
+    <summary><span class="badge ok"><b aria-hidden="true">✓</b>PASS</span><span class="t-title">Check Reviews<span class="t-group">Broken Link Checker</span></span><span class="t-dur">3s</span></summary>
+    <div class="t-body"><dl class="kv">
+    <dt>Page</dt><dd class="mono">https://reviews.kraftshala.com/ — HTTP 200</dd>
+    <dt>URLs checked</dt><dd>171 (links 21, images 136, css/link 3, scripts 11, media 0)</dd>
+    <dt>Results</dt><dd>157 working · 9 redirects · 0 blocked for bots (not counted as broken) · <b>0 broken</b></dd>
+  </dl></div>
+  </details>
+  </section>
+    </main>
+    <footer>Statuses come directly from Cypress — passed, failed, or skipped (not run).
+    Each suite shows its most recent run.</footer></body></html>

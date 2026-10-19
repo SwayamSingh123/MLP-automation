@@ -1,0 +1,151 @@
+{
+  "id": "callback",
+  "name": "Request a Callback",
+  "durationMs": 27005,
+  "totals": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "title": "Submit callback request and verify success message",
+      "group": "Kraftshala — Request a CallBack",
+      "spec": "cypress/e2e/callback/requestCallback.cy.js",
+      "state": "passed",
+      "durationMs": 27005,
+      "error": null,
+      "screenshots": [],
+      "detail": {
+        "kind": "lead",
+        "form": "Request a callback",
+        "page": "/",
+        "expectation": "\"Thanks for sharing your details…\" confirmation is shown",
+        "lead": {
+          "name": "Test MLP",
+          "email": "nixerot564@bevriz.com",
+          "phone": "6984756410"
+        },
+        "cleanup": [
+          {
+            "target": "remove-lead (mlp)",
+            "identifier": "nixerot564@bevriz.com",
+            "status": 200,
+            "message": "SUCCESS",
+            "ok": true
+          },
+          {
+            "target": "removeNumber",
+            "identifier": "6984756410",
+            "status": 200,
+            "message": "SUCCESS",
+            "ok": true
+          },
+          {
+            "target": "removeNumber",
+            "identifier": "8899770012",
+            "status": 200,
+            "message": "SUCCESS",
+            "ok": true
+          }
+        ],
+        "notes": [
+          "Ignored cross-origin/benign browser error: ResizeObserver loop completed with undelivered notifications."
+        ],
+        "api": [
+          {
+            "label": "OTP validation",
+            "status": 200,
+            "message": "SUCCESS",
+            "ok": true
+          }
+        ],
+        "submission": {
+          "ok": true,
+          "outcome": "Callback confirmation shown"
+        },
+        "apiTrace": [
+          {
+            "method": "GET",
+            "path": "/navbar-announcement-bar/active",
+            "status": 200,
+            "startedAt": 1792405772240,
+            "durationMs": 620,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/null/campaign/null/events/latest-events",
+            "status": 200,
+            "startedAt": 1792405772313,
+            "durationMs": 565,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/null/campaign/null/events/popup-session",
+            "status": 200,
+            "startedAt": 1792405772317,
+            "durationMs": 562,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/mlp/campaign/active",
+            "status": 200,
+            "startedAt": 1792405772318,
+            "durationMs": 720,
+            "message": ""
+          },
+          {
+            "method": "POST",
+            "path": "/lead_tracking",
+            "status": 200,
+            "startedAt": 1792405772326,
+            "durationMs": 716,
+            "message": ""
+          },
+          {
+            "method": "GET",
+            "path": "/program/basl/campaign/active",
+            "status": 200,
+            "startedAt": 1792405773292,
+            "durationMs": 258,
+            "message": ""
+          },
+          {
+            "method": "POST",
+            "path": "/otp-validation",
+            "status": 200,
+            "startedAt": 1792405787297,
+            "durationMs": 3921,
+            "message": "SUCCESS"
+          },
+          {
+            "method": "POST",
+            "path": "/otp-validation/validate",
+            "status": 200,
+            "startedAt": 1792405791692,
+            "durationMs": 265,
+            "message": "SUCCESS"
+          },
+          {
+            "method": "POST",
+            "path": "/lead/create",
+            "status": 200,
+            "startedAt": 1792405792243,
+            "durationMs": 257,
+            "message": ""
+          }
+        ]
+      }
+    }
+  ],
+  "status": "passed",
+  "ranAt": "2026-10-19T10:34:36.811Z",
+  "run": {
+    "startedAt": "2026-10-19T10:18:19.420Z",
+    "endedAt": "2026-10-19T10:34:36.811Z"
+  }
+}
