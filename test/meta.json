@@ -10,8 +10,8 @@
     "failed": 9,
     "skipped": 0
   },
-  "durationMs": 414395,
-  "lastRun": "2026-10-19T12:27:08.915Z",
+  "durationMs": 360305,
+  "lastRun": "2026-10-19T23:57:13.653Z",
   "suites": [
     {
       "id": "mlp",
@@ -49,11 +49,11 @@
     {
       "id": "kslive",
       "name": "KS Live — Event registration",
-      "status": "passed",
+      "status": "failed",
       "totals": {
         "tests": 1,
-        "passed": 1,
-        "failed": 0,
+        "passed": 0,
+        "failed": 1,
         "skipped": 0
       }
     },
@@ -85,8 +85,8 @@
       "status": "failed",
       "totals": {
         "tests": 13,
-        "passed": 11,
-        "failed": 2,
+        "passed": 12,
+        "failed": 1,
         "skipped": 0
       }
     }
