@@ -1,28 +1,14 @@
 /// <reference types="cypress" />
 //
-// Broken Link Checker — crawls a configurable set of Kraftshala pages,
-// extracts every <a> / <img> / <link> / <script> URL from the page HTML,
-// and probes each one via a Node-side task (cy.task('checkUrlSafely')).
+// Broken Link Checker — for each page, fetches the HTML from Node, extracts
+// every <a> / <img> / <source> / <link> / <script> / media URL, and probes them
+// in parallel from Node (no CORS, no Cypress retries). One test per page; it
+// FAILS when the page cannot be loaded or any link is broken (4xx except bot
+// blocks, 5xx, unreachable). 403/429/451/999 are anti-bot responses from
+// external sites: listed in the report, not counted as broken.
 //
-// Why a task instead of cy.request?
-//   cy.request retries on network failure and throws on timeout, which would
-//   make this spec hang or fail for any slow/unreachable external link.
-//   The Node task handles AbortController-driven timeouts gracefully, never
-//   throws, and reports status=0 for unreachable URLs — exactly what we need.
-//
-// Output: cypress/reports/broken-links-results.json — picked up by
-// form-server.js readBrokenLinksResults() and rendered in the dashboard.
-//
-// Page selection: by default crawls all PAGES below. To restrict, set the
-// Cypress env var `linksPages` to a comma-separated list of page IDs, e.g.
-//   --env platform=test,linksPages=home,about,mlp
+// Restrict pages with --env linksPages=home+about (ids below; "+" or "," separated).
 
-const TEST_ORIGIN = 'https://testprogram.kraftshala.com';
-const PROD_ORIGIN = 'https://program.kraftshala.com';
-
-// Each entry: id (used by the dashboard's checkbox state), name (display),
-// and either a `path` (resolves against test/prod base) or an absolute `url`
-// (used for cross-origin pages like placement-reports / reviews).
 const PAGES = [
   { id: 'home',              name: 'Homepage',                        path: '/' },
   { id: 'about',             name: 'About Us',                        path: '/about/' },
@@ -30,7 +16,7 @@ const PAGES = [
   { id: 'mlp',               name: 'MLP Digital Marketing Course',    path: '/marketing-launchpad/digital-marketing-course/' },
   { id: 'mlp-pt',            name: 'MLP Part-Time Digital Marketing', path: '/marketing-launchpad/part-time-digital-marketing-course/' },
   { id: 'mlp-hindi',         name: 'MLP Digital Marketing in Hindi',  path: '/marketing-launchpad/digital-marketing-course-in-hindi/' },
-  { id: 'alm',               name: 'PGP in Marketing',                path: '/pgp-in-marketing/' },
+  { id: 'alm',               name: 'ALM (AI-Led Marketing)',          path: '/pgp-in-marketing/' },
   { id: 'smbl',              name: 'BASL Sales and Marketing',        path: '/pgp/learn-sales-and-marketing/' },
   { id: 'glossary',          name: 'Marketing Glossary',              path: '/marketing-glossary/' },
   { id: 'press',             name: 'Press Releases',                  path: '/press-releases/' },
@@ -39,30 +25,17 @@ const PAGES = [
   { id: 'reviews',           name: 'Reviews',                         url: 'https://reviews.kraftshala.com/' },
 ];
 
-const RESULTS_FILE = 'cypress/reports/broken-links-results.json';
 const URL_TIMEOUT_MS = 10000;
-
-// Module-level accumulator — Cypress loads the spec once per run, so all
-// `it` blocks share this array. Flushed in the after() hook.
-const allResults = [];
-
-function isPlatformMain() {
-  const p = String(Cypress.env('platform') || 'test').toLowerCase();
-  return p === 'main' || p === 'prod' || p === 'production';
-}
+const CONCURRENCY = 10;
 
 function getPageUrl(page) {
-  if (page.url) return page.url;
-  return (isPlatformMain() ? PROD_ORIGIN : TEST_ORIGIN) + page.path;
+  return page.url || Cypress.config('baseUrl').replace(/\/+$/, '') + page.path;
 }
 
 function getSelectedPages() {
   const selected = Cypress.env('linksPages');
   if (!selected) return PAGES;
-  // Accept both | and , as separators. form-server pipe-encodes its list
-  // because Cypress's --env flag uses comma for key=value separation, but a
-  // manual --env linksPages=home,about would still be parsed correctly here.
-  const ids = String(selected).split(/[,|]/).map((s) => s.trim()).filter(Boolean);
+  const ids = String(selected).split(/[,|+]/).map((s) => s.trim()).filter(Boolean);
   if (ids.length === 0) return PAGES;
   return PAGES.filter((p) => ids.includes(p.id));
 }
@@ -170,8 +143,12 @@ function extractUrls(html, baseUrl) {
   });
 
   // <link> tags (CSS / preload / dns-prefetch / icon etc).
+  // preconnect / dns-prefetch point at an origin, not a fetchable resource
+  // (e.g. https://fonts.gstatic.com/ answers 404) — not links.
   $doc.find('link[href]').each((_, el) => {
-    push('link', el.getAttribute('href'), el.getAttribute('href'), String(el.getAttribute('rel') || ''));
+    const rel = String(el.getAttribute('rel') || '');
+    if (/\b(preconnect|dns-prefetch)\b/i.test(rel)) return;
+    push('link', el.getAttribute('href'), el.getAttribute('href'), rel);
   });
 
   // <script src>.
@@ -218,105 +195,48 @@ function emptyPageEntry(page, pageUrl) {
       unreachable: 0,
       unknown: 0,
     },
-    items: [],
     broken: [],
   };
 }
 
 describe('Broken Link Checker', () => {
-  before(() => {
-    // Clear the results file at run start so stale data doesn't bleed in.
-    cy.writeFile(RESULTS_FILE, [], { log: false });
-  });
-
-  after(() => {
-    // Flush the per-page entries we accumulated across all it() blocks.
-    cy.writeFile(RESULTS_FILE, allResults, { log: false });
-  });
-
-  const pagesToCheck = getSelectedPages();
-
-  pagesToCheck.forEach((page) => {
+  getSelectedPages().forEach((page) => {
     it(`Check ${page.name}`, () => {
       const pageUrl = getPageUrl(page);
-      const entry = emptyPageEntry(page, pageUrl);
-      allResults.push(entry);
+      const entry = Object.assign(globalThis.testDetail(), { kind: 'links' }, emptyPageEntry(page, pageUrl));
 
-      cy.task('fetchPageHtmlSafely', { url: pageUrl, timeout: 30000 }, { log: false })
-        .then((resp) => {
-          entry.pageStatus = resp.status;
-          entry.pageError = resp.error || '';
+      cy.task('fetchPageHtml', { url: pageUrl, timeout: 30000 }, { log: false, timeout: 40000 }).then((resp) => {
+        entry.pageStatus = resp.status;
+        entry.pageError = resp.error || '';
+        expect(resp.status, `page ${pageUrl} loads (${resp.error || "HTTP " + resp.status})`).to.be.within(200, 299);
 
-          if (!resp.status || resp.status >= 400 || !resp.body) {
-            // Couldn't fetch the page — mark it and stop. Don't fail Cypress
-            // entirely so other pages still run.
-            cy.log(
-              'Could not load page ' +
-                pageUrl +
-                ' — status=' +
-                resp.status +
-                (resp.error ? ' err=' + resp.error : '')
-            );
-            return;
-          }
+        const items = extractUrls(resp.body, pageUrl);
+        entry.counts.total = items.length;
+        for (const it of items) entry.counts[it.type]++;
+        if (!items.length) return;
 
-          const items = extractUrls(resp.body, pageUrl);
-          entry.counts.total = items.length;
-          for (const it of items) entry.counts[it.type]++;
-
-          if (items.length === 0) {
-            cy.log(`${page.name}: 0 URLs to check`);
-            return;
-          }
-
-          // Parallel batch probe — one cy.task call dispatches all URLs to
-          // Node, which fans them out across a worker pool (concurrency=10
-          // by default) using Promise.all. With ~85 URLs per page and
-          // ~300ms average per request, this drops per-page time from ~25s
-          // sequential to ~3s parallel. Worker-pool ensures we don't open
-          // 85 sockets at once.
-          cy.task(
-            'checkUrlsBatchSafely',
-            {
-              urls: items.map((it) => it.url),
-              concurrency: 10,
-              timeout: URL_TIMEOUT_MS,
-            },
-            { log: false, timeout: 120000 }
-          ).then((batchResults) => {
-            (batchResults || []).forEach((r, i) => {
-              const item = items[i];
-              const status = Number((r && r.status) || 0);
-              const klass = classifyStatus(status);
-              entry.counts[klass] = (entry.counts[klass] || 0) + 1;
-              const result = {
-                type: item.type,
-                url: item.url,
-                raw: item.raw,
-                text: item.text,
-                status,
-                klass,
-              };
-              if (klass === 'redirect' && r && r.redirectTo) {
-                result.redirectTo = r.redirectTo;
-              }
-              if (r && r.error) result.error = r.error;
-              entry.items.push(result);
-              if (
-                klass === 'broken' ||
-                klass === 'server_error' ||
-                klass === 'unreachable'
-              ) {
-                entry.broken.push(result);
-              }
-            });
-            cy.log(
-              `${page.name}: ${entry.counts.total} URLs checked — ` +
-                `${entry.counts.working} OK / ${entry.counts.redirect} redirect / ` +
-                `${entry.counts.broken + entry.counts.server_error + entry.counts.unreachable} broken`
-            );
+        // Worst case: every URL in a worker's share times out twice (probe + one re-probe).
+        const taskTimeout = Math.ceil(items.length / CONCURRENCY) * 2 * (URL_TIMEOUT_MS + 2000) + 30000;
+        cy.task(
+          'checkUrlsBatch',
+          { urls: items.map((it) => it.url), concurrency: CONCURRENCY, timeout: URL_TIMEOUT_MS },
+          { log: false, timeout: taskTimeout }
+        ).then((batch) => {
+          batch.forEach((r, i) => {
+            const klass = classifyStatus(r.status);
+            entry.counts[klass] += 1;
+            const result = { ...items[i], status: r.status, klass };
+            if (klass === 'redirect' && r.location) result.redirectTo = r.location;
+            if (r.error) result.error = r.error;
+            if (klass === 'broken' || klass === 'server_error' || klass === 'unreachable') entry.broken.push(result);
           });
+          cy.log(`${page.name}: ${entry.counts.total} URLs, ${entry.broken.length} broken`);
+          expect(
+            entry.broken.map((b) => `${b.status || b.error} ${b.url}`),
+            `broken links on ${page.name}`
+          ).to.deep.equal([]);
         });
+      });
     });
   });
 });

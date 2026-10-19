@@ -1,27 +1,11 @@
 /// <reference types="cypress" />
-//
-// Kraftshala MLP — "Download syllabus" sanity flow.
-// Single happy-path check: fill the form with base email + base phone,
-// submit OTP, and verify the in-modal success message.
-// Success copy: "You're all set. We've sent the syllabus to your email and WhatsApp."
+// MLP "Download syllabus": cleanup, fill, OTP, success copy.
+import { defineDownloadTest } from '../../support/downloadTest';
 
-const testData = require('../../fixtures/mlp/mlpTestData.json');
-
-describe('Kraftshala MLP — Download syllabus', () => {
-  beforeEach(() => {
-    cy.visitMlpPage();
-  });
-
-  it('Download syllabus with base email and base phone', () => {
-    cy.openDownloadSyllabusForm();
-    cy.fillDownloadForm({
-      name: testData.name,
-      email: testData.existingEmail,
-      phone: testData.existingPhone,
-      whatsappOptIn: true,
-    });
-    cy.waitForDownloadOtpStage();
-    cy.enterOtpAndSubmit(testData.otp);
-    cy.assertSyllabusDownloadSuccess();
-  });
+defineDownloadTest({
+  title: 'Kraftshala MLP — Download syllabus',
+  testName: 'Download syllabus with base email and base phone',
+  fixture: require('../../fixtures/leads/mlp-download-syllabus.json'),
+  cta: /download\s*syllabus/i,
+  documentText: 'syllabus',
 });

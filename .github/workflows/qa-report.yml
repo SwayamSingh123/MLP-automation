@@ -1,0 +1,157 @@
+name: QA Report
+run-name: "QA ${{ inputs.platform || github.event.action || 'test' }} · ${{ inputs.suite || github.event.client_payload.suite || 'all' }}"
+
+on:
+  # Click-to-run from the Actions tab, and the API the Cloudflare Worker calls.
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to run against
+        type: choice
+        options: [test, main]
+        default: test
+      suite:
+        description: "Suites, comma separated: all, mlp, alm, basl, kslive, callback, seo, links"
+        required: false
+        default: all
+
+  # Raw HTTP trigger: POST /repos/<owner>/<repo>/dispatches with event_type qa-test / qa-main.
+  repository_dispatch:
+    types: [qa-test, qa-main]
+
+  # Nightly full run on the test platform — 02:00 IST.
+  schedule:
+    - cron: '30 20 * * *'
+
+permissions:
+  contents: write # push the gh-pages branch
+
+concurrency:
+  group: qa-report
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Resolve platform and suites
+        id: cfg
+        env:
+          # Kept in env rather than inlined, so dispatch payloads cannot inject shell.
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          INPUT_PLATFORM: ${{ inputs.platform }}
+          INPUT_SUITE: ${{ inputs.suite }}
+          PAYLOAD_SUITE: ${{ github.event.client_payload.suite }}
+        run: |
+          set -euo pipefail
+          case "$EVENT" in
+            repository_dispatch)
+              case "$ACTION" in qa-main) PLATFORM=main ;; *) PLATFORM=test ;; esac
+              SUITE="${PAYLOAD_SUITE:-all}" ;;
+            schedule)
+              PLATFORM=test; SUITE=all ;;
+            *)
+              PLATFORM="${INPUT_PLATFORM:-test}"; SUITE="${INPUT_SUITE:-all}" ;;
+          esac
+          SUITE="$(printf '%s' "$SUITE" | tr -d '[:space:]')"
+          case "$SUITE" in *[!a-z,]*|'') echo "Invalid suite list: $SUITE" >&2; exit 1 ;; esac
+          SPECS="$(node -p "require('./shared/suites').specsFor(process.argv[1])" "$SUITE")"
+          echo "platform=$PLATFORM" >> "$GITHUB_OUTPUT"
+          echo "suite=$SUITE" >> "$GITHUB_OUTPUT"
+          echo "specs=$SPECS" >> "$GITHUB_OUTPUT"
+          echo "Platform: $PLATFORM   Suites: $SUITE"
+
+      - name: Install dependencies and Cypress
+        uses: cypress-io/github-action@v6
+        with:
+          runTests: false
+
+      - name: Run Cypress
+        id: cypress
+        continue-on-error: true # publish the report first; the job fails in the last step
+        env:
+          # Repository variable; set it to "true" to mask lead emails/phones in a public report.
+          MASK_LEADS: ${{ vars.MASK_LEADS }}
+        run: >-
+          npx cypress run --browser electron
+          --env platform=${{ steps.cfg.outputs.platform }}
+          --spec "${{ steps.cfg.outputs.specs }}"
+
+      - name: Check results were produced
+        if: always()
+        id: report
+        env:
+          PLATFORM: ${{ steps.cfg.outputs.platform }}
+        run: |
+          if [ -f "cypress/reports/results-${PLATFORM}.json" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No results file — Cypress did not finish a run." >&2
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish report to GitHub Pages
+        if: always() && steps.report.outputs.found == 'true'
+        env:
+          PLATFORM: ${{ steps.cfg.outputs.platform }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          # Reuse the existing site so the other platform and other suites survive.
+          if git clone --branch gh-pages --single-branch --depth 1 "$REMOTE" site 2>/dev/null; then
+            echo "Updating existing gh-pages"
+          else
+            echo "Creating gh-pages"
+            mkdir site
+            git -C site init -q -b gh-pages
+            git -C site remote add origin "$REMOTE"
+          fi
+          node reporter/buildSite.js site "$PLATFORM" "cypress/reports/results-${PLATFORM}.json"
+
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "QA report: ${PLATFORM} ($(date -u +%Y-%m-%dT%H:%M:%SZ))" || { echo "Nothing changed"; exit 0; }
+          git push -q origin gh-pages
+
+      - name: Upload report as an artifact
+        if: always() && steps.report.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report-${{ steps.cfg.outputs.platform }}-${{ github.run_id }}
+          path: |
+            cypress/reports/results-${{ steps.cfg.outputs.platform }}.json
+            site/${{ steps.cfg.outputs.platform }}
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Summary and Google Chat notification
+        if: always() && steps.report.outputs.found == 'true'
+        env:
+          PLATFORM: ${{ steps.cfg.outputs.platform }}
+          REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.cfg.outputs.platform }}/
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GCHAT_WEBHOOK_URL: ${{ secrets.GCHAT_WEBHOOK_URL }}
+        run: node scripts/summarize.js "cypress/reports/results-${PLATFORM}.json"
+
+      - name: Fail the job if any test failed
+        if: always()
+        env:
+          OUTCOME: ${{ steps.cypress.outcome }}
+        run: |
+          if [ "$OUTCOME" != "success" ]; then
+            echo "Cypress reported failures (or did not run). See the report for details." >&2
+            exit 1
+          fi

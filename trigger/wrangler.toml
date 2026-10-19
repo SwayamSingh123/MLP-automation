@@ -1,0 +1,14 @@
+name = "kraftshala-qa-trigger"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+GITHUB_OWNER = "SwayamSingh123"
+GITHUB_REPO = "MLP-automation"
+WORKFLOW_FILE = "qa-report.yml"
+GIT_REF = "main"
+REPORT_BASE = "https://swayamsingh123.github.io/MLP-automation"
+
+# Secrets are NOT set here - they are uploaded encrypted:
+#   npx wrangler secret put GITHUB_TOKEN   (fine-grained PAT: this repo, Actions read & write)
+#   npx wrangler secret put ACCESS_KEY     (optional but recommended - main runs create real leads)
