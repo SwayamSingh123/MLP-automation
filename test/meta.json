@@ -6,33 +6,33 @@
   },
   "totals": {
     "tests": 46,
-    "passed": 37,
-    "failed": 9,
-    "skipped": 0
+    "passed": 25,
+    "failed": 15,
+    "skipped": 6
   },
-  "durationMs": 584544,
-  "lastRun": "2026-10-21T23:40:07.399Z",
+  "durationMs": 776255,
+  "lastRun": "2026-10-22T23:43:04.943Z",
   "suites": [
     {
       "id": "mlp",
       "name": "MLP — Marketing Launchpad",
-      "status": "passed",
+      "status": "failed",
       "totals": {
         "tests": 9,
-        "passed": 9,
-        "failed": 0,
-        "skipped": 0
+        "passed": 3,
+        "failed": 3,
+        "skipped": 3
       }
     },
     {
       "id": "alm",
       "name": "ALM — AI-Led Marketing",
-      "status": "passed",
+      "status": "failed",
       "totals": {
         "tests": 8,
-        "passed": 8,
-        "failed": 0,
-        "skipped": 0
+        "passed": 3,
+        "failed": 2,
+        "skipped": 3
       }
     },
     {
@@ -60,11 +60,11 @@
     {
       "id": "callback",
       "name": "Request a Callback",
-      "status": "passed",
+      "status": "failed",
       "totals": {
         "tests": 1,
-        "passed": 1,
-        "failed": 0,
+        "passed": 0,
+        "failed": 1,
         "skipped": 0
       }
     },
