@@ -6,12 +6,12 @@
   },
   "totals": {
     "tests": 46,
-    "passed": 25,
-    "failed": 15,
+    "passed": 24,
+    "failed": 16,
     "skipped": 6
   },
-  "durationMs": 689891,
-  "lastRun": "2026-10-23T23:29:40.167Z",
+  "durationMs": 802957,
+  "lastRun": "2026-10-24T22:51:02.565Z",
   "suites": [
     {
       "id": "mlp",
@@ -85,8 +85,8 @@
       "status": "failed",
       "totals": {
         "tests": 13,
-        "passed": 12,
-        "failed": 1,
+        "passed": 11,
+        "failed": 2,
         "skipped": 0
       }
     }
