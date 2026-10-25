@@ -6,12 +6,12 @@
   },
   "totals": {
     "tests": 46,
-    "passed": 24,
-    "failed": 16,
+    "passed": 26,
+    "failed": 14,
     "skipped": 6
   },
-  "durationMs": 802957,
-  "lastRun": "2026-10-24T22:51:02.565Z",
+  "durationMs": 733611,
+  "lastRun": "2026-10-25T22:55:41.438Z",
   "suites": [
     {
       "id": "mlp",
@@ -82,11 +82,11 @@
     {
       "id": "links",
       "name": "Broken link checker",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 13,
-        "passed": 11,
-        "failed": 2,
+        "passed": 13,
+        "failed": 0,
         "skipped": 0
       }
     }
