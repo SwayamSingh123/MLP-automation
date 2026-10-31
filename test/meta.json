@@ -7,11 +7,11 @@
   "totals": {
     "tests": 46,
     "passed": 26,
-    "failed": 17,
-    "skipped": 3
+    "failed": 11,
+    "skipped": 9
   },
-  "durationMs": 1519995,
-  "lastRun": "2026-10-31T00:21:51.298Z",
+  "durationMs": 532800,
+  "lastRun": "2026-10-31T23:41:31.996Z",
   "suites": [
     {
       "id": "mlp",
@@ -38,12 +38,12 @@
     {
       "id": "basl",
       "name": "BASL — Sales & Marketing",
-      "status": "passed",
+      "status": "failed",
       "totals": {
         "tests": 7,
-        "passed": 7,
-        "failed": 0,
-        "skipped": 0
+        "passed": 0,
+        "failed": 1,
+        "skipped": 6
       }
     },
     {
@@ -60,11 +60,11 @@
     {
       "id": "callback",
       "name": "Request a Callback",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 1,
-        "passed": 0,
-        "failed": 1,
+        "passed": 1,
+        "failed": 0,
         "skipped": 0
       }
     },
@@ -82,11 +82,11 @@
     {
       "id": "links",
       "name": "Broken link checker",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 13,
-        "passed": 7,
-        "failed": 6,
+        "passed": 13,
+        "failed": 0,
         "skipped": 0
       }
     }
