@@ -6,22 +6,22 @@
   },
   "totals": {
     "tests": 46,
-    "passed": 26,
-    "failed": 14,
-    "skipped": 6
+    "passed": 33,
+    "failed": 10,
+    "skipped": 3
   },
-  "durationMs": 1121327,
-  "lastRun": "2026-11-07T00:30:31.863Z",
+  "durationMs": 615622,
+  "lastRun": "2026-11-07T23:57:03.466Z",
   "suites": [
     {
       "id": "mlp",
       "name": "MLP — Marketing Launchpad",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 9,
-        "passed": 5,
-        "failed": 1,
-        "skipped": 3
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
       }
     },
     {
@@ -38,11 +38,11 @@
     {
       "id": "basl",
       "name": "BASL — Sales & Marketing",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 7,
-        "passed": 6,
-        "failed": 1,
+        "passed": 7,
+        "failed": 0,
         "skipped": 0
       }
     },
@@ -60,11 +60,11 @@
     {
       "id": "callback",
       "name": "Request a Callback",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 1,
-        "passed": 0,
-        "failed": 1,
+        "passed": 1,
+        "failed": 0,
         "skipped": 0
       }
     },
@@ -82,11 +82,11 @@
     {
       "id": "links",
       "name": "Broken link checker",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 13,
-        "passed": 12,
-        "failed": 1,
+        "passed": 13,
+        "failed": 0,
         "skipped": 0
       }
     }
