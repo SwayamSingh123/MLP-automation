@@ -6,22 +6,22 @@
   },
   "totals": {
     "tests": 46,
-    "passed": 26,
-    "failed": 14,
-    "skipped": 6
+    "passed": 31,
+    "failed": 12,
+    "skipped": 3
   },
-  "durationMs": 999886,
-  "lastRun": "2026-11-12T02:15:32.276Z",
+  "durationMs": 745383,
+  "lastRun": "2026-11-13T01:31:06.511Z",
   "suites": [
     {
       "id": "mlp",
       "name": "MLP — Marketing Launchpad",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 9,
-        "passed": 4,
-        "failed": 2,
-        "skipped": 3
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
       }
     },
     {
@@ -60,11 +60,11 @@
     {
       "id": "callback",
       "name": "Request a Callback",
-      "status": "failed",
+      "status": "passed",
       "totals": {
         "tests": 1,
-        "passed": 0,
-        "failed": 1,
+        "passed": 1,
+        "failed": 0,
         "skipped": 0
       }
     },
@@ -85,8 +85,8 @@
       "status": "failed",
       "totals": {
         "tests": 13,
-        "passed": 12,
-        "failed": 1,
+        "passed": 11,
+        "failed": 2,
         "skipped": 0
       }
     }
