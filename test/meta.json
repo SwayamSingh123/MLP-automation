@@ -6,12 +6,12 @@
   },
   "totals": {
     "tests": 46,
-    "passed": 33,
-    "failed": 10,
+    "passed": 32,
+    "failed": 11,
     "skipped": 3
   },
-  "durationMs": 596207,
-  "lastRun": "2026-11-20T02:01:02.290Z",
+  "durationMs": 865828,
+  "lastRun": "2026-11-21T01:53:28.915Z",
   "suites": [
     {
       "id": "mlp",
@@ -60,11 +60,11 @@
     {
       "id": "callback",
       "name": "Request a Callback",
-      "status": "passed",
+      "status": "failed",
       "totals": {
         "tests": 1,
-        "passed": 1,
-        "failed": 0,
+        "passed": 0,
+        "failed": 1,
         "skipped": 0
       }
     },
