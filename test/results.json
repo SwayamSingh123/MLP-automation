@@ -2,38 +2,36 @@
   "platform": "test",
   "platformLabel": "Test platform",
   "site": "https://testprogram.kraftshala.com",
-  "startedAt": "2026-11-27T03:00:35.910Z",
-  "endedAt": "2026-11-27T03:12:54.955Z",
-  "durationMs": 721286,
+  "startedAt": "2026-11-28T02:52:25.807Z",
+  "endedAt": "2026-11-28T03:13:05.980Z",
+  "durationMs": 1221691,
   "maskLeads": false,
   "totals": {
     "tests": 46,
-    "passed": 20,
-    "failed": 17,
-    "skipped": 9
+    "passed": 31,
+    "failed": 12,
+    "skipped": 3
   },
   "suites": [
     {
       "id": "mlp",
       "name": "MLP — Marketing Launchpad",
-      "durationMs": 117875,
+      "durationMs": 104685,
       "totals": {
         "tests": 9,
-        "passed": 3,
-        "failed": 3,
-        "skipped": 3
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
       },
       "tests": [
         {
           "title": "New registration with base email and base phone",
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
-          "state": "failed",
-          "durationMs": 41328,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/mlp/xineyin126%40juicehour.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
-          "screenshots": [
-            "screenshots/mlp/1-Kraftshala_MLP_lead_form_--_New_registration_with_base_email_and_base_phone_failed_.png"
-          ],
+          "state": "passed",
+          "durationMs": 26508,
+          "error": null,
+          "screenshots": [],
           "detail": {
             "kind": "lead",
             "form": "MLP lead form",
@@ -44,46 +42,160 @@
               "email": "xineyin126@juicehour.com",
               "phone": "4980369071"
             },
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "xineyin126@juicehour.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "pimihir658@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "4980369071",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "4509986709",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "label": "Lead created (lead/create)",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/632c9eee-bd6a-48ed-abf5-7091b655b13f/41258721-c429-4fd4-9bd9-d3c82b4a9cc0/ — new lead created"
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748451223
+                "status": 200,
+                "startedAt": 1795834362366,
+                "durationMs": 1309,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748451226
+                "status": 200,
+                "startedAt": 1795834362369,
+                "durationMs": 1280,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834362501,
+                "durationMs": 935,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834363696,
+                "durationMs": 259,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834363973,
+                "durationMs": 338,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834364358,
+                "durationMs": 268,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834364661,
+                "durationMs": 269,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834366515,
+                "durationMs": 4231,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834371255,
+                "durationMs": 290,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1795834371915,
+                "durationMs": 266,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834374419,
+                "durationMs": 294,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834375310,
+                "durationMs": 359,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
                 "status": null,
-                "startedAt": 1795748451284
-              },
-              {
-                "method": "GET",
-                "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748472842
-              },
-              {
-                "method": "GET",
-                "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748472844
-              },
-              {
-                "method": "GET",
-                "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748472844
+                "startedAt": 1795834375600
               }
             ],
             "notes": [
-              "Backend never answered POST /lead_tracking (waited 30s)"
+              "Backend never answered POST /lead_tracking (waited 0s)"
             ]
           }
         },
@@ -91,8 +203,8 @@
           "title": "Existing registration with base email and base phone",
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
-          "state": "skipped",
-          "durationMs": 0,
+          "state": "passed",
+          "durationMs": 15207,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -106,29 +218,107 @@
               "phone": "4980369071"
             },
             "cleanupNote": "Intentionally not run — this case re-submits the lead created by the previous case.",
-            "skipReason": "Depends on the lead from \"New registration with base email and base phone\", which did not pass in this run.",
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/632c9eee-bd6a-48ed-abf5-7091b655b13f/41258721-c429-4fd4-9bd9-d3c82b4a9cc0/ — existing lead reused (no lead/create)"
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748482724
+                "status": 200,
+                "startedAt": 1795834378255,
+                "durationMs": 284,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748482818
+                "status": 200,
+                "startedAt": 1795834378263,
+                "durationMs": 273,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748482819
+                "status": 200,
+                "startedAt": 1795834378264,
+                "durationMs": 423,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834378696,
+                "durationMs": 313,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834379042,
+                "durationMs": 291,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834379364,
+                "durationMs": 269,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834379663,
+                "durationMs": 268,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834385430,
+                "durationMs": 3966,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834389830,
+                "durationMs": 290,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834390594,
+                "durationMs": 339,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834390741,
+                "durationMs": 294,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 1s)"
             ]
           }
         },
@@ -136,8 +326,8 @@
           "title": "Base email with different phone number should be blocked",
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
-          "state": "skipped",
-          "durationMs": 0,
+          "state": "passed",
+          "durationMs": 10033,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -150,29 +340,106 @@
               "email": "xineyin126@juicehour.com",
               "phone": "4509986709"
             },
-            "skipReason": "Depends on the lead from \"New registration with base email and base phone\", which did not pass in this run.",
+            "cleanup": [
+              {
+                "target": "removeNumber",
+                "identifier": "4509986709",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation rejects the mismatched phone",
+                "status": 400,
+                "message": "The phone number associated with xineyin126@juicehour.com is xxxxxx9071. Try using this phone number",
+                "ok": true
+              },
+              {
+                "label": "No lead created (lead/create)",
+                "status": 0,
+                "message": "Not sent (as expected)",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Blocked: \"phone number associated with … try using this phone number\""
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748485163
+                "status": 200,
+                "startedAt": 1795834392981,
+                "durationMs": 266,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748485171
+                "status": 200,
+                "startedAt": 1795834393067,
+                "durationMs": 272,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748485174
+                "status": 200,
+                "startedAt": 1795834393071,
+                "durationMs": 270,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834393281,
+                "durationMs": 263,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834393555,
+                "durationMs": 287,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834393855,
+                "durationMs": 482,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834394377,
+                "durationMs": 284,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834396313,
+                "durationMs": 4014,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 400,
+                "startedAt": 1795834400770,
+                "durationMs": 275,
+                "message": "The phone number associated with xineyin126@juicehour.com is xxxxxx9071. Try using this phone number"
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 0s)"
             ]
           }
         },
@@ -180,8 +447,8 @@
           "title": "Base phone number with different email",
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
-          "state": "skipped",
-          "durationMs": 0,
+          "state": "passed",
+          "durationMs": 10728,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -194,29 +461,116 @@
               "email": "pimihir658@iconcubic.com",
               "phone": "4980369071"
             },
-            "skipReason": "Depends on the lead from \"New registration with base email and base phone\", which did not pass in this run.",
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "pimihir658@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /marketing-launchpad/digital-marketing-course/screening-test/632c9eee-bd6a-48ed-abf5-7091b655b13f/41258721-c429-4fd4-9bd9-d3c82b4a9cc0/ — existing lead reused (no lead/create)"
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748486569
+                "status": 200,
+                "startedAt": 1795834402953,
+                "durationMs": 287,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748486718
+                "status": 200,
+                "startedAt": 1795834402964,
+                "durationMs": 277,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748486722
+                "status": 200,
+                "startedAt": 1795834403049,
+                "durationMs": 348,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834403274,
+                "durationMs": 410,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834403946,
+                "durationMs": 268,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834404250,
+                "durationMs": 267,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834404538,
+                "durationMs": 262,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834406136,
+                "durationMs": 4226,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834410763,
+                "durationMs": 288,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834411484,
+                "durationMs": 312,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834411626,
+                "durationMs": 280,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 0s)"
             ]
           }
         },
@@ -225,7 +579,7 @@
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 4016,
+          "durationMs": 4793,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -255,24 +609,59 @@
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748488593
+                "status": 200,
+                "startedAt": 1795834413706,
+                "durationMs": 305,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748488604
+                "status": 200,
+                "startedAt": 1795834413811,
+                "durationMs": 451,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748488605
+                "status": 200,
+                "startedAt": 1795834413812,
+                "durationMs": 451,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834414040,
+                "durationMs": 621,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834414716,
+                "durationMs": 277,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834415020,
+                "durationMs": 267,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834415299,
+                "durationMs": 263,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 3s)"
             ]
           }
         },
@@ -281,7 +670,7 @@
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 3680,
+          "durationMs": 5103,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -311,30 +700,59 @@
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748492229
-              },
-              {
-                "method": "GET",
-                "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748492231
+                "status": 200,
+                "startedAt": 1795834418629,
+                "durationMs": 318,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748492240
+                "status": 200,
+                "startedAt": 1795834418636,
+                "durationMs": 312,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748492240
+                "status": 200,
+                "startedAt": 1795834418720,
+                "durationMs": 300,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834418991,
+                "durationMs": 410,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834419459,
+                "durationMs": 276,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834419751,
+                "durationMs": 279,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834420116,
+                "durationMs": 270,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 3s)"
             ]
           }
         },
@@ -343,7 +761,7 @@
           "group": "Kraftshala MLP lead form",
           "spec": "cypress/e2e/mlp/mlpLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 2152,
+          "durationMs": 3046,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -369,24 +787,49 @@
               {
                 "method": "GET",
                 "path": "/program/mlp/campaign/active",
-                "status": null,
-                "startedAt": 1795748496308
+                "status": 200,
+                "startedAt": 1795834423623,
+                "durationMs": 438,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748496328
+                "status": 200,
+                "startedAt": 1795834423632,
+                "durationMs": 428,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834423633,
+                "durationMs": 426,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834424115,
+                "durationMs": 465,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834424627,
+                "durationMs": 294,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
                 "status": null,
-                "startedAt": 1795748496329
+                "startedAt": 1795834424951
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 1s)"
             ]
           }
         },
@@ -394,12 +837,10 @@
           "title": "Download brochure with base email and base phone",
           "group": "Kraftshala MLP — Download brochure",
           "spec": "cypress/e2e/mlp/downloadBrochure.cy.js",
-          "state": "failed",
-          "durationMs": 30195,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/mlp/balar13098%40iconcubic.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
-          "screenshots": [
-            "screenshots/mlp/2-Kraftshala_MLP_Download_brochure_--_Download_brochure_with_base_email_and_base_phone_failed_.png"
-          ],
+          "state": "passed",
+          "durationMs": 14994,
+          "error": null,
+          "screenshots": [],
           "detail": {
             "kind": "lead",
             "form": "MLP download brochure",
@@ -410,19 +851,126 @@
               "email": "balar13098@iconcubic.com",
               "phone": "3296312369"
             },
-            "apiTrace": []
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "balar13098@iconcubic.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "3296312369",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success message shown: document sent"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834429848,
+                "durationMs": 407,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1795834429872,
+                "durationMs": 393,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834429874,
+                "durationMs": 968,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834430303,
+                "durationMs": 537,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834430902,
+                "durationMs": 322,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834431288,
+                "durationMs": 265,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834431570,
+                "durationMs": 276,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation",
+                "status": 200,
+                "startedAt": 1795834436087,
+                "durationMs": 3938,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834440390,
+                "durationMs": 270,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1795834440680,
+                "durationMs": 277,
+                "message": ""
+              }
+            ]
           }
         },
         {
           "title": "Download syllabus with base email and base phone",
           "group": "Kraftshala MLP — Download syllabus",
           "spec": "cypress/e2e/mlp/downloadSyllabus.cy.js",
-          "state": "failed",
-          "durationMs": 30149,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/mlp/torek13885%40iconcubic.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
-          "screenshots": [
-            "screenshots/mlp/3-Kraftshala_MLP_Download_syllabus_--_Download_syllabus_with_base_email_and_base_phone_failed_.png"
-          ],
+          "state": "passed",
+          "durationMs": 14108,
+          "error": null,
+          "screenshots": [],
           "detail": {
             "kind": "lead",
             "form": "MLP download syllabus",
@@ -433,16 +981,125 @@
               "email": "torek13885@iconcubic.com",
               "phone": "4178003959"
             },
-            "apiTrace": []
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "torek13885@iconcubic.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "4178003959",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success message shown: syllabus sent"
+            },
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834446321,
+                "durationMs": 291,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1795834446336,
+                "durationMs": 278,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834446338,
+                "durationMs": 302,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834446687,
+                "durationMs": 263,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834446961,
+                "durationMs": 264,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834447234,
+                "durationMs": 435,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834447706,
+                "durationMs": 273,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation",
+                "status": 200,
+                "startedAt": 1795834451774,
+                "durationMs": 3898,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834456059,
+                "durationMs": 286,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1795834456360,
+                "durationMs": 271,
+                "message": ""
+              }
+            ]
           }
         }
       ],
-      "status": "failed"
+      "status": "passed"
     },
     {
       "id": "alm",
       "name": "ALM — AI-Led Marketing",
-      "durationMs": 144096,
+      "durationMs": 331634,
       "totals": {
         "tests": 8,
         "passed": 3,
@@ -455,10 +1112,10 @@
           "group": "Kraftshala ALM lead form",
           "spec": "cypress/e2e/alm/almLeadForm.cy.js",
           "state": "failed",
-          "durationMs": 34614,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/alm/benak58542%40iconcubic.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
+          "durationMs": 55266,
+          "error": "AssertionError: Timed out retrying after 45000ms: OTP input visible: expected 0 to be above 0",
           "screenshots": [
-            "screenshots/alm/4-Kraftshala_ALM_lead_form_--_New_registration_with_base_email_and_base_phone_failed_.png"
+            "screenshots/alm/1-Kraftshala_ALM_lead_form_--_New_registration_with_base_email_and_base_phone_failed_.png"
           ],
           "detail": {
             "kind": "lead",
@@ -470,40 +1127,77 @@
               "email": "benak58542@iconcubic.com",
               "phone": "4778990011"
             },
+            "cleanup": [
+              {
+                "target": "remove-lead (alm)",
+                "identifier": "benak58542@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "remove-lead (alm)",
+                "identifier": "magoy45957@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "4778990011",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "5711759190",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748566424
+                "status": 200,
+                "startedAt": 1795834463487,
+                "durationMs": 275,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748566426
+                "status": 200,
+                "startedAt": 1795834463489,
+                "durationMs": 263,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748566427
+                "status": 200,
+                "startedAt": 1795834463493,
+                "durationMs": 255,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748588341
+                "status": 200,
+                "startedAt": 1795834463799,
+                "durationMs": 260,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748588342
+                "status": 200,
+                "startedAt": 1795834464090,
+                "durationMs": 261,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 30s)"
             ]
           }
         },
@@ -532,23 +1226,23 @@
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
                 "status": null,
-                "startedAt": 1795748598098
+                "startedAt": 1795834515831
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
                 "status": null,
-                "startedAt": 1795748598099
+                "startedAt": 1795834515832
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
                 "status": null,
-                "startedAt": 1795748598103
+                "startedAt": 1795834515849
               }
             ],
             "notes": [
-              "Backend never answered POST /lead_tracking (waited 1s)"
+              "Backend never answered POST /lead_tracking (waited 0s)"
             ]
           }
         },
@@ -575,24 +1269,33 @@
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748599917
+                "status": 200,
+                "startedAt": 1795834517200,
+                "durationMs": 762,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748599919
+                "status": 200,
+                "startedAt": 1795834517201,
+                "durationMs": 751,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834517201,
+                "durationMs": 725,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
                 "status": null,
-                "startedAt": 1795748599925
+                "startedAt": 1795834517995
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 0s)"
             ]
           }
         },
@@ -618,33 +1321,31 @@
             "apiTrace": [
               {
                 "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834519211,
+                "durationMs": 262,
+                "message": ""
+              },
+              {
+                "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748601054
-              },
-              {
-                "method": "GET",
-                "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748601066
-              },
-              {
-                "method": "GET",
-                "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748601070
-              },
-              {
-                "method": "GET",
-                "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748601076
+                "status": 200,
+                "startedAt": 1795834519214,
+                "durationMs": 247,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
                 "status": null,
-                "startedAt": 1795748601088
+                "startedAt": 1795834519216
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": null,
+                "startedAt": 1795834519490
               }
             ],
             "notes": [
@@ -657,7 +1358,7 @@
           "group": "Kraftshala ALM lead form",
           "spec": "cypress/e2e/alm/almLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 6562,
+          "durationMs": 70647,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -687,24 +1388,43 @@
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748602750
+                "status": 200,
+                "startedAt": 1795834521155,
+                "durationMs": 251,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748602752
+                "status": 200,
+                "startedAt": 1795834521155,
+                "durationMs": 870,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748602754
+                "status": 200,
+                "startedAt": 1795834521158,
+                "durationMs": 867,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834521428,
+                "durationMs": 248,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834521684,
+                "durationMs": 342,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 5s)"
             ]
           }
         },
@@ -713,7 +1433,7 @@
           "group": "Kraftshala ALM lead form",
           "spec": "cypress/e2e/alm/almLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 49482,
+          "durationMs": 95534,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -743,43 +1463,43 @@
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748609341
+                "status": 200,
+                "startedAt": 1795834598568,
+                "durationMs": 810,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748609346
+                "status": 200,
+                "startedAt": 1795834598572,
+                "durationMs": 807,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748609350
+                "status": 200,
+                "startedAt": 1795834598573,
+                "durationMs": 807,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748632053
+                "status": 200,
+                "startedAt": 1795834599400,
+                "durationMs": 1072,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748632054
-              },
-              {
-                "method": "POST",
-                "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748640192
+                "status": 200,
+                "startedAt": 1795834601398,
+                "durationMs": 2174,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 46s)",
-              "Backend never answered POST /lead_tracking (waited 15s)"
             ]
           }
         },
@@ -788,7 +1508,7 @@
           "group": "Kraftshala ALM lead form",
           "spec": "cypress/e2e/alm/almLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 18275,
+          "durationMs": 33520,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -814,24 +1534,43 @@
               {
                 "method": "GET",
                 "path": "/program/alm/campaign/active",
-                "status": null,
-                "startedAt": 1795748663633
+                "status": 200,
+                "startedAt": 1795834693113,
+                "durationMs": 1890,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748663634
+                "status": 200,
+                "startedAt": 1795834693114,
+                "durationMs": 1889,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748663637
+                "status": 200,
+                "startedAt": 1795834693117,
+                "durationMs": 1887,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834695948,
+                "durationMs": 1017,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834699002,
+                "durationMs": 1013,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 10s)"
             ]
           }
         },
@@ -840,10 +1579,10 @@
           "group": "Kraftshala ALM — Download prospectus",
           "spec": "cypress/e2e/alm/almDownloadProspectus.cy.js",
           "state": "failed",
-          "durationMs": 30175,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/alm/benak58542%40iconcubic.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
+          "durationMs": 71010,
+          "error": "AssertionError: Timed out retrying after 60000ms: Expected to find content: '/you['’]?re all set/i' but never did.",
           "screenshots": [
-            "screenshots/alm/5-Kraftshala_ALM_Download_prospectus_--_Download_prospectus_with_base_email_and_base_phone_failed_.png"
+            "screenshots/alm/2-Kraftshala_ALM_Download_prospectus_--_Download_prospectus_with_base_email_and_base_phone_failed_.png"
           ],
           "detail": {
             "kind": "lead",
@@ -855,7 +1594,106 @@
               "email": "benak58542@iconcubic.com",
               "phone": "4778990011"
             },
-            "apiTrace": []
+            "cleanup": [
+              {
+                "target": "remove-lead (alm)",
+                "identifier": "benak58542@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "4778990011",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "5711759190",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834723863,
+                "durationMs": 429,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1795834723864,
+                "durationMs": 427,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834723865,
+                "durationMs": 425,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834724366,
+                "durationMs": 280,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/alm/campaign/active",
+                "status": 200,
+                "startedAt": 1795834724673,
+                "durationMs": 364,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation",
+                "status": 200,
+                "startedAt": 1795834728206,
+                "durationMs": 2509,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834731029,
+                "durationMs": 285,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 400,
+                "startedAt": 1795834731351,
+                "durationMs": 273,
+                "message": "Validation Failure"
+              }
+            ],
+            "notes": [
+              "Backend error: POST /lead/create -> HTTP 400 Validation Failure"
+            ]
           }
         }
       ],
@@ -864,24 +1702,22 @@
     {
       "id": "basl",
       "name": "BASL — Sales & Marketing",
-      "durationMs": 103667,
+      "durationMs": 103286,
       "totals": {
         "tests": 7,
-        "passed": 3,
-        "failed": 1,
-        "skipped": 3
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0
       },
       "tests": [
         {
           "title": "New registration with base email and base phone",
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
-          "state": "failed",
-          "durationMs": 45016,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/basl/wekewiy222%40juicehour.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
-          "screenshots": [
-            "screenshots/basl/6-Kraftshala_BASL_lead_form_--_New_registration_with_base_email_and_base_phone_failed_.png"
-          ],
+          "state": "passed",
+          "durationMs": 20019,
+          "error": null,
+          "screenshots": [],
           "detail": {
             "kind": "lead",
             "form": "BASL lead form",
@@ -892,53 +1728,130 @@
               "email": "wekewiy222@juicehour.com",
               "phone": "5789000977"
             },
+            "cleanup": [
+              {
+                "target": "remove-lead (basl)",
+                "identifier": "wekewiy222@juicehour.com",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "remove-lead (basl)",
+                "identifier": "bihidor449@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "5789000977",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "3997009910",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "SUCCESS",
+                "ok": true
+              },
+              {
+                "label": "Lead created (lead/create)",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /pgp/learn-sales-and-marketing/thank-you/ — new lead created"
+            },
+            "notes": [
+              "Ignored cross-origin/benign browser error: Script error."
+            ],
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748713740
+                "status": 200,
+                "startedAt": 1795834800775,
+                "durationMs": 853,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748713741
+                "status": 200,
+                "startedAt": 1795834800777,
+                "durationMs": 852,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748713752
+                "status": 200,
+                "startedAt": 1795834800780,
+                "durationMs": 843,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748735610
+                "status": 200,
+                "startedAt": 1795834801686,
+                "durationMs": 1027,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834808538,
+                "durationMs": 1487,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834810307,
+                "durationMs": 285,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/lead/create",
+                "status": 200,
+                "startedAt": 1795834810627,
+                "durationMs": 267,
+                "message": ""
               },
               {
                 "method": "GET",
-                "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748744179
+                "path": "/lead/b11b33bc-7a08-4112-8aa2-4ffbcba68d2a/details/show",
+                "status": 200,
+                "startedAt": 1795834812628,
+                "durationMs": 297,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748744204
-              },
-              {
-                "method": "GET",
-                "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748746194
+                "status": 200,
+                "startedAt": 1795834812665,
+                "durationMs": 297,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 40s)",
-              "Backend never answered POST /lead_tracking (waited 10s)"
             ]
           }
         },
@@ -946,8 +1859,8 @@
           "title": "Existing registration with base email and base phone",
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
-          "state": "skipped",
-          "durationMs": 0,
+          "state": "passed",
+          "durationMs": 14349,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -961,29 +1874,86 @@
               "phone": "5789000977"
             },
             "cleanupNote": "Intentionally not run — this case re-submits the lead created by the previous case.",
-            "skipReason": "Depends on the lead from \"New registration with base email and base phone\", which did not pass in this run.",
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "notes": [
+              "Ignored cross-origin/benign browser error: Script error."
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /pgp/learn-sales-and-marketing/thank-you/ — existing lead reused (no lead/create)"
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748756068
+                "status": 200,
+                "startedAt": 1795834816351,
+                "durationMs": 483,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748756069
+                "status": 200,
+                "startedAt": 1795834816352,
+                "durationMs": 483,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748756070
+                "status": 200,
+                "startedAt": 1795834816353,
+                "durationMs": 324,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834816870,
+                "durationMs": 270,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834824221,
+                "durationMs": 1442,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834826111,
+                "durationMs": 285,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/lead/b11b33bc-7a08-4112-8aa2-4ffbcba68d2a/details/show",
+                "status": 200,
+                "startedAt": 1795834827014,
+                "durationMs": 292,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834827018,
+                "durationMs": 319,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 7s)"
             ]
           }
         },
@@ -991,8 +1961,8 @@
           "title": "Base email with different phone number should be blocked",
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
-          "state": "skipped",
-          "durationMs": 0,
+          "state": "passed",
+          "durationMs": 17076,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -1005,29 +1975,82 @@
               "email": "wekewiy222@juicehour.com",
               "phone": "3997009910"
             },
-            "skipReason": "Depends on the lead from \"New registration with base email and base phone\", which did not pass in this run.",
+            "cleanup": [
+              {
+                "target": "removeNumber",
+                "identifier": "3997009910",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation rejects the mismatched phone",
+                "status": 400,
+                "message": "The phone number associated with wekewiy222@juicehour.com is xxxxxx0977. Try using this phone number",
+                "ok": true
+              },
+              {
+                "label": "No lead created (lead/create)",
+                "status": 0,
+                "message": "Not sent (as expected)",
+                "ok": true
+              }
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Blocked: \"phone number associated with … try using this phone number\""
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748764608
+                "status": 200,
+                "startedAt": 1795834829780,
+                "durationMs": 497,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748764609
+                "status": 200,
+                "startedAt": 1795834829783,
+                "durationMs": 491,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748764611
+                "status": 200,
+                "startedAt": 1795834829786,
+                "durationMs": 493,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834830334,
+                "durationMs": 253,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834839805,
+                "durationMs": 4027,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 400,
+                "startedAt": 1795834844229,
+                "durationMs": 268,
+                "message": "The phone number associated with wekewiy222@juicehour.com is xxxxxx0977. Try using this phone number"
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 5s)"
             ]
           }
         },
@@ -1035,8 +2058,8 @@
           "title": "Base phone number with different email",
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
-          "state": "skipped",
-          "durationMs": 0,
+          "state": "passed",
+          "durationMs": 15155,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -1049,29 +2072,95 @@
               "email": "bihidor449@iconcubic.com",
               "phone": "5789000977"
             },
-            "skipReason": "Depends on the lead from \"New registration with base email and base phone\", which did not pass in this run.",
+            "cleanup": [
+              {
+                "target": "remove-lead (basl)",
+                "identifier": "bihidor449@iconcubic.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              }
+            ],
+            "api": [
+              {
+                "label": "OTP validation",
+                "status": 200,
+                "message": "",
+                "ok": true
+              }
+            ],
+            "notes": [
+              "Ignored cross-origin/benign browser error: Script error."
+            ],
+            "submission": {
+              "ok": true,
+              "outcome": "Success page opened: /pgp/learn-sales-and-marketing/thank-you/ — existing lead reused (no lead/create)"
+            },
             "apiTrace": [
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748770926
+                "status": 200,
+                "startedAt": 1795834848722,
+                "durationMs": 290,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748770927
+                "status": 200,
+                "startedAt": 1795834848727,
+                "durationMs": 284,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748770927
+                "status": 200,
+                "startedAt": 1795834848788,
+                "durationMs": 287,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834849042,
+                "durationMs": 253,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/",
+                "status": 200,
+                "startedAt": 1795834856827,
+                "durationMs": 1434,
+                "message": "SUCCESS"
+              },
+              {
+                "method": "POST",
+                "path": "/otp-validation/validate",
+                "status": 200,
+                "startedAt": 1795834858675,
+                "durationMs": 273,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/lead/b11b33bc-7a08-4112-8aa2-4ffbcba68d2a/details/show",
+                "status": 200,
+                "startedAt": 1795834859514,
+                "durationMs": 260,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834859515,
+                "durationMs": 283,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 10s)"
             ]
           }
         },
@@ -1080,7 +2169,7 @@
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 9817,
+          "durationMs": 11393,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -1110,30 +2199,35 @@
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748782468
-              },
-              {
-                "method": "GET",
-                "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748782469
+                "status": 200,
+                "startedAt": 1795834861910,
+                "durationMs": 304,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748782469
+                "status": 200,
+                "startedAt": 1795834861913,
+                "durationMs": 295,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748782470
+                "status": 200,
+                "startedAt": 1795834861915,
+                "durationMs": 295,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834862409,
+                "durationMs": 275,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 8s)"
             ]
           }
         },
@@ -1142,7 +2236,7 @@
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 9743,
+          "durationMs": 12817,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -1172,24 +2266,35 @@
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748792278
+                "status": 200,
+                "startedAt": 1795834874087,
+                "durationMs": 319,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748792278
+                "status": 200,
+                "startedAt": 1795834874090,
+                "durationMs": 314,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748792283
+                "status": 200,
+                "startedAt": 1795834874093,
+                "durationMs": 312,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834874499,
+                "durationMs": 1604,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 8s)"
             ]
           }
         },
@@ -1198,7 +2303,7 @@
           "group": "Kraftshala BASL lead form",
           "spec": "cypress/e2e/smbl/smblLeadForm.cy.js",
           "state": "passed",
-          "durationMs": 12166,
+          "durationMs": 12320,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -1224,40 +2329,45 @@
               {
                 "method": "GET",
                 "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748802060
-              },
-              {
-                "method": "GET",
-                "path": "/program/basl/campaign/active",
-                "status": null,
-                "startedAt": 1795748802061
+                "status": 200,
+                "startedAt": 1795834887977,
+                "durationMs": 306,
+                "message": ""
               },
               {
                 "method": "GET",
                 "path": "/program/null/campaign/null/events/popup-session",
-                "status": null,
-                "startedAt": 1795748802061
+                "status": 200,
+                "startedAt": 1795834887983,
+                "durationMs": 299,
+                "message": ""
               },
               {
                 "method": "POST",
                 "path": "/lead_tracking",
-                "status": null,
-                "startedAt": 1795748802062
+                "status": 200,
+                "startedAt": 1795834887983,
+                "durationMs": 299,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834888370,
+                "durationMs": 265,
+                "message": ""
               }
-            ],
-            "notes": [
-              "Backend never answered POST /lead_tracking (waited 11s)"
             ]
           }
         }
       ],
-      "status": "failed"
+      "status": "passed"
     },
     {
       "id": "kslive",
       "name": "KS Live — Event registration",
-      "durationMs": 30208,
+      "durationMs": 29410,
       "totals": {
         "tests": 1,
         "passed": 0,
@@ -1270,10 +2380,10 @@
           "group": "Kraftshala KS Live registration",
           "spec": "cypress/e2e/kslive/ksLiveRegistration.cy.js",
           "state": "failed",
-          "durationMs": 30178,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/otp-validation/removeNumber/6500741299\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
+          "durationMs": 29377,
+          "error": "AssertionError: Timed out retrying after 25000ms: Expected to find element: `.ks-live-registration-card`, but never found it.",
           "screenshots": [
-            "screenshots/kslive/7-Kraftshala_KS_Live_registration_--_Register_on_1st_KS_Live_event_with_base_email_and_base_phone_failed_.png"
+            "screenshots/kslive/3-Kraftshala_KS_Live_registration_--_Register_on_1st_KS_Live_event_with_base_email_and_base_phone_failed_.png"
           ],
           "detail": {
             "kind": "lead",
@@ -1285,7 +2395,41 @@
               "email": "pajano2688@iconcubic.com",
               "phone": "6500741299"
             },
-            "apiTrace": []
+            "cleanup": [
+              {
+                "target": "removeNumber",
+                "identifier": "6500741299",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1795834901904,
+                "durationMs": 256,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/latest-events",
+                "status": 200,
+                "startedAt": 1795834901936,
+                "durationMs": 260,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834901940,
+                "durationMs": 270,
+                "message": ""
+              }
+            ]
           }
         }
       ],
@@ -1294,7 +2438,7 @@
     {
       "id": "callback",
       "name": "Request a Callback",
-      "durationMs": 30186,
+      "durationMs": 120817,
       "totals": {
         "tests": 1,
         "passed": 0,
@@ -1307,10 +2451,10 @@
           "group": "Kraftshala — Request a CallBack",
           "spec": "cypress/e2e/callback/requestCallback.cy.js",
           "state": "failed",
-          "durationMs": 30156,
-          "error": "CypressError: `cy.request()` timed out waiting `30000ms` for a response from your server.\n\nThe request we sent was:\n\nMethod: GET\nURL: https://testservice.kraftshala.com/lead/remove-lead/mlp/lalevo4293%40juicehour.com\n\nNo response was received within the timeout.\n\nhttps://on.cypress.io/request",
+          "durationMs": 120778,
+          "error": "CypressError: Timed out after waiting `120000ms` for your remote page to load.\n\nYour page did not fire its `load` event within `120000ms`.\n\nYou can try increasing the `pageLoadTimeout` value in `home/runner/work/MLP-automation/MLP-automation/cypress.config.js` to wait longer.\n\nBrowsers will not fire the `load` event until all stylesheets and scripts are done downloading.\n\nWhen this `load` event occurs, Cypress will continue running commands.",
           "screenshots": [
-            "screenshots/callback/8-Kraftshala_Request_a_CallBack_--_Submit_callback_request_and_verify_success_message_failed_.png"
+            "screenshots/callback/4-Kraftshala_Request_a_CallBack_--_Submit_callback_request_and_verify_success_message_failed_.png"
           ],
           "detail": {
             "kind": "lead",
@@ -1322,7 +2466,75 @@
               "email": "lalevo4293@juicehour.com",
               "phone": "4899178901"
             },
-            "apiTrace": []
+            "cleanup": [
+              {
+                "target": "remove-lead (mlp)",
+                "identifier": "lalevo4293@juicehour.com",
+                "status": 200,
+                "message": "Already absent (FAILURE , Lead not found)",
+                "ok": true
+              },
+              {
+                "target": "removeNumber",
+                "identifier": "4899178901",
+                "status": 400,
+                "message": "Already absent (OTP Validation Details not found)",
+                "ok": true
+              }
+            ],
+            "notes": [
+              "Ignored cross-origin/benign browser error: ResizeObserver loop completed with undelivered notifications."
+            ],
+            "apiTrace": [
+              {
+                "method": "GET",
+                "path": "/navbar-announcement-bar/active",
+                "status": 200,
+                "startedAt": 1795834934522,
+                "durationMs": 279,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/latest-events",
+                "status": 200,
+                "startedAt": 1795834934532,
+                "durationMs": 270,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/null/campaign/null/events/popup-session",
+                "status": 200,
+                "startedAt": 1795834934533,
+                "durationMs": 272,
+                "message": ""
+              },
+              {
+                "method": "POST",
+                "path": "/lead_tracking",
+                "status": 200,
+                "startedAt": 1795834934534,
+                "durationMs": 772,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/mlp/campaign/active",
+                "status": 200,
+                "startedAt": 1795834934536,
+                "durationMs": 796,
+                "message": ""
+              },
+              {
+                "method": "GET",
+                "path": "/program/basl/campaign/active",
+                "status": 200,
+                "startedAt": 1795834935387,
+                "durationMs": 272,
+                "message": ""
+              }
+            ]
           }
         }
       ],
@@ -1331,7 +2543,7 @@
     {
       "id": "seo",
       "name": "SEO checklist",
-      "durationMs": 154190,
+      "durationMs": 287704,
       "totals": {
         "tests": 7,
         "passed": 0,
@@ -1344,10 +2556,10 @@
           "group": "SEO Checklist › Home",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 6440,
-          "error": "Error: 6 SEO check(s) failed on /:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"Kraftshala School of Business - Best Job-linked Course Platform in India\". Got: \"Best Job-Linked Sales & Marketing Programs in India - Kraftshala School of Business (formerly Kraftshala)\". First diff at pos 0: U+004B ('K') vs U+0042 ('B') — context: \"...Kraftshala S...\"\n- Meta description matches expected + has data-react-helmet: Description mismatch. Expected: \"Kraftshala School of Business makes India’s most loved courses for students & professionals that are 100% industry-driven. Be a part of India’s most promising talent today.\". Got: \"Kraftshala School of Business, formerly Kraftshala, is India’s top B school for sales and marketing, with job-linked online and PG programs. 3,600+ students placed, 22 LPA highest CTC.\". First diff at pos 29: U+0020 (' ') vs U+002C (',') — context: \"... of Business makes India...\"\n- JSON-LD matches fixture (deep diff): 2 difference(s) across 2 block(s). Found 1 <script type=\"application/ld+json\"> tag(s); 1 parsed successfully. @types on page: (no @type).\n- No hidden text via display:none (excluding intentional UI): 12 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 26 external link(s) missing rel=\"nofollow\".",
+          "durationMs": 120461,
+          "error": "CypressError: Timed out after waiting `120000ms` for your remote page to load.\n\nYour page did not fire its `load` event within `120000ms`.\n\nYou can try increasing the `pageLoadTimeout` value in `home/runner/work/MLP-automation/MLP-automation/cypress.config.js` to wait longer.\n\nBrowsers will not fire the `load` event until all stylesheets and scripts are done downloading.\n\nWhen this `load` event occurs, Cypress will continue running commands.",
           "screenshots": [
-            "screenshots/seo/9-SEO_Checklist_--_Home_--_Run_all_SEO_checks_for_Home_failed_.png"
+            "screenshots/seo/5-SEO_Checklist_--_Home_--_Run_all_SEO_checks_for_Home_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -1722,255 +2934,6 @@
                     ]
                   }
                 ]
-              },
-              {
-                "id": "body-8",
-                "section": "body",
-                "name": "Exactly one <h1> on the page",
-                "status": "pass",
-                "expected": 1,
-                "actual": 1,
-                "details": "Exactly one h1 element found."
-              },
-              {
-                "id": "body-9",
-                "section": "body",
-                "name": "Image / canvas text (warning — manual verification needed)",
-                "status": "warning",
-                "details": "267 <img> tag(s) without alt text.",
-                "images": [
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y74yxmrltz4dk.png",
-                  "data:image/svg+xml;charset=utf-8,%3Csvg height='185' width='393' xmlns='http://www.w3.org/2000/svg' version='1.1'%3E%3C/svg%3E",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y74yxmrkgmfua.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y74yxmrkgmfua.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/banner-upload/14i86y5es5mr3emls7.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y5kyzmr4kwe5b.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y6zfimrkbfxmd.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/9050bd73-aad5-4105-aeeb-5c0b2a727f5b/events/14i86y51g6mvamn8iw.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y74yxmrkdayrm.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y74yxmrkd93to.webp",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/14i86y5kyzmr8nw54i.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvjkjo.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvjkjl.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/5cf30a8a-7103-44f6-a8a8-eee137ad8cc8/events/banner-upload/14i86y7khrmrvz649a.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvsk9w.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvska9.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvsk9q.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlw8hd9.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvskab.png",
-                  "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/14i86y74yxmrlvska4.png"
-                ]
-              },
-              {
-                "id": "body-10",
-                "section": "body",
-                "name": "No hidden text via display:none (excluding intentional UI)",
-                "status": "fail",
-                "details": "12 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.",
-                "offenders": [
-                  {
-                    "tag": "span",
-                    "className": "nh-hero__stat-label nh-hero__stat-label--mob",
-                    "preview": "PlacementRate"
-                  },
-                  {
-                    "tag": "span",
-                    "className": "nh-hero__stat-label nh-hero__stat-label--mob",
-                    "preview": "StudentsPlaced"
-                  },
-                  {
-                    "tag": "span",
-                    "className": "nh-hero__stat-label nh-hero__stat-label--mob",
-                    "preview": "RecruitingPartners"
-                  },
-                  {
-                    "tag": "span",
-                    "className": "nh-alumni__subtitle-lines nh-alumni__subtitle-lines--mob",
-                    "preview": "What started as Kraftshala in 2016 has evolved into Kraftshala School of Busines"
-                  },
-                  {
-                    "tag": "span",
-                    "className": "nh-pick__subtitle-lines nh-pick__subtitle-lines--mob",
-                    "preview": "Three postgraduate-equivalent programsin marketing, sales, and business.Choose t"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "nh-pick__carousel",
-                    "preview": "OfflinePGP in AI-Led MarketingMaster marketing using AI tools, automation and re"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "nh-lp__stepper",
-                    "preview": "1Learn2Apply3Feedback4Repeat"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "nh-lp__mobile-panel",
-                    "preview": "LearnYou become ready to deliver on the job by learning how work happens inside "
-                  },
-                  {
-                    "tag": "span",
-                    "className": "nh-trusted__title-mob",
-                    "preview": "Trusted and Recognized"
-                  },
-                  {
-                    "tag": "li",
-                    "className": "nh-trusted__item nh-trusted__item--copy",
-                    "preview": "Google4.6"
-                  },
-                  {
-                    "tag": "li",
-                    "className": "nh-trusted__item nh-trusted__item--copy",
-                    "preview": "Trustpilot4.3"
-                  },
-                  {
-                    "tag": "li",
-                    "className": "nh-trusted__item nh-trusted__item--copy",
-                    "preview": "Mouthshut4.0"
-                  }
-                ]
-              },
-              {
-                "id": "body-11",
-                "section": "body",
-                "name": "Internal links must NOT have rel=\"nofollow\"",
-                "status": "pass",
-                "details": "All internal links are dofollow.",
-                "offenders": []
-              },
-              {
-                "id": "body-12",
-                "section": "body",
-                "name": "External links must be nofollow",
-                "status": "fail",
-                "details": "26 external link(s) missing rel=\"nofollow\".",
-                "offenders": [
-                  {
-                    "href": "https://reviews.kraftshala.com/",
-                    "rel": "noopener noreferrer",
-                    "text": "Alumni Connect"
-                  },
-                  {
-                    "href": "https://reviews.kraftshala.com/",
-                    "rel": "noopener noreferrer",
-                    "text": "See Alumni Journeys"
-                  },
-                  {
-                    "href": "https://share.google/lz8KAytCvC1kBo0ix",
-                    "rel": "noopener noreferrer",
-                    "text": "Google4.6"
-                  },
-                  {
-                    "href": "https://www.trustpilot.com/review/kraftshala.com",
-                    "rel": "noopener noreferrer",
-                    "text": "Trustpilot4.3"
-                  },
-                  {
-                    "href": "https://www.mouthshut.com/websites/kraftshala-com-reviews-926109004",
-                    "rel": "noopener noreferrer",
-                    "text": "Mouthshut4.0"
-                  },
-                  {
-                    "href": "https://share.google/lz8KAytCvC1kBo0ix",
-                    "rel": "noopener noreferrer",
-                    "text": "Google4.6"
-                  },
-                  {
-                    "href": "https://www.trustpilot.com/review/kraftshala.com",
-                    "rel": "noopener noreferrer",
-                    "text": "Trustpilot4.3"
-                  },
-                  {
-                    "href": "https://www.mouthshut.com/websites/kraftshala-com-reviews-926109004",
-                    "rel": "noopener noreferrer",
-                    "text": "Mouthshut4.0"
-                  },
-                  {
-                    "href": "https://www.passionateinmarketing.com/kraftshala-school-of-business-launches-its-first-offline-campus-in-gurugram/",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala School of Business Launches Its First Offline Cam"
-                  },
-                  {
-                    "href": "https://www.thehindu.com/education/news-from-the-world-of-education-may-21-2025/article69600791.ece",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala's Marketing Launchpad becomes India's First Full "
-                  },
-                  {
-                    "href": "https://businessnewsthisweek.com/business/kraftshala-launches-pioneering-pg-program-in-sales-and-business-leadership-in-collaboration-with-industry/",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala Launches pioneering PG Program in Sales and Busin"
-                  },
-                  {
-                    "href": "https://www.telegraphindia.com/edugraph/news/headline-kraftshala-expands-its-marketing-launchpad-programmes-adds-new-course-in-digital-media/cid/1841718",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala expands its marketing launchpad programmes, adds "
-                  },
-                  {
-                    "href": "https://www.thehindu.com/education/news-from-the-world-of-education-march-11-2025/article69317735.ece",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala Announces ₹40,000 Scholarship to Support Women in"
-                  },
-                  {
-                    "href": "https://bestmediainfo.com/mediainfo/advertising/kraftshala-launches-the-leadership-catalyst-series-for-mid-level-media-managers-4482387",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala launches 'The Leadership Catalyst Series' for mid"
-                  },
-                  {
-                    "href": "https://highereducationplus.com/scaling-with-soul-how-kraftshala-is-redefining-employability-in-indias-edtech-space/",
-                    "rel": "noopener noreferrer",
-                    "text": "Scaling with Soul: How Kraftshala is Redefining Employabilit"
-                  },
-                  {
-                    "href": "https://businessnewsthisweek.com/business/kraftshala-teams-up-with-industry-veteran-adarsh-menon/",
-                    "rel": "noopener noreferrer",
-                    "text": "Kraftshala teams up with industry veteran Adarsh Menon for f"
-                  },
-                  {
-                    "href": "https://bestcolleges.indiatoday.in/news-detail/beyond-marks-the-urgent-need-for-edtech-accountability-in-2025-3447",
-                    "rel": "noopener noreferrer",
-                    "text": "Beyond marks: The urgent need for edtech accountability in I"
-                  },
-                  {
-                    "href": "https://www.adgully.com/how-kraftshala-is-addressing-the-long-standing-issue-of-employability-in-india-149315.html",
-                    "rel": "noopener noreferrer",
-                    "text": "How Kraftshala is addressing the long-standing issue of empl"
-                  },
-                  {
-                    "href": "https://indianexpress.com/article/education/mba-admissions-2025-alternatives-tier-1-college-admission-iim-9869801/",
-                    "rel": "noopener noreferrer",
-                    "text": "MBA Admissions: What if you don't get admission into a Tier-"
-                  },
-                  {
-                    "href": "https://yourstory.com/2025/03/edtechs-comeback-story-innovation-shaping-stronger-future",
-                    "rel": "noopener noreferrer",
-                    "text": "Edtech's comeback story: How innovation is shaping a stronge"
-                  },
-                  {
-                    "href": "https://education.economictimes.indiatimes.com/news/industry/edtech-in-2025-are-we-truly-addressing-the-needs-of-the-modern-learner/118169741",
-                    "rel": "noopener noreferrer",
-                    "text": "Edtech in India: Are we truly addressing the needs of the mo"
-                  },
-                  {
-                    "href": "https://www.hindustantimes.com/education/features/the-fastest-way-to-build-your-digital-marketing-career-in-2024-101729239361803.html",
-                    "rel": "noopener noreferrer",
-                    "text": "The fastest way to build your digital marketing career"
-                  },
-                  {
-                    "href": "https://www.storyboard18.com/amp/brand-marketing/india-sees-steady-increase-in-entry-level-digital-marketing-jobs-in-2024-report-51439.htm",
-                    "rel": "noopener noreferrer",
-                    "text": "India sees steady increase in entry-level digital marketing "
-                  },
-                  {
-                    "href": "https://www.campaignindia.in/article/entry-level-digital-marketing-hiring-matures-as-agencies-dominate-volumes-kraftshala/4ta76trk6b46qv54weqq97a1xe",
-                    "rel": "noopener noreferrer",
-                    "text": "Entry-level digital marketing hiring matures as agencies dom"
-                  },
-                  {
-                    "href": "https://learn.kraftshala.com/#/login",
-                    "rel": "noreferrer",
-                    "text": "Learn Platform"
-                  }
-                ]
               }
             ],
             "notes": [
@@ -1983,10 +2946,10 @@
           "group": "SEO Checklist › MLP Core",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 3439,
+          "durationMs": 4823,
           "error": "Error: 9 SEO check(s) failed on /marketing-launchpad/digital-marketing-course/:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"#1 AI-Integrated Digital Marketing Course with Placements\". Got: \"Best AI-Integrated Digital Marketing Course with Placements\". First diff at pos 0: U+0023 ('#') vs U+0042 ('B') — context: \"...#1 AI-Integr...\"\n- Meta description matches expected + has data-react-helmet: Description mismatch. Expected: \"Join the best AI-Integrated digital marketing course in India with placement. This 22-week live digital marketing course helps you get jobs from ₹4.5-10.05 LPA. Enroll now!\". Got: \"Join the best AI-Integrated digital marketing course in India with placement. This 6-months live digital marketing certification course helps you get jobs from ₹4.5-10.40 LPA. Enroll now!\". First diff at pos 83: U+0032 ('2') vs U+0036 ('6') — context: \"...ement. This 22-week live...\"\n- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 <script type=\"application/ld+json\"> tag(s); 1 parsed successfully. @types on page: (no @type).\n- No hidden text via display:none (excluding intentional UI): 112 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 109 external link(s) missing rel=\"nofollow\".\n- FAQ ARIA attributes: FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.\n- FAQ answers present in server-rendered HTML: 3 FAQ answer(s) not found in raw HTML — likely injected by JS.\n- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.",
           "screenshots": [
-            "screenshots/seo/10-SEO_Checklist_--_MLP_Core_--_Run_all_SEO_checks_for_MLP_Core_failed_.png"
+            "screenshots/seo/6-SEO_Checklist_--_MLP_Core_--_Run_all_SEO_checks_for_MLP_Core_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -2790,10 +3753,10 @@
           "group": "SEO Checklist › MLP Part-Time",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 4418,
-          "error": "Error: 8 SEO check(s) failed on /marketing-launchpad/part-time-digital-marketing-course/:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"Best Part-time Digital Marketing Weekend Course With Placement [& AI Tools Training]\". Got: \"Best Part-time Digital Marketing Weekend Course With Placement [& AI Tools Training] - Kraftshala\". Lengths differ after normalize — expected 84, got 97.\n- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 <script type=\"application/ld+json\"> tag(s); 1 parsed successfully. @types on page: (no @type).\n- No hidden text via display:none (excluding intentional UI): 43 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 79 external link(s) missing rel=\"nofollow\".\n- FAQ ARIA attributes: FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.\n- FAQ answers present in server-rendered HTML: 2 FAQ answer(s) not found in raw HTML — likely injected by JS.\n- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.",
+          "durationMs": 5586,
+          "error": "Error: 8 SEO check(s) failed on /marketing-launchpad/part-time-digital-marketing-course/:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"Best Part-time Digital Marketing Weekend Course With Placement [& AI Tools Training]\". Got: \"Best Part-time Digital Marketing Weekend Course With Placement [& AI Tools Training] - Kraftshala\". Lengths differ after normalize — expected 84, got 97.\n- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 <script type=\"application/ld+json\"> tag(s); 1 parsed successfully. @types on page: (no @type).\n- No hidden text via display:none (excluding intentional UI): 104 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 133 external link(s) missing rel=\"nofollow\".\n- FAQ ARIA attributes: FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.\n- FAQ answers present in server-rendered HTML: 2 FAQ answer(s) not found in raw HTML — likely injected by JS.\n- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.",
           "screenshots": [
-            "screenshots/seo/11-SEO_Checklist_--_MLP_Part-Time_--_Run_all_SEO_checks_for_MLP_Part-Time_failed_.png"
+            "screenshots/seo/7-SEO_Checklist_--_MLP_Part-Time_--_Run_all_SEO_checks_for_MLP_Part-Time_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -3275,7 +4238,7 @@
                 "section": "body",
                 "name": "Image / canvas text (warning — manual verification needed)",
                 "status": "warning",
-                "details": "147 <img> tag(s) without alt text.",
+                "details": "285 <img> tag(s) without alt text.",
                 "images": [
                   "data:image/svg+xml;charset=utf-8,%3Csvg height='185' width='393' xmlns='http://www.w3.org/2000/svg' version='1.1'%3E%3C/svg%3E",
                   "data:image/svg+xml;charset=utf-8,%3Csvg height='339' width='894' xmlns='http://www.w3.org/2000/svg' version='1.1'%3E%3C/svg%3E",
@@ -3288,15 +4251,15 @@
                   "https://d2vavb9i0vjxky.cloudfront.net/production/453b391a-01f1-4431-a281-8c58470d35bc/events/banner-upload/14i86yzpcm2aafvlc.png",
                   "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86y6hama17s42m.webp ",
                   "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yrnf1m98bjse2.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86ytk9um9ttwydi.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86ytk9um9twcrbq.png",
-                  "https://d2vavb9i0vjxky.cloudfront.net/production/453b391a-01f1-4431-a281-8c58470d35bc/events/banner-upload/14i86y3bdzm2t7gih5.png",
-                  "https://d2vavb9i0vjxky.cloudfront.net/production/453b391a-01f1-4431-a281-8c58470d35bc/events/banner-upload/14i86y3bdzm2t7gih5.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yrnf1m98hu0ia.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yrnf1m98hu0ia.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yrnf1m98hv7i2.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yrnf1m98hv7i2.png",
-                  "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86yrnf1m98hu0ia.png"
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yscicm9a5upm3.webp",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibhflw.webp",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibi7f5.webp",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibkbfh.png",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibl88z.webp",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibmg1u.png",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibsjm3.png",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibvjv5.png",
+                  "https://d2vavb9i0vjxky.cloudfront.net/production/e9d233fb-9c08-4517-8357-587282525862/events/banner-upload/14i86yt0vkm9ibwg85.png"
                 ]
               },
               {
@@ -3304,7 +4267,7 @@
                 "section": "body",
                 "name": "No hidden text via display:none (excluding intentional UI)",
                 "status": "fail",
-                "details": "43 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.",
+                "details": "104 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.",
                 "offenders": [
                   {
                     "tag": "h4",
@@ -3322,114 +4285,114 @@
                     "preview": "94%Placement Rate10.40LHighest CTC800+Recruiting partners3600+Students Placed"
                   },
                   {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "We've now recruited our 9th batch from Kraftshala. Their professionalism, commit"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "Kraftshala team deserves accolades for turning digital marketing enthusiasts int"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "Kraftshala has truly positioned itself right, the syllabus is as apt as it can b"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "Our association with Kraftshala, in my personal capacity, has been by far a posi"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "The students trained by Kraftshala show exceptional preparedness, particularly i"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "I got 3 candidates hired in just a week. The team is highly professional and coo"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "I recommend Kraftshala as their hands-on learning, and practical training ensure"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "We are grateful for the strong partnership with Kraftshala. We value the quality"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "Kraftshala has been a reliable hiring partner, helping us close key roles. Their"
-                  },
-                  {
-                    "tag": "div",
-                    "className": "type2-description pc-none",
-                    "preview": "Performics India is extremely satisfied with our experience with MLP. First, it "
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
                     "tag": "span",
                     "className": "pc-none",
-                    "preview": "on"
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "p-img pc-none",
-                    "preview": "Project Flow: Projects Briefing Meeting with the industry experts Making the cam"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "p-img pc-none",
-                    "preview": "Project Flow: Project Briefing Meeting with the industry experts Making the camp"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "p-img pc-none",
-                    "preview": "Project Flow: Project Briefing Meeting with the industry experts Making the camp"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "p-img pc-none",
-                    "preview": "Project Flow: Project Briefing Attempting the media plan on DV360 Catchup with t"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "lp-mobile-cards-container",
-                    "preview": "VARUN SATIA  Founder & CEO, Kraftshala Ex-  FMS , BITS Eshu Sharma Co-founder, K"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "accordion-content accordion-content--hidden",
-                    "preview": "Your training will happen every Sunday from 10 - 7 PM. You will also have some p"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "accordion-content accordion-content--hidden",
-                    "preview": "You will have classes on 2 days of the week for 2 hours each. These could be cla"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "accordion-content accordion-content--hidden",
-                    "preview": "The weekend sessions will be a mix of live sessions, recorded modules, \n      do"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "accordion-content accordion-content--hidden",
-                    "preview": "We would suggest you take out time for self-revision whenever you can in order t"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "accordion-content accordion-content--hidden",
-                    "preview": "Yes, you get to run live campaigns as a part of your group project during the co"
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   },
                   {
-                    "tag": "div",
-                    "className": "accordion-content accordion-content--hidden",
-                    "preview": "Yes - The full-time batch which is a 6 Months (8-10 hours a day) batch includes "
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
+                  },
+                  {
+                    "tag": "span",
+                    "className": "pc-none",
+                    "preview": ":"
                   }
                 ]
               },
@@ -3446,7 +4409,7 @@
                 "section": "body",
                 "name": "External links must be nofollow",
                 "status": "fail",
-                "details": "79 external link(s) missing rel=\"nofollow\".",
+                "details": "133 external link(s) missing rel=\"nofollow\".",
                 "offenders": [
                   {
                     "href": "https://reviews.kraftshala.com/",
@@ -3457,6 +4420,51 @@
                     "href": "https://placement-reports.kraftshala.com/",
                     "rel": "noopener noreferrer",
                     "text": "View Placement Reports"
+                  },
+                  {
+                    "href": "https://www.youtube.com/watch?v=yNGfQRyUy0Q",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.linkedin.com/in/kishan-pandey-67045a1b8/",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.youtube.com/watch?v=B3-GalUZjJE",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.linkedin.com/in/md-hedaytullah-a746a730a/",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.linkedin.com/in/varsha-gupta-a1219a5b/",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.youtube.com/watch?v=KPCrPlaL0zo",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.linkedin.com/in/ishan-pant/",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.youtube.com/watch?v=H9Lizqqf58c",
+                    "rel": "",
+                    "text": ""
+                  },
+                  {
+                    "href": "https://www.linkedin.com/in/deepshikha-chaubey/",
+                    "rel": "",
+                    "text": ""
                   },
                   {
                     "href": "https://www.youtube.com/embed/DNnW_1ykkRs",
@@ -3527,51 +4535,6 @@
                     "href": "https://www.linkedin.com/in/hemant-chauhan-955ba21b1/",
                     "rel": "",
                     "text": ""
-                  },
-                  {
-                    "href": "https://www.youtube.com/embed/PWUWd8UtYEc",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.linkedin.com/in/chakresh-tiwari-5615b31a4/",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.youtube.com/embed/9o-FIze8Uww",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.linkedin.com/in/sunilsatpute/",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.youtube.com/embed/50rvmP_ZW2Y",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.linkedin.com/in/soham-ghosh-64bb72129/",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.youtube.com/embed/tUazFcWOzSc",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.linkedin.com/in/aditya-dave-302450241/",
-                    "rel": "",
-                    "text": ""
-                  },
-                  {
-                    "href": "https://www.youtube.com/embed/ZEYxIULJsp0",
-                    "rel": "",
-                    "text": ""
                   }
                 ]
               },
@@ -3635,10 +4598,10 @@
           "group": "SEO Checklist › MLP Hindi",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 4815,
+          "durationMs": 5558,
           "error": "Error: 8 SEO check(s) failed on /marketing-launchpad/digital-marketing-course-in-hindi/:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent\". Got: \"Digital Marketing Course in Hindi | Marketing Launchpad Emerging Talent - Kraftshala\". Lengths differ after normalize — expected 71, got 84.\n- Meta description matches expected + has data-react-helmet: Description mismatch. Expected: \"Join India’s first digital marketing course in Hindi with placement. This 23-week live Hindi digital marketing course helps you get jobs upto ₹6 LPA. Enroll now!\". Got: \"Join India’s first digital marketing course in Hindi with placement. This 6-month live Hindi digital marketing course helps you get jobs upto ₹6 LPA. Enroll now!\". First diff at pos 74: U+0032 ('2') vs U+0036 ('6') — context: \"...ement. This 23-week live...\"\n- JSON-LD matches fixture (deep diff): 2 difference(s) across 2 block(s). Found 1 <script type=\"application/ld+json\"> tag(s); 1 parsed successfully. @types on page: (no @type).\n- No hidden text via display:none (excluding intentional UI): 59 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 36 external link(s) missing rel=\"nofollow\".\n- FAQ ARIA attributes: FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.\n- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.",
           "screenshots": [
-            "screenshots/seo/12-SEO_Checklist_--_MLP_Hindi_--_Run_all_SEO_checks_for_MLP_Hindi_failed_.png"
+            "screenshots/seo/8-SEO_Checklist_--_MLP_Hindi_--_Run_all_SEO_checks_for_MLP_Hindi_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -4378,10 +5341,10 @@
           "group": "SEO Checklist › ALM (AI-Led Marketing)",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 2946,
+          "durationMs": 3959,
           "error": "Error: 8 SEO check(s) failed on /pgp-in-marketing/:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"PGP in Marketing (AI Led) by Kraftshala School of Business\". Got: \"PGP in Marketing (AI Led) by Kraftshala School of Business (formerly Kraftshala)\". Lengths differ after normalize — expected 58, got 80.\n- JSON-LD matches fixture (deep diff): 3 difference(s) across 3 block(s). Found 1 <script type=\"application/ld+json\"> tag(s); 1 parsed successfully. @types on page: (no @type).\n- Exactly one <h1> on the page: Found 2 h1 element(s). Expected exactly 1.\n- No hidden text via display:none (excluding intentional UI): 55 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 9 external link(s) missing rel=\"nofollow\".\n- FAQ ARIA attributes: FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.\n- Collapsed FAQ panels use crawlable hiding (max-height:0, not display:none): FAQ container not found with selector \".faq, [data-section='faq'], section.faq\". Update faqSelectors in fixture.",
           "screenshots": [
-            "screenshots/seo/13-SEO_Checklist_--_ALM_AI-Led_Marketing_--_Run_all_SEO_checks_for_ALM_AI-Led_Marketing_failed_.png"
+            "screenshots/seo/9-SEO_Checklist_--_ALM_AI-Led_Marketing_--_Run_all_SEO_checks_for_ALM_AI-Led_Marketing_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -4960,9 +5923,9 @@
                   "https://s3.ap-south-1.amazonaws.com/testconvexstorage.kraftshala.com/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/banner-upload/14i86y185cnmnfp18wv.webp",
                   "data:image/svg+xml;charset=utf-8,%3Csvg height='74' width='265' xmlns='http://www.w3.org/2000/svg' version='1.1'%3E%3C/svg%3E",
                   "https://d36rc1r950nl44.cloudfront.net/test/18d4a409-0f1b-479b-bad9-c100958b83c1/events/banner-upload/14i86y14uyxmmg69czm.webp",
-                  "https://bat.bing.com/action/0?ti=97047222&tm=gtm002&Ver=2&mid=cd28bbb9-d88a-4d7f-a52e-3f08339a72ae&bo=1&sid=cb855bc0ea0f11f194688f508c879d22&vid=cb856ad0ea0f11f18f0e9d1a05798594&vids=1&msclkid=N&gtm_tag_source=1&pi=918639831&lg=en-US&sw=1280&sh=1024&sc=24&nwd=1&tl=PGP%20in%20Marketing%20(AI%20Led)%20by%20Kraftshala%20School%20of%20Business%20(formerly%20Kraftshala)&p=https%3A%2F%2Ftestprogram.kraftshala.com%2Fpgp-in-marketing%2F&r=&lt=714&evt=pageLoad&ifm=1&sv=2&cdb=AQAQ&rn=717467",
-                  "https://t.co/1/i/adsct?bci=4&dv=UTC%26en-US%2Cc%26Google%20Inc.%26Linux%20x86_64%26255%261280%261024%264%2624%261280%261024%260%26na%261&eci=3&event=%7B%7D&event_id=52532068-3e70-4a02-842c-3871ff74831d&integration=gtm&p_id=Twitter&p_user_id=0&pl_id=0d5ccff6-980a-4788-b162-c69e91f3b0bc&tw_ch_fvl=Not)A%3BBrand%2F8.0.0.0%2CChromium%2F138.0.7204.251&tw_ch_pv=7.0.0&tw_document_href=https%3A%2F%2Ftestprogram.kraftshala.com%2F__%2F%23%2Fspecs%2Frunner%3Ffile%3Dcypress%2Fe2e%2Fseo%2FseoChecklist.cy.js&tw_engaged_ms=1&tw_iframe_status=1&tw_pid_src=1&tw_session_count=1&tw_session_id=1795748898455-901322938&tw_session_start=1&twpid=tw.1795748898455.895104522390077393&txn_id=octlb&type=javascript&version=2.4.12",
-                  "https://analytics.twitter.com/1/i/adsct?bci=4&dv=UTC%26en-US%2Cc%26Google%20Inc.%26Linux%20x86_64%26255%261280%261024%264%2624%261280%261024%260%26na%261&eci=3&event=%7B%7D&event_id=52532068-3e70-4a02-842c-3871ff74831d&integration=gtm&p_id=Twitter&p_user_id=0&pl_id=0d5ccff6-980a-4788-b162-c69e91f3b0bc&tw_ch_fvl=Not)A%3BBrand%2F8.0.0.0%2CChromium%2F138.0.7204.251&tw_ch_pv=7.0.0&tw_document_href=https%3A%2F%2Ftestprogram.kraftshala.com%2F__%2F%23%2Fspecs%2Frunner%3Ffile%3Dcypress%2Fe2e%2Fseo%2FseoChecklist.cy.js&tw_engaged_ms=1&tw_iframe_status=1&tw_pid_src=1&tw_session_count=1&tw_session_id=1795748898455-901322938&tw_session_start=1&twpid=tw.1795748898455.895104522390077393&txn_id=octlb&type=javascript&version=2.4.12"
+                  "https://bat.bing.com/action/0?ti=97047222&tm=gtm002&Ver=2&mid=33cc8614-e16d-47ed-9937-23aee102aa05&bo=1&sid=b6117d60ead811f1850bdfb277a489db&vid=b611b7f0ead811f1a6c4c5eb03ee1111&vids=1&msclkid=N&gtm_tag_source=1&pi=918639831&lg=en-US&sw=1280&sh=1024&sc=24&nwd=1&tl=PGP%20in%20Marketing%20(AI%20Led)%20by%20Kraftshala%20School%20of%20Business%20(formerly%20Kraftshala)&p=https%3A%2F%2Ftestprogram.kraftshala.com%2Fpgp-in-marketing%2F&r=&lt=1201&evt=pageLoad&ifm=1&sv=2&cdb=AQAQ&rn=290062",
+                  "https://t.co/1/i/adsct?bci=4&dv=UTC%26en-US%2Cc%26Google%20Inc.%26Linux%20x86_64%26255%261280%261024%264%2624%261280%261024%260%26na%261&eci=3&event=%7B%7D&event_id=af39689f-aad1-4343-8efc-5b76677ea46e&integration=gtm&p_id=Twitter&p_user_id=0&pl_id=94dc6085-0b5c-4708-ad8e-fc97835743ce&tw_ch_fvl=Not)A%3BBrand%2F8.0.0.0%2CChromium%2F138.0.7204.251&tw_ch_pv=7.0.0&tw_document_href=https%3A%2F%2Ftestprogram.kraftshala.com%2F__%2F%23%2Fspecs%2Frunner%3Ffile%3Dcypress%2Fe2e%2Fseo%2FseoChecklist.cy.js&tw_engaged_ms=1&tw_iframe_status=1&tw_pid_src=1&tw_session_count=1&tw_session_id=1795835191292-676284480&tw_session_start=1&twpid=tw.1795835191292.192211080560409007&txn_id=octlb&type=javascript&version=2.4.12",
+                  "https://analytics.twitter.com/1/i/adsct?bci=4&dv=UTC%26en-US%2Cc%26Google%20Inc.%26Linux%20x86_64%26255%261280%261024%264%2624%261280%261024%260%26na%261&eci=3&event=%7B%7D&event_id=af39689f-aad1-4343-8efc-5b76677ea46e&integration=gtm&p_id=Twitter&p_user_id=0&pl_id=94dc6085-0b5c-4708-ad8e-fc97835743ce&tw_ch_fvl=Not)A%3BBrand%2F8.0.0.0%2CChromium%2F138.0.7204.251&tw_ch_pv=7.0.0&tw_document_href=https%3A%2F%2Ftestprogram.kraftshala.com%2F__%2F%23%2Fspecs%2Frunner%3Ffile%3Dcypress%2Fe2e%2Fseo%2FseoChecklist.cy.js&tw_engaged_ms=1&tw_iframe_status=1&tw_pid_src=1&tw_session_count=1&tw_session_id=1795835191292-676284480&tw_session_start=1&twpid=tw.1795835191292.192211080560409007&txn_id=octlb&type=javascript&version=2.4.12"
                 ]
               },
               {
@@ -5191,10 +6154,10 @@
           "group": "SEO Checklist › PGP Sales & Marketing",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 9876,
+          "durationMs": 25037,
           "error": "Error: 5 SEO check(s) failed on /pgp/learn-sales-and-marketing/:\n- Robots meta tag (test expected): Robots content mismatch. Expected: \"noindex, nofollow, max-snippet:-1, max-image-preview:large, max-video-preview:-1\". Got: \"noindex, nofollow\".\n- Meta title matches expected: Title mismatch. Expected: \"Learn Sales & Marketing With Placements from ₹9- 22 LPA\". Got: \"Learn Sales & Marketing With Placements from ₹9- 22 LPA - Kraftshala\". Lengths differ after normalize — expected 55, got 68.\n- JSON-LD matches fixture (deep diff): 1 difference(s) across 1 block(s). Found 2 <script type=\"application/ld+json\"> tag(s); 2 parsed successfully. @types on page: (no @type), Course.\n- No hidden text via display:none (excluding intentional UI): 51 element(s) with display:none containing text. Add their class names to hiddenElementSkipClasses if intentional.\n- External links must be nofollow: 68 external link(s) missing rel=\"nofollow\".",
           "screenshots": [
-            "screenshots/seo/14-SEO_Checklist_--_PGP_Sales_Marketing_--_Run_all_SEO_checks_for_PGP_Sales_Marketing_failed_.png"
+            "screenshots/seo/10-SEO_Checklist_--_PGP_Sales_Marketing_--_Run_all_SEO_checks_for_PGP_Sales_Marketing_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -5604,7 +6567,7 @@
                 "section": "body",
                 "name": "Image / canvas text (warning — manual verification needed)",
                 "status": "warning",
-                "details": "198 <img> tag(s) without alt text.",
+                "details": "200 <img> tag(s) without alt text.",
                 "images": [
                   "https://d36rc1r950nl44.cloudfront.net/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/banner-upload/14i86y185cnmnfp3b78.webp",
                   "https://d36rc1r950nl44.cloudfront.net/test/d36338cc-5a66-4f12-9d8c-33140ea696af/events/banner-upload/14i86y185cnmnfp02nd.webp",
@@ -5648,7 +6611,7 @@
                   {
                     "tag": "div",
                     "className": "wrapper-check pc-none",
-                    "preview": "Get screening test details on <img data-gatsby-image-ssr=\"\" data-main-image=\"\" s"
+                    "preview": "Get screening test details on"
                   },
                   {
                     "tag": "div",
@@ -5927,10 +6890,10 @@
           "group": "SEO Checklist › Blog",
           "spec": "cypress/e2e/seo/seoChecklist.cy.js",
           "state": "failed",
-          "durationMs": 121820,
+          "durationMs": 121824,
           "error": "CypressError: Timed out after waiting `120000ms` for your remote page to load.\n\nYour page did not fire its `load` event within `120000ms`.\n\nYou can try increasing the `pageLoadTimeout` value in `home/runner/work/MLP-automation/MLP-automation/cypress.config.js` to wait longer.\n\nBrowsers will not fire the `load` event until all stylesheets and scripts are done downloading.\n\nWhen this `load` event occurs, Cypress will continue running commands.",
           "screenshots": [
-            "screenshots/seo/15-SEO_Checklist_--_Blog_--_Run_all_SEO_checks_for_Blog_failed_.png"
+            "screenshots/seo/11-SEO_Checklist_--_Blog_--_Run_all_SEO_checks_for_Blog_failed_.png"
           ],
           "detail": {
             "kind": "seo",
@@ -6024,11 +6987,11 @@
     {
       "id": "links",
       "name": "Broken link checker",
-      "durationMs": 141064,
+      "durationMs": 244155,
       "totals": {
         "tests": 13,
-        "passed": 11,
-        "failed": 2,
+        "passed": 12,
+        "failed": 1,
         "skipped": 0
       },
       "tests": [
@@ -6037,7 +7000,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 11161,
+          "durationMs": 12817,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6070,7 +7033,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 754,
+          "durationMs": 896,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6103,10 +7066,10 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "failed",
-          "durationMs": 86087,
-          "error": "AssertionError: broken links on Blog: expected [ Array(25) ] to deeply equal []",
+          "durationMs": 190480,
+          "error": "AssertionError: broken links on Blog: expected [ Array(71) ] to deeply equal []",
           "screenshots": [
-            "screenshots/links/16-Broken_Link_Checker_--_Check_Blog_failed_.png"
+            "screenshots/links/12-Broken_Link_Checker_--_Check_Blog_failed_.png"
           ],
           "detail": {
             "kind": "links",
@@ -6122,15 +7085,96 @@
               "link": 4,
               "script": 6,
               "media": 0,
-              "working": 600,
+              "working": 554,
               "redirect": 1,
               "forbidden": 1,
               "broken": 0,
               "server_error": 0,
-              "unreachable": 25,
+              "unreachable": 71,
               "unknown": 0
             },
             "broken": [
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/04/26086_2-copy-2-1-1.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/04/26086_2-copy-2-1-1.png",
+                "text": "10 Best Offline Digital Marketing Courses in India (2026)",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Thrissur_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Thrissur_3.jpg",
+                "text": "10 Best Digital Marketing Courses in Thrissur in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Ahmedabad_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Ahmedabad_3.jpg",
+                "text": "10 Best Digital Marketing Courses in Ahmedabad in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/Untitled-design.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/Untitled-design.jpg",
+                "text": "9 Best Digital Marketing Courses in Bangalore in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Lucknow_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Lucknow_3.jpg",
+                "text": "Best Digital Marketing Courses in Lucknow in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Indore_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Indore_3.jpg",
+                "text": "8 Best Digital Marketing Courses in Indore in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_3_2-copy-2-1.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_3_2-copy-2-1.png",
+                "text": "Best Digital Marketing Courses in Rajkot in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/07/26086_3_2-copy-2.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/07/26086_3_2-copy-2.png",
+                "text": "Best Digital Marketing Courses in Gwalior in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_4_2-copy-2.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_4_2-copy-2.png",
+                "text": "Best Digital Marketing Courses in Bhubaneswar in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
               {
                 "type": "img",
                 "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759_Ranchi_3.jpg",
@@ -6181,6 +7225,339 @@
                 "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Dehradun_3.jpg",
                 "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Dehradun_3.jpg",
                 "text": "Best Digital Marketing Courses in Dehradun in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Kanpur_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Kanpur_3.jpg",
+                "text": "10 Best Digital Marketing Courses in Kanpur in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/11/20759_Udaipur_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/11/20759_Udaipur_3.jpg",
+                "text": "10 Best Digital Marketing Courses in Udaipur in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Jabalpur_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Jabalpur_3.jpg",
+                "text": "Best Digital Marketing Courses in Jabalpur in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759_Bopal_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759_Bopal_3.jpg",
+                "text": "8 Best Digital Marketing Courses in Bhopal in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Dadar_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Dadar_3.jpg",
+                "text": "Best Digital Marketing Courses in Dadar in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26230_11_Copy_02.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26230_11_Copy_02.png",
+                "text": "Best Digital Marketing Courses in Varanasi in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Ghaziabad_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Ghaziabad_3.jpg",
+                "text": "Digital Marketing Courses in Ghaziabad : Best Courses and Career Opportunities in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Kochi_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Kochi_3.jpg",
+                "text": "9 Best Digital Marketing Courses in Kochi in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_5_2-copy-2.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_5_2-copy-2.png",
+                "text": "10 Best Digital Marketing Courses in Faridabad in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_2-copy-2-2.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/26086_2-copy-2-2.png",
+                "text": "9 Best Digital Marketing Courses in Mumbai in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Surat_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Surat_3.jpg",
+                "text": "10 Best Digital Marketing Courses in Surat in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/20759_5_7.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/01/20759_5_7.jpg",
+                "text": "Best Digital Marketing Courses after 12th in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/07/26230_14_Copy_02.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/07/26230_14_Copy_02.png",
+                "text": "10 Best Digital Marketing Courses in Kolkata in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-13_2.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-13_2.jpg",
+                "text": "10 Best Digital Marketing Courses in Hyderabad in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Kozhikode_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Kozhikode_3.jpg",
+                "text": "Best Digital Marketing Courses in Calicut in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Andheri_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Andheri_3.jpg",
+                "text": "5 Best Digital Marketing Courses in Andheri in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Chennai_3-1.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Chennai_3-1.jpg",
+                "text": "10 Best Digital Marketing Courses in Chennai in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Pitampura_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759-Pitampura_3.jpg",
+                "text": "Best Digital Marketing Courses in Pitampura in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Jaipur_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Jaipur_3.jpg",
+                "text": "10 Best Digital Marketing Courses in Jaipur in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Nagpur_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Nagpur_3.jpg",
+                "text": "Best Digital Marketing Courses in Nagpur in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Thane_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Thane_3.jpg",
+                "text": "Best Digital Marketing Courses in Thane – 2026 Guide",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Noida_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/09/20759-Noida_3.jpg",
+                "text": "9 Best Digital Marketing Courses in Noida in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/08/ChatGPT-Image-Aug-27-2026-10_25_25-AM.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/08/ChatGPT-Image-Aug-27-2026-10_25_25-AM.webp",
+                "text": "What Does a Day in B2B Sales Actually Look Like?",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/08/ChatGPT-Image-Aug-27-2026-10_04_21-AM.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/08/ChatGPT-Image-Aug-27-2026-10_04_21-AM.jpg",
+                "text": "Performance Marketing vs Brand Marketing: Which Pays More, And When?",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759_Coimbatore_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/10/20759_Coimbatore_3.jpg",
+                "text": "Best Digital Marketing Courses in Coimbatore in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/08/dipak_panse_1535x1024.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/08/dipak_panse_1535x1024.webp",
+                "text": "How Deepak Panse Switched From a Qatar Job to Amazon Ads at LS Digital",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/07/20759-8_2.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/07/20759-8_2.jpg",
+                "text": "Top 9 Benefits of Social Media Marketing in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/25585_3_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/06/25585_3_3.jpg",
+                "text": "Best Courses After B.Tech With High Paying Jobs in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/05/ChatGPT-Image-May-21-2026-08_50_19-AM.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/05/ChatGPT-Image-May-21-2026-08_50_19-AM.webp",
+                "text": "Can I Earn ₹1 Lakh Per Month in Digital Marketing in India?",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/05/ChatGPT-Image-May-21-2026-08_29_54-AM.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/05/ChatGPT-Image-May-21-2026-08_29_54-AM.webp",
+                "text": "Are Free Digital Marketing Courses Enough to Get a Job in India?",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/05/ChatGPT-Image-May-21-2026-08_24_52-AM.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2026/05/ChatGPT-Image-May-21-2026-08_24_52-AM.webp",
+                "text": "What Does a Performance Marketing Manager Do and How Much Do They Earn in India?",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2023/09/Amazon-Interviews-1.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2023/09/Amazon-Interviews-1.webp",
+                "text": "14 Amazon Interview Questions on Leadership Principles To Prepare in 2026",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/04/Gemini_Generated_Image_5m2bxo5m2bxo5m2b.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/04/Gemini_Generated_Image_5m2bxo5m2bxo5m2b.jpg",
+                "text": "10 Best Job Portals in India 2026 – Updated",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/04/20759_22_3.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2024/04/20759_22_3.jpg",
+                "text": "8 Free Digital Marketing Tools For Beginners to Learn",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2023/09/PS1.jpg",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2023/09/PS1.jpg",
+                "text": "How to Crack Any Interview: Master Personal Storytelling for Success",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/07/26086_2-copy-2-5.png",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2025/07/26086_2-copy-2-5.png",
+                "text": "How to Explain a Career Gap in Interviews? What Hiring Managers Like to Hear",
+                "status": 0,
+                "klass": "unreachable",
+                "error": "timeout"
+              },
+              {
+                "type": "img",
+                "url": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2023/10/13771-03.webp",
+                "raw": "https://wordpress-989181-3828173.cloudwaysapps.com/wp-content/uploads/2023/10/13771-03.webp",
+                "text": "What Do You Learn in Social Media Marketing? (Includes Syllabus)",
                 "status": 0,
                 "klass": "unreachable",
                 "error": "timeout"
@@ -6364,7 +7741,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 5026,
+          "durationMs": 4970,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6382,8 +7759,8 @@
               "script": 6,
               "media": 0,
               "working": 255,
-              "redirect": 7,
-              "forbidden": 19,
+              "redirect": 6,
+              "forbidden": 20,
               "broken": 0,
               "server_error": 0,
               "unreachable": 0,
@@ -6397,7 +7774,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 1979,
+          "durationMs": 3336,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6429,12 +7806,10 @@
           "title": "Check MLP Digital Marketing in Hindi",
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
-          "state": "failed",
-          "durationMs": 20296,
-          "error": "AssertionError: broken links on MLP Digital Marketing in Hindi: expected [ Array(1) ] to deeply equal []",
-          "screenshots": [
-            "screenshots/links/17-Broken_Link_Checker_--_Check_MLP_Digital_Marketing_in_Hindi_failed_.png"
-          ],
+          "state": "passed",
+          "durationMs": 11314,
+          "error": null,
+          "screenshots": [],
           "detail": {
             "kind": "links",
             "id": "mlp-hindi",
@@ -6449,25 +7824,15 @@
               "link": 4,
               "script": 6,
               "media": 0,
-              "working": 218,
+              "working": 219,
               "redirect": 3,
               "forbidden": 6,
               "broken": 0,
               "server_error": 0,
-              "unreachable": 1,
+              "unreachable": 0,
               "unknown": 0
             },
-            "broken": [
-              {
-                "type": "a",
-                "url": "https://www.passionateinmarketing.com/kraftshala-launches-bilingual-digital-marketing-course-to-open-job-market-for-heartland-talent-2/",
-                "raw": "https://www.passionateinmarketing.com/kraftshala-launches-bilingual-digital-marketing-course-to-open-job-market-for-heartland-talent-2/",
-                "text": "<picture><source type=\"image/webp\" srcSet=\"/static/b752e57743177f2b429ab393d9f0acd7/2d797/14i86y1t7m",
-                "status": 0,
-                "klass": "unreachable",
-                "error": "timeout"
-              }
-            ]
+            "broken": []
           }
         },
         {
@@ -6475,7 +7840,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 2639,
+          "durationMs": 2814,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6508,7 +7873,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 2592,
+          "durationMs": 2616,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6541,7 +7906,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 810,
+          "durationMs": 1182,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6574,7 +7939,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 2394,
+          "durationMs": 2038,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6607,7 +7972,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 1535,
+          "durationMs": 4978,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6640,7 +8005,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 2400,
+          "durationMs": 3261,
           "error": null,
           "screenshots": [],
           "detail": {
@@ -6673,7 +8038,7 @@
           "group": "Broken Link Checker",
           "spec": "cypress/e2e/links/brokenLinkChecker.cy.js",
           "state": "passed",
-          "durationMs": 3218,
+          "durationMs": 3322,
           "error": null,
           "screenshots": [],
           "detail": {
